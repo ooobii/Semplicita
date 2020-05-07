@@ -62,5 +62,15 @@ namespace Semplicita.Models
         public static ApplicationDbContext Create() {
             return new ApplicationDbContext();
         }
+
+        public DbSet<Project> Projects { get; set; }
+        public DbSet<Ticket> Tickets { get; set; }
+        public DbSet<TicketAttachment> TicketAttachments { get; set; }
+        public DbSet<TicketComment> TicketComments { get; set; }
+        public DbSet<TicketHistoryEntry> TicketHistoryEntries { get; set; }
+        public DbSet<TicketNotification> TicketNotifications { get; set; }
+        public DbSet<TicketPriority> TicketPriorityTypes { get; set; }
+        public DbSet<TicketStatus> TicketStatusTypes { get; set; }
+        public DbSet<TicketType> TicketTypes { get; set; }
     }
 }

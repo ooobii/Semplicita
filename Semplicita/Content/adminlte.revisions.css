@@ -1,0 +1,41 @@
+﻿/*Login & Registraion pages*/
+.login-page {
+    background-color: #211D28;
+}
+
+.login-logo {
+    padding-bottom:15px;
+}
+    .login-logo a {
+        color:white;
+        font-size:60px;
+    }
+
+.login-card-body, .register-card-body {
+    background:#F0F0F0
+}
+
+
+/*NavBar Elements*/
+.user-panel .image {
+    margin-top:.3rem;
+    vertical-align:middle;
+    padding-right:.8rem;
+}
+
+
+/*Body Display elements*/
+.content-wrapper {
+    background-color: #2b2b2b;
+    color:white;
+}
+.content-wrapper .jumbotron {
+    background-color: #393144
+}
+
+
+/*Footer*/
+.main-footer {
+    color: black;
+    background-color: #B2B0B7;
+}
