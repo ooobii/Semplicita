@@ -1,9 +1,12 @@
-﻿@using Semplicita.Models
+﻿@{ Layout = null; }
+
+@using Semplicita.Models
 @model LoginViewModel
+
 @{
-    Layout = null;
     ViewBag.Title = "Log in - Simplicita";
 }
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -25,6 +28,7 @@
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 </head>
+
 <body class="hold-transition login-page">
     <div class="login-box">
         <div class="login-logo">
@@ -33,12 +37,15 @@
         </div>
         <!-- /.login-logo -->
         <div class="card">
+
             <div class="card-body login-card-body">
                 <p class="login-box-msg">Please enter your Simplicita credentials to continue.</p>
-                <p class="login-box-msg text-danger text-sm">@Html.ValidationMessage("")</p>
 
-                @using( Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }) ) {
+
+                @using( Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }) ) 
+                {
                     @Html.AntiForgeryToken()
+                    <p class="login-box-msg text-danger text-sm">@Html.ValidationMessage("")</p>
                     <div class="input-group mb-3">
                         <input type="email" class="form-control" placeholder="Email" name="Email">
                         <div class="input-group-append">
@@ -72,6 +79,8 @@
                     </div>
                 }
 
+
+
                 <div class="social-auth-links text-center mb-3">
                     <p>- OR -</p>
                     <a href="#" class="btn btn-block btn-outline btn-primary">
@@ -90,7 +99,7 @@
                     <a href="forgot-password.html">I forgot my password</a>
                 </p>
                 <p class="mb-0">
-                    <a href="register.html" class="text-center">Register a new membership</a>
+                    <a href="@Html.Action("Account", "Register")" class="text-center">Register a new membership</a>
                 </p>
             </div>
             <!-- /.login-card-body -->
@@ -105,4 +114,5 @@
     <script src="~/Scripts/adminlte.min.js"></script>
 
 </body>
+
 </html>
