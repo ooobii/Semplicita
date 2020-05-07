@@ -28,6 +28,6 @@ namespace Semplicita.Models
         public bool IsClosed { get; set; }
 
         //the issue was rejected by the assigned solver, and will not be looked into.
-        public bool IsCancled { get; set; }
+        public bool IsCanceled { get; set; }
     }
 }

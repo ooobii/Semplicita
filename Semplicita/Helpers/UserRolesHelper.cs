@@ -13,6 +13,9 @@ namespace Semplicita.Helpers
         private ApplicationDbContext db = new ApplicationDbContext();
         private UserManager<ApplicationUser> userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext()));
 
+        public ICollection<string> ListAllRoles() {
+            return db.Roles.Select(r => r.Name).ToList();
+        }
         public ICollection<string> ListUserRoles(string userId) {
             return userManager.GetRoles(userId);
         }

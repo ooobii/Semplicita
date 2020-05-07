@@ -1,0 +1,38 @@
+﻿@using Microsoft.AspNet.Identity
+@if( User.Identity.IsAuthenticated ) {
+    <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="true">
+            <li class="user-panel nav-item has-treeview">
+                <a class="nav-link">
+                    <i class="nav-icon fas fa-key"></i>
+                    <p>
+                        @User.Identity.GetUserName()
+                        <i class="right fas fa-angle-left"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        @using( Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }) ) {
+                        @Html.AntiForgeryToken()
+                        <a href="javascript:document.getElementById('logoutForm').submit()" class="nav-link">
+                            <i class="fas fa-sign-out-alt nav-icon"></i>
+                            <p>Logout</p>
+                        </a>
+                        }
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+} else {
+    <a href="@Url.Action("Login", "Account")" class="d-block">
+        <div class="user-panel mt-3 pb-3 mb-3 d-flex hide">
+            <div class="image">
+                <img class="fas fa-lock" />
+            </div>
+            <div class="info">
+                Click to Login
+            </div>
+        </div>
+    </a>
+}

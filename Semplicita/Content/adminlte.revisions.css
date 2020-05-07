@@ -2,6 +2,10 @@
 .login-page {
     background-color: #211D28;
 }
+.login-logo-image {
+    width: 58px;
+    vertical-align: middle;
+}
 
 .login-logo {
     padding-bottom:15px;
@@ -9,6 +13,7 @@
     .login-logo a {
         color:white;
         font-size:60px;
+        vertical-align: middle;
     }
 
 .login-card-body, .register-card-body {
@@ -16,25 +21,74 @@
 }
 
 
-/*NavBar Elements*/
+/*Side NavBar Elements*/
 .user-panel .image {
     margin-top:.3rem;
-    vertical-align:middle;
-    padding-right:.8rem;
+    vertical-align: middle;
+    padding-right: .8rem;
+}
+.brand-link .brand-image {
+    margin-left: 0;
+}
+.brand-image {
+    box-shadow: none !important;
+    height: 100%;
+    width: 100%;
+
+    filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.27));
+}
+.brand-text {
+    font-size: 1.38rem;
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.19);
+    color: rebeccapurple;
+    font-weight: bolder;
+}
+.brand-tagline {
+    font-size: .8rem;
+    font-style: italic;
+    text-shadow: none !important;
+    font-weight: lighter;
+    float: right;
+    margin-top: .58rem;
+}
+.main-sidebar, .main-sidebar::before {
+    width: 287px;
+}
+body:not(.sidebar-mini-md) .content-wrapper, body:not(.sidebar-mini-md) .main-footer, body:not(.sidebar-mini-md) .main-header {
+    margin-left: 287px;
+}
+.sidebar-collapse .main-sidebar, .sidebar-collapse .main-sidebar::before {
+    margin-left: -287px;
+}
+@media (max-width: 767.98px) {
+    .main-sidebar, .main-sidebar::before {
+        box-shadow: none !important;
+        margin-left: -287px;
+    }
+
+    .sidebar-open .main-sidebar, .sidebar-open .main-sidebar::before {
+        margin-left: 0;
+    }
+}
+.control-sidebar, .control-sidebar::before {
+    bottom: calc(3.5rem + 1px);
+    display: none;
+    right: -287px;
+    width: 287px;
+    transition: right 0.3s ease-in-out, display 0.3s ease-in-out;
 }
 
 
 /*Body Display elements*/
 .content-wrapper {
     background-color: #2b2b2b;
-    color:white;
+    color: white;
 }
 .content-wrapper .jumbotron {
     background-color: #393144
 }
 
-
-/*Footer*/
+ /*Footer*/
 .main-footer {
     color: black;
     background-color: #B2B0B7;
