@@ -1,5 +1,5 @@
-﻿<li class="nav-item has-treeview ">
-    <a href="#" class="nav-link">
+﻿<li class="nav-item has-treeview " id="navAdminFolder">
+    <a href="#" class="nav-link" id="navAdmin">
         <i class="nav-icon fas fa-tachometer-alt"></i>
         <p>
             Server Administration
@@ -7,26 +7,43 @@
         </p>
     </a>
     <ul class="nav nav-treeview">
-        <li class="nav-item">
-            <a href="./index.html" class="nav-link">
-                <i class="fas fa-users-cog nav-icon"></i>
-                <p>Manage Users</p>
+        <li class="nav-item has-treeview " id="navAdminFolder">
+            <a href="#" class="nav-link" id="navAdmin">
+                <i class="nav-icon fas fa-users-cog"></i>
+                <p>
+                    Users
+                    <i class="right fas fa-angle-left"></i>
+                </p>
             </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="./index2.html" class="nav-link" id="navAdmin_Roles">
+                        <i class="fas fa-user nav-icon"></i>
+                        <p>Manage Users</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("Projects", "Admin")" class="nav-link" id="navAdmin_Projects">
+                        <i class="fas fa-users nav-icon"></i>
+                        <p>Manage Roles</p>
+                    </a>
+                </li>
+            </ul>
         </li>
         <li class="nav-item">
-            <a href="./index2.html" class="nav-link">
+            <a href="./index2.html" class="nav-link" id="navAdmin_Roles">
                 <i class="far fa-object-group nav-icon"></i>
                 <p>Manage Roles</p>
             </a>
         </li>
         <li class="nav-item">
-            <a href="./index3.html" class="nav-link">
+            <a href="@Url.Action("Projects", "Admin")" class="nav-link" id="navAdmin_Projects">
                 <i class="fas fa-project-diagram nav-icon"></i>
                 <p>Manage Projects</p>
             </a>
         </li>
         <li class="nav-item">
-            <a href="./index3.html" class="nav-link">
+            <a href="./index3.html" class="nav-link" id="navAdmin_Tickets">
                 <i class="fas fa-ticket-alt nav-icon"></i>
                 <p>Manage Tickets</p>
             </a>

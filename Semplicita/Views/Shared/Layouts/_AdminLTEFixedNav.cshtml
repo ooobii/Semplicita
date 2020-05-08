@@ -18,8 +18,8 @@
     <!-- JQVMap -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqvmap/1.5.1/jqvmap.min.css">
     <!-- Theme style -->
-    <link rel="stylesheet" href="~/Content/adminlte.min.css">
-    <link rel="stylesheet" href="~/Content/adminlte.revisions.min.css">
+    <link rel="stylesheet" href="~/Content/adminlte/adminlte.min.css">
+    <link rel="stylesheet" href="~/Content/adminlte/adminlte.revisions.min.css">
     <!-- overlayScrollbars -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.12.0/css/OverlayScrollbars.min.css">
     <!-- Daterange picker -->
@@ -109,8 +109,8 @@
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="true">
-                        <li class="nav-item has-treeview menu-open">
-                            <a href="#" class="nav-link active">
+                        <li class="nav-item has-treeview" id="navHomeFolder">
+                            <a href="#" class="nav-link" id="navHome">
                                 <i class="nav-icon fas fa-home"></i>
                                 <p>
                                     Home
@@ -119,7 +119,7 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="./index.html" class="nav-link active">
+                                    <a href="@Url.Action("Index", "Home")" class="nav-link active" id="navHome_Welcome">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Welcome to Semplicita!</p>
                                     </a>
@@ -195,12 +195,13 @@
     <!-- overlayScrollbars -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.12.0/js/OverlayScrollbars.min.js"></script>
     <!-- AdminLTE App -->
-    <script src="~/Scripts/adminlte.min.js"></script>
+    <script src="~/Scripts/adminlte/adminlte.min.js">
+    </script>
+    <script src="dist/js/demo.js"></script>
+    <script src = "dist/js/pages/dashboard.js" ></script>
     @*
         <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-        <script src="dist/js/pages/dashboard.js"></script>
         <!-- AdminLTE for demo purposes -->
-        <script src="dist/js/demo.js"></script>
     *@
     @RenderSection("Scripts", required: false)
 

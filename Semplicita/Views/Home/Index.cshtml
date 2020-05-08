@@ -19,10 +19,14 @@
             </div>
             <div class="card-body">
                 <p></p>
-                <p><a class="btn btn-primary" href="https://go.microsoft.com/fwlink/?LinkId=301865">Create Ticket &raquo;</a></p>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-primary btn-block" href="https://go.microsoft.com/fwlink/?LinkId=301865">Create Ticket &raquo;</a>
             </div>
         </div>
     </div>
+
+@if( User.IsInRole("ProjectAdmin") || User.IsInRole("ServerAdmin") ) {
     <div class="col-md-4">
         <div class="card">
             <div class="card-header">
@@ -30,10 +34,15 @@
             </div>
             <div class="card-body">
                 <p></p>
-                <p><a class="btn btn-primary" href="https://go.microsoft.com/fwlink/?LinkId=301866">Manage Projects &raquo;</a></p>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-primary btn-block" href="@Url.Action("Index", "Projects")">Manage Projects &raquo;</a>
             </div>
         </div>
     </div>
+}
+
+@if( User.IsInRole("ServerAdmin") ) {
     <div class="col-md-4">
         <div class="card">
             <div class="card-header">
@@ -41,9 +50,36 @@
             </div>
             <div class="card-body">
                 <p></p>
-                <p><a class="btn btn-primary" href="https://go.microsoft.com/fwlink/?LinkId=301866">Tickets Dashboard &raquo;</a></p>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-primary btn-block" href="https://go.microsoft.com/fwlink/?LinkId=301866">Tickets Dashboard &raquo;</a>
             </div>
         </div>
     </div>
+}
 
 </div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>View Tickets</h4>
+            </div>
+            <div class="card-body">
+                <p></p>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-primary btn-block" href="https://go.microsoft.com/fwlink/?LinkId=301865">View Tickets &raquo;</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $("#navHomeFolder").addClass("menu-open");
+        $("#navHome").addClass("active");
+
+        $("#navHome_Welcome").addClass("active");
+    </script>    
+}

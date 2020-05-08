@@ -51,32 +51,6 @@
     float: right;
     margin-top: .58rem;
 }
-.main-sidebar, .main-sidebar::before {
-    width: 287px;
-}
-body:not(.sidebar-mini-md) .content-wrapper, body:not(.sidebar-mini-md) .main-footer, body:not(.sidebar-mini-md) .main-header {
-    margin-left: 287px;
-}
-.sidebar-collapse .main-sidebar, .sidebar-collapse .main-sidebar::before {
-    margin-left: -287px;
-}
-@media (max-width: 767.98px) {
-    .main-sidebar, .main-sidebar::before {
-        box-shadow: none !important;
-        margin-left: -287px;
-    }
-
-    .sidebar-open .main-sidebar, .sidebar-open .main-sidebar::before {
-        margin-left: 0;
-    }
-}
-.control-sidebar, .control-sidebar::before {
-    bottom: calc(3.5rem + 1px);
-    display: none;
-    right: -287px;
-    width: 287px;
-    transition: right 0.3s ease-in-out, display 0.3s ease-in-out;
-}
 
 
 /*Body Display elements*/

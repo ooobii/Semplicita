@@ -37,6 +37,7 @@
 
                 @using( Html.BeginForm("Register", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }) ) {
                     @Html.AntiForgeryToken()
+                    <p class="login-box-msg text-danger text-sm">@Html.ValidationMessage("")</p>
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" placeholder="First name" name="FirstName">
                         <div class="input-group-append">
@@ -79,12 +80,6 @@
                     </div>
                     <div class="row">
                         <div class="col-8">
-                            <div class="icheck-primary">
-                                <input type="checkbox" id="AcceptedTerms" name="AcceptedTerms" value="false">
-                                <label for="agreeTerms">
-                                    I agree to the <a href="#">terms</a>
-                                </label>
-                            </div>
                         </div>
                         <!-- /.col -->
                         <div class="col-4">

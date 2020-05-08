@@ -379,6 +379,10 @@
           } else {
             $(Selector.CONTENT).css('min-height', max + offset - heights.header);
           }
+
+          if (this._isFooterFixed()) {
+            $(Selector.CONTENT).css('min-height', parseFloat($(Selector.CONTENT).css('min-height')) + heights.footer);
+          }
         }
 
         if ($('body').hasClass(ClassName.LAYOUT_FIXED)) {
@@ -438,7 +442,9 @@
         $(window).resize(function () {
           _this.fixLayoutHeight();
         });
-        $('body.hold-transition').removeClass('hold-transition');
+        setTimeout(function () {
+          $('body.hold-transition').removeClass('hold-transition');
+        }, 50);
       };
 
       _proto._max = function _max(numbers) {
@@ -450,6 +456,10 @@
           }
         });
         return max;
+      };
+
+      _proto._isFooterFixed = function _isFooterFixed() {
+        return $('.main-footer').css('position') === 'fixed';
       } // Static
       ;
 
