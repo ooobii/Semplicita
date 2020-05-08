@@ -65,6 +65,21 @@ namespace Semplicita.Models
     public class RegisterViewModel
     {
         [Required]
+        [Display(Name = "First Name")]
+        [StringLength(18, ErrorMessage = "Your first name must be between 2 and 18 characters long.", MinimumLength = 2)]
+        public string FirstName { get; set; }
+
+
+        [Required]
+        [Display(Name = "Last Name")]
+        [StringLength(18, ErrorMessage = "Your last name must be between 2 and 18 characters long.", MinimumLength = 2)]
+        public string LastName { get; set; }
+
+        [Required]
+        public bool AcceptedTerms { get; set; }
+
+
+        [Required]
         [EmailAddress]
         [Display(Name = "Email")]
         public string Email { get; set; }

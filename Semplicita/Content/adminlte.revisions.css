@@ -1,5 +1,5 @@
 ﻿/*Login & Registraion pages*/
-.login-page {
+.login-page, .register-page {
     background-color: #211D28;
 }
 .login-logo-image {
@@ -81,10 +81,10 @@ body:not(.sidebar-mini-md) .content-wrapper, body:not(.sidebar-mini-md) .main-fo
 
 /*Body Display elements*/
 .content-wrapper {
-    background-color: #2b2b2b;
-    color: white;
+    color: black;
 }
 .content-wrapper .jumbotron {
+    color: white;
     background-color: #393144
 }
 
