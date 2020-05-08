@@ -26,37 +26,37 @@
         </div>
     </div>
 
-@if( User.IsInRole("ProjectAdmin") || User.IsInRole("ServerAdmin") ) {
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h4>Tickets & Projects</h4>
-            </div>
-            <div class="card-body">
-                <p></p>
-            </div>
-            <div class="card-footer">
-                <a class="btn btn-primary btn-block" href="@Url.Action("Index", "Projects")">Manage Projects &raquo;</a>
+    @if( User.IsInRole("ProjectAdmin") || User.IsInRole("ServerAdmin") ) {
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Tickets & Projects</h4>
+                </div>
+                <div class="card-body">
+                    <p></p>
+                </div>
+                <div class="card-footer">
+                    <a class="btn btn-primary btn-block" href="@Url.Action("Index", "Projects")">Manage Projects &raquo;</a>
+                </div>
             </div>
         </div>
-    </div>
-}
+    }
 
-@if( User.IsInRole("ServerAdmin") ) {
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h4>Manage Server</h4>
-            </div>
-            <div class="card-body">
-                <p></p>
-            </div>
-            <div class="card-footer">
-                <a class="btn btn-primary btn-block" href="https://go.microsoft.com/fwlink/?LinkId=301866">Tickets Dashboard &raquo;</a>
+    @if( User.IsInRole("ServerAdmin") ) {
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Manage Server</h4>
+                </div>
+                <div class="card-body">
+                    <p></p>
+                </div>
+                <div class="card-footer">
+                    <a class="btn btn-primary btn-block" href="https://go.microsoft.com/fwlink/?LinkId=301866">Tickets Dashboard &raquo;</a>
+                </div>
             </div>
         </div>
-    </div>
-}
+    }
 
 </div>
 <div class="row">
@@ -78,8 +78,8 @@
 @section Scripts {
     <script>
         $("#navHomeFolder").addClass("menu-open");
-        $("#navHome").addClass("active");
 
+        $("#navHomeFolder").addClass("active");
         $("#navHome_Welcome").addClass("active");
-    </script>    
+    </script>
 }

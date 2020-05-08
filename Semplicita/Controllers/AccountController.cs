@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.UI.WebControls;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
@@ -407,6 +408,16 @@ namespace Semplicita.Controllers
         {
             return View();
         }
+
+
+        #region info fetching
+        public ActionResult GetFullNameStandard() {
+            var userid = User.Identity.GetUserId();
+            var user = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>().FindById(userid);
+            return Content(user.FullNameStandard);
+        }
+        #endregion
+
 
         protected override void Dispose(bool disposing)
         {

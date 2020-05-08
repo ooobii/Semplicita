@@ -34,5 +34,11 @@
     "inputFiles": [
       "Content/adminlte.revisions.css"
     ]
+  },
+  {
+    "outputFileName": "Content/adminlte/adminlte.revisions.min.css",
+    "inputFiles": [
+      "Content/adminlte/adminlte.revisions.css"
+    ]
   }
 ]

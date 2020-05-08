@@ -109,26 +109,13 @@
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="true">
-                        <li class="nav-item has-treeview" id="navHomeFolder">
-                            <a href="#" class="nav-link" id="navHome">
-                                <i class="nav-icon fas fa-home"></i>
-                                <p>
-                                    Home
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="@Url.Action("Index", "Home")" class="nav-link active" id="navHome_Welcome">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Welcome to Semplicita!</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        @if( User.IsInRole("ServerAdmin") ) {
-                            @Html.Partial("_ServerAdministrationNavSection")
-                        }
+                        @Html.Partial("_HomeNavSection")
+
+                        @*@Html.Partial("_TicketsNavSection")
+                        @Html.Partial("_ProjectsNavSection")
+                        @Html.Partial("_ProjectsNavSection")*@
+
+                        @Html.Partial("_ServerAdministrationNavSection")
                     </ul>
                 </nav>
                 <!-- /.sidebar-menu -->
@@ -139,7 +126,7 @@
 
         <!-- Primary Body Content-->
         <div class="content-wrapper">
-            <div class="container-fluid container-lg">
+            <div class="container-fluid">
                 @RenderBody()
             </div>
         </div>

@@ -22,6 +22,9 @@
 
 
 /*Side NavBar Elements*/
+.sidebar {
+    overflow: visible;
+}
 .user-panel .image {
     margin-top:.3rem;
     vertical-align: middle;
@@ -55,11 +58,16 @@
 
 /*Body Display elements*/
 .content-wrapper {
+    padding-top: 10px;
     color: black;
 }
-.content-wrapper .jumbotron {
-    color: white;
-    background-color: #393144
+    .content-wrapper .jumbotron {
+        color: white;
+        background-color: #393144
+    }
+.container-fluid {
+    padding-left: 4rem;
+    padding-right: 4rem;
 }
 
  /*Footer*/

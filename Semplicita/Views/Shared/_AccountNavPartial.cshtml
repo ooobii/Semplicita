@@ -2,23 +2,30 @@
 @if( User.Identity.IsAuthenticated ) {
     <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-            <li class="user-panel nav-item has-treeview">
+            <li class="user-panel nav-item has-treeview" id="navAccFolder">
                 <a class="nav-link">
                     <i class="nav-icon fas fa-key"></i>
                     <p>
-                        @User.Identity.GetUserName()
-                        <i class="right fas fa-angle-left"></i>
+                        @Html.Action("GetFullNameStandard", "Account")
                     </p>
+                    <i class="right fas fa-angle-left"></i>
                 </a>
-                <ul class="nav nav-treeview">
+                <ul class="nav nav-treeview menu-open">
+
                     <li class="nav-item">
                         @using( Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }) ) {
-                        @Html.AntiForgeryToken()
-                        <a href="javascript:document.getElementById('logoutForm').submit()" class="nav-link">
-                            <i class="fas fa-sign-out-alt nav-icon"></i>
-                            <p>Logout</p>
-                        </a>
+                            @Html.AntiForgeryToken()
+                            <a href="javascript:document.getElementById('logoutForm').submit()" class="nav-link" id="navAcc_Logout">
+                                <i class="nav-icon fas fa-sign-out-alt"></i>
+                                <p>Logout</p>
+                            </a>
                         }
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("Index", "Manage")" class="nav-link" id="navAcc_Manage">
+                            <i class="nav-icon fas fa-cog" style="color:black !important;"></i>
+                            <p style="color:black !important;">User Preferences</p>
+                        </a>
                     </li>
                 </ul>
             </li>
