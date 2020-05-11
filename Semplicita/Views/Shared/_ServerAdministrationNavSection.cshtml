@@ -19,7 +19,7 @@
                 </a>
                 <ul class="nav-treeview" data-widget="treeview" role="menu" data-accordion="false">
                     <li class="nav-item">
-                        <a href="./index2.html" class="nav-link" id="navAdmin_Roles">
+                        <a href="@Url.Action("Users", "Admin")" class="nav-link" id="navAdmin_Roles">
                             <i class="fas fa-user nav-icon"></i>
                             <p>Manage Users</p>
                         </a>
@@ -30,6 +30,7 @@
                             <p>Manage Roles</p>
                         </a>
                     </li>
+                    <li class="ui-menu-divider"><hr /></li>
                 </ul>
             </li>
             <li class="nav-item">
@@ -39,11 +40,14 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="./index3.html" class="nav-link" id="navAdmin_Tickets">
+                <a href="@Url.Action("Tickets", "Admin")" class="nav-link" id="navAdmin_Tickets">
                     <i class="fas fa-ticket-alt nav-icon"></i>
                     <p>Manage Tickets</p>
                 </a>
             </li>
+
+            <li class="ui-menu-divider"><hr /></li>
         </ul>
+
     </li>
 }

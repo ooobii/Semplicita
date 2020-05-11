@@ -464,6 +464,9 @@
     <Content Include="Views\Admin\Index.cshtml" />
     <Content Include="Views\Shared\_HomeNavSection.cshtml" />
     <Content Include="Views\Admin\AssignmentsRoles.cshtml" />
+    <Content Include="Views\Account\ConfirmationSent.cshtml" />
+    <Content Include="Views\Account\ResendConfirmationEmail.cshtml" />
+    <Content Include="Views\Account\ResendEmailConfirmation.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

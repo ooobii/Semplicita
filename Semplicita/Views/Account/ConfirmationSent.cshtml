@@ -1,0 +1,15 @@
+﻿@{
+    ViewBag.Title = "Registration Complete: Email Sent";
+}
+<div class="jumbotron">
+    <h1>Email Confirmation Sent!</h1>
+    @if( ViewBag.EmailSentTo != null ) {
+        <p class="lead">Please check the inbox of '@ViewBag.EmailSentTo' for a link.</p>
+    } else {
+        <p class="lead">Please check the inbox of the email used to register.</p>
+    }
+
+</div>
+
+<p>The email containing your activation link has been sent. Your email must be confirmed before you're allowed to login. </p>
+<p>Please be sure to check your email's spam folders as well!</p>

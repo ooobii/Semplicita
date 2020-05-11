@@ -34,7 +34,7 @@
         <!-- /.login-logo -->
         <div class="card">
             <div class="card-body login-card-body">
-                <p class="login-box-msg">Please enter your Simplicita credentials to continue.</p>
+                <p class="login-box-msg">Please enter your credentials to continue.</p>
 
                 @using( Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }) ) {
                     @Html.AntiForgeryToken()
@@ -85,12 +85,15 @@
                     </a>
                 </div>
                 <!-- /.social-auth-links -->
-
+                <hr />
                 <p class="mb-1">
-                    <a href="forgot-password.html">I forgot my password</a>
+                    <a href="@Url.Action("ForgotPassword", "Account")">I forgot my password</a>
+                </p>
+                <p class="mb-1">
+                    <a href="@Url.Action("Register", "Account")" class="text-center">Register a new membership</a>
                 </p>
                 <p class="mb-0">
-                    <a href="@Url.Action("Register", "Account")" class="text-center">Register a new membership</a>
+                    <a href="@Url.Action("ResendEmailConfirmation", "Account")" class="text-center">Resend Confirmation Email</a>
                 </p>
             </div>
             <!-- /.login-card-body -->

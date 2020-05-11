@@ -1,8 +1,7 @@
-﻿@using Semplicita.Models
-@model ForgotPasswordViewModel
+﻿@model Semplicita.Models.ResetPasswordViewModel
 @{
     Layout = null;
-    ViewBag.Title = "Log in - Simplicita";
+    ViewBag.Title = "Resend Confirmation Email - Simplicita";
 }
 <!DOCTYPE html>
 <html>
@@ -28,28 +27,29 @@
 <body class="hold-transition login-page">
     <div class="login-box">
         <div class="login-logo">
-            <a href="../../index2.html"><b>Admin</b>LTE</a>
+            <img class="login-logo-image" src="~/Images/logos/simp_logo_sm.png" />
+            <a href=""><b>Simplicita</b></a>
         </div>
         <!-- /.login-logo -->
         <div class="card">
             <div class="card-body login-card-body">
                 <p class="login-box-msg">You forgot your password? Here you can easily retrieve a new password.</p>
 
-                @using( Html.BeginForm("ForgotPassword", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }) ) {
+                @using( Html.BeginForm("ResendEmailConfirmation", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }) ) {
                     @Html.AntiForgeryToken()
-                    <div class="input-group mb-3">
-                        <input type="email" class="form-control" placeholder="Email" name="Email">
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-envelope"></span>
-                            </div>
+                    <p>Please enter your email below, and we will resend the email to activate your account.</p>
+                    <hr />
+                    @Html.ValidationSummary("", new { @class = "text-danger" })
+                    <div class="input-group">
+                        @Html.LabelFor(m => m.Email, new { @class = "col-md-2 control-label" })
+                        <div class="col-md-10">
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-primary btn-block">Request new password</button>
+                    <div class="input-group">
+                        <div class="col-md-offset-2 col-md-10">
+                            <input type="submit" class="btn btn-primary" value="Send" />
                         </div>
-                        <!-- /.col -->
                     </div>
                 }
 
