@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace Semplicita.Models
+﻿namespace Semplicita.Models
 {
     public class TicketStatus
     {
@@ -11,10 +6,9 @@ namespace Semplicita.Models
         public string Name { get; set; }
         public int OrdinalWorkflowPosition { get; set; }
 
-
         //the issue has been started to be looked into by the assigned solver.
         public bool IsStarted { get; set; }
-        
+
         //the issue is currently being worked on by the assigned solver.
         public bool IsInProgress { get; set; }
 

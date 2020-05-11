@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Web;
 
 namespace Semplicita.Models
 {
@@ -16,15 +13,13 @@ namespace Semplicita.Models
 
         public bool IsActiveProject { get; set; }
 
-        public virtual ICollection<ApplicationUser> Members { get; set; }    
+        public virtual ICollection<ApplicationUser> Members { get; set; }
         public virtual ICollection<Ticket> ChildTickets { get; set; }
-
 
         public Project() {
             Members = new HashSet<ApplicationUser>();
 
             ChildTickets = new HashSet<Ticket>();
         }
-
     }
 }

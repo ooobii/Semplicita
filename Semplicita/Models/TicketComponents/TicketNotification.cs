@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace Semplicita.Models
 {
@@ -24,9 +21,5 @@ namespace Semplicita.Models
         public virtual Ticket Ticket { get; set; }
         public virtual ApplicationUser Sender { get; set; }
         public virtual ApplicationUser Recipient { get; set; }
-
-
-
-
     }
 }

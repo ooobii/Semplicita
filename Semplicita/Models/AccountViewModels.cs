@@ -31,6 +31,7 @@ namespace Semplicita.Models
         [Required]
         [Display(Name = "Code")]
         public string Code { get; set; }
+
         public string ReturnUrl { get; set; }
 
         [Display(Name = "Remember this browser?")]
@@ -69,7 +70,6 @@ namespace Semplicita.Models
         [StringLength(18, ErrorMessage = "Your first name must be between 2 and 18 characters long.", MinimumLength = 2)]
         public string FirstName { get; set; }
 
-
         [Required]
         [Display(Name = "Last Name")]
         [StringLength(18, ErrorMessage = "Your last name must be between 2 and 18 characters long.", MinimumLength = 2)]
@@ -77,7 +77,6 @@ namespace Semplicita.Models
 
         [Required]
         public bool AcceptedTerms { get; set; }
-
 
         [Required]
         [EmailAddress]

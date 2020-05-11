@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace Semplicita.Models
+﻿namespace Semplicita.Models
 {
     public class TicketAttachment
     {
@@ -12,14 +7,9 @@ namespace Semplicita.Models
         public int ParentTicketId { get; set; }
         public string AuthorId { get; set; }
 
-
         public string Name { get; set; }
-
 
         public virtual Ticket ParentTicket { get; set; }
         public virtual ApplicationUser Author { get; set; }
-
-
-
     }
 }
