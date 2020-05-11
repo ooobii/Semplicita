@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using Semplicita.Helpers;
+using Semplicita.Models;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
-using Semplicita.Models;
-using Semplicita.Helpers;
 
 namespace Semplicita.Controllers
 {
@@ -20,15 +16,13 @@ namespace Semplicita.Controllers
 
         // GET: Admin
         [Authorize(Roles = "ServerAdmin")]
-        public ActionResult Index()
-        {
+        public ActionResult Index() {
             return View();
         }
 
-
         #region Project Managment
 
-        [Authorize(Roles ="ServerAdmin,ProjectAdmin")]
+        [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         public ActionResult Projects() {
             return View(db.Projects.ToList());
         }
@@ -107,8 +101,7 @@ namespace Semplicita.Controllers
             db.SaveChanges();
             return RedirectToAction("Index");
         }
-        #endregion
 
-
+        #endregion Project Managment
     }
 }

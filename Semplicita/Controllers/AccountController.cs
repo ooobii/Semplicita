@@ -1,18 +1,16 @@
-﻿using System;
+﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
+using Semplicita.Models;
+using System;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Net.Mail;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Configuration;
 using System.Web.Mvc;
 using System.Web.UI.WebControls;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin.Security;
-using Semplicita.Models;
 
 namespace Semplicita.Controllers
 {
@@ -81,10 +79,13 @@ namespace Semplicita.Controllers
             switch( result ) {
                 case SignInStatus.Success:
                     return RedirectToLocal(returnUrl);
+
                 case SignInStatus.LockedOut:
                     return View("Lockout");
+
                 case SignInStatus.RequiresVerification:
                     return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
+
                 case SignInStatus.Failure:
                 default:
                     ModelState.AddModelError("", "Invalid login attempt.");
@@ -113,16 +114,18 @@ namespace Semplicita.Controllers
                 return View(model);
             }
 
-            // The following code protects for brute force attacks against the two factor codes. 
-            // If a user enters incorrect codes for a specified amount of time then the user account 
-            // will be locked out for a specified amount of time. 
+            // The following code protects for brute force attacks against the two factor codes.
+            // If a user enters incorrect codes for a specified amount of time then the user account
+            // will be locked out for a specified amount of time.
             // You can configure the account lockout settings in IdentityConfig
             var result = await SignInManager.TwoFactorSignInAsync(model.Provider, model.Code, isPersistent: model.RememberMe, rememberBrowser: model.RememberBrowser);
             switch( result ) {
                 case SignInStatus.Success:
                     return RedirectToLocal(model.ReturnUrl);
+
                 case SignInStatus.LockedOut:
                     return View("Lockout");
+
                 case SignInStatus.Failure:
                 default:
                     ModelState.AddModelError("", "Invalid code.");
@@ -235,7 +238,6 @@ namespace Semplicita.Controllers
 
                     var emailSvc = new EmailService();
                     await emailSvc.SendAsync(emailMsg);
-
 
                     ViewBag.EmailSentTo = user.Email;
                 } catch( Exception ex ) {
@@ -393,10 +395,13 @@ namespace Semplicita.Controllers
             switch( result ) {
                 case SignInStatus.Success:
                     return RedirectToLocal(returnUrl);
+
                 case SignInStatus.LockedOut:
                     return View("Lockout");
+
                 case SignInStatus.RequiresVerification:
                     return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = false });
+
                 case SignInStatus.Failure:
                 default:
                     // If the user does not have an account, then prompt the user to create an account
@@ -454,15 +459,15 @@ namespace Semplicita.Controllers
             return View();
         }
 
-
         #region info fetching
+
         public ActionResult GetFullNameStandard() {
             var userid = User.Identity.GetUserId();
             var user = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>().FindById(userid);
             return Content(user.FullNameStandard);
         }
-        #endregion
 
+        #endregion info fetching
 
         protected override void Dispose(bool disposing) {
             if( disposing ) {
@@ -481,6 +486,7 @@ namespace Semplicita.Controllers
         }
 
         #region Helpers
+
         // Used for XSRF protection when adding external logins
         private const string XsrfKey = "XsrfId";
 
@@ -527,6 +533,7 @@ namespace Semplicita.Controllers
                 context.HttpContext.GetOwinContext().Authentication.Challenge(properties, LoginProvider);
             }
         }
-        #endregion
+
+        #endregion Helpers
     }
 }
