@@ -56,7 +56,7 @@ namespace Semplicita.Helpers
             if( !IsUserOnProject(userId, projectId) ) { return false; }
 
             try {
-                db.Projects.Find(projectId).Members.Add(db.Users.Find(userId));
+                db.Projects.Find(projectId).Members.Remove(db.Users.Find(userId));
                 db.SaveChanges();
                 return true;
             } catch {

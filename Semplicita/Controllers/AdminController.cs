@@ -8,6 +8,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Configuration;
@@ -32,6 +33,7 @@ namespace Semplicita.Controllers
 
         private UserRolesHelper rolesHelper = new UserRolesHelper();
         private ProjectHelper projectHelper = new ProjectHelper();
+        private RoleDisplayDictionary roleDisplays = new RoleDisplayDictionary();
 
         // GET: Admin
         [Authorize(Roles = "ServerAdmin")]
@@ -40,6 +42,113 @@ namespace Semplicita.Controllers
         }
 
         #region User Managment
+        [HttpPost]
+        [Authorize(Roles = "ServerAdmin")]
+        [MultipleButton(Name = "userRoles", Argument = "Add")]
+        public ActionResult AddUsersToRoles(AddRemoveUsersRolesViewModel model) {
+            var errors = new List<string>();
+            var successes = new List<string>();
+
+            if( model.UserIds == null ) {
+
+                errors.Add("You must select at least 1 user to manipulate.");
+
+            } else if( model.Roles == null ) {
+
+                errors.Add("You must select at least 1 role.");
+
+            } else {
+
+                foreach( string userId in model.UserIds ) {
+                    var user = db.Users.FirstOrDefault(u => u.Id == userId);
+
+                    if( user != null ) {
+
+                        foreach( string role in model.Roles ) {
+                            var addRoleSuccess = rolesHelper.AddUserToRole(userId, role);
+
+                            if( !addRoleSuccess ) {
+                                errors.Add($"Unable to add '{user.FullNameStandard}' to the role '{roleDisplays[ role ]}'.");
+                            } else {
+                                successes.Add($"'{user.FullNameStandard}' has been added to the '{roleDisplays[ role ]}' role.");
+                            }
+                        }
+
+
+                    } else { //user ID was not found.
+
+                        if( !errors.Contains("Unable to locate one of the selected users.") ) {
+                            errors.Add("Unable to locate one of the selected users.");
+                        }
+
+                    }
+
+                }
+            }
+
+            if( errors.Count > 0 ) {
+                ViewBag.UserRoleAssignErrors = errors;
+            }
+            if( successes.Count > 0 ) {
+                ViewBag.UserRoleAssignMessages = successes;
+            }
+
+            return View(new UsersAllocViewModel() { Users = db.Users.ToList(), Projects = db.Projects.ToList() });
+        }
+        [HttpPost]
+        [Authorize(Roles = "ServerAdmin")]
+        [MultipleButton(Name = "userRoles", Argument = "Remove")]
+        public ActionResult RemoveUsersFromRoles(AddRemoveUsersRolesViewModel model) {
+            var errors = new List<string>();
+            var successes = new List<string>();
+
+            if( model.UserIds == null ) {
+
+                errors.Add("You must select at least 1 user to manipulate.");
+
+            } else if( model.Roles == null ) {
+
+                errors.Add("You must select at least 1 role.");
+
+            } else {
+
+                foreach( string userId in model.UserIds ) {
+                    var user = db.Users.FirstOrDefault(u => u.Id == userId);
+
+                    if( user != null ) {
+
+                        foreach( string role in model.Roles ) {
+                            var removeRoleSuccess = rolesHelper.RemoveUserFromRole(userId, role);
+
+                            if( !removeRoleSuccess ) {
+                                errors.Add($"Unable to remove '{user.FullNameStandard}' from the role '{roleDisplays[ role ]}'. Is the user in this role?");
+                            } else {
+                                successes.Add($"'{user.FullNameStandard}' has been removed from the '{roleDisplays[ role ]}' role.");
+                            }
+                        }
+
+
+                    } else { //user ID was not found.
+
+                        if( !errors.Contains("Unable to locate one of the selected users.") ) {
+                            errors.Add("Unable to locate one of the selected users.");
+                        }
+
+                    }
+
+                }
+            }
+
+            if( errors.Count > 0 ) {
+                ViewBag.UserRoleAssignErrors = errors;
+            }
+            if( successes.Count > 0 ) {
+                ViewBag.UserRoleAssignMessages = successes;
+            }
+
+            return View(new UsersAllocViewModel() { Users = db.Users.ToList(), Projects = db.Projects.ToList() });
+        }
+
         #endregion
 
 
@@ -127,70 +236,104 @@ namespace Semplicita.Controllers
 
 
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        public ActionResult ProjectUsers() {
-            var model = new ProjectUsersViewModel() { Users = db.Users.ToList(), Projects = db.Projects.ToList() };
+        public ActionResult UserAllocation() {
+            var model = new UsersAllocViewModel() { Users = db.Users.ToList(), Projects = db.Projects.ToList() };
             return View(model);
         }
 
         [HttpPost]
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        public ActionResult AddUsersToProject([Bind(Include = "UserIds,ProjectIds")]AddUserToProjectViewModel model) {
+        [MultipleButton(Name = "projectUsers", Argument = "Add")]
+        public ActionResult AddUsersToProject([Bind(Include = "UserIds,ProjectIds")]AddRemoveUsersProjectsViewModel model) {
             var errors = new List<string>();
+            var successes = new List<string>();
 
-            foreach( string userId in model.UserIds ) {
-                var user = db.Users.FirstOrDefault(u => u.Id == userId);
+            if( model.UserIds == null ) {
 
-                if( user != null ) {
+                errors.Add("You must select at least 1 user to manipulate.");
 
-                    foreach( int projectId in model.ProjectIds ) {
-                        var addRoleSuccess = projectHelper.AddUserToProject(userId, projectId);
+            } else if( model.ProjectIds == null ) {
 
-                        if( !addRoleSuccess ) {
-                            errors.Add($"Unable to add '{user.FullNameStandard}' to project '{db.Projects.Find(projectId).Name}'.");
+                errors.Add("You must select at least 1 project.");
+
+            } else {
+
+                foreach( string userId in model.UserIds ) {
+                    var user = db.Users.FirstOrDefault(u => u.Id == userId);
+
+                    if( user != null ) {
+
+                        foreach( int projectId in model.ProjectIds ) {
+                            var addProjectSuccess = projectHelper.AddUserToProject(userId, projectId);
+
+                            if( !addProjectSuccess ) {
+                                errors.Add($"Unable to add '{user.FullNameStandard}' to project '{db.Projects.Find(projectId).Name}'.");
+                            } else {
+                                successes.Add($"'{user.FullNameStandard}' has been added to the '{db.Projects.Find(projectId).Name}' project.");
+                            }
                         }
-                    }
 
 
-                } else { //user ID was not found.
+                    } else { //user ID was not found.
 
-                    if( !errors.Contains("Unable to locate one or more selected users.") ) {
-                        errors.Add("Unable to locate one or more selected users.");
+                        if( !errors.Contains("Unable to locate one or more selected users.") ) {
+                            errors.Add("Unable to locate one or more selected users.");
+                        }
+
                     }
 
                 }
-
             }
 
             if( errors.Count > 0 ) {
-                ViewBag.AddUsersToProjectErrors = errors;
+                ViewBag.UserProjectAllocErrors = errors;
+            }
+            if( successes.Count > 0 ) {
+                ViewBag.UserProjectAllocMessages = successes;
             }
 
-            return View();
+            return View(new UsersAllocViewModel() { Users = db.Users.ToList(), Projects = db.Projects.ToList() });
         }
 
         [HttpPost]
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        public ActionResult RemoveUserFromProject([Bind(Include = "UserIds,ProjectIds")]RemoveUserFromProjectViewModel model) {
+        [MultipleButton(Name = "projectUsers", Argument = "Remove")]
+        public ActionResult RemoveUserFromProject([Bind(Include = "UserIds,ProjectIds")]AddRemoveUsersProjectsViewModel model) {
             var errors = new List<string>();
+            var successes = new List<string>();
 
-            foreach( string userId in model.UserIds ) {
-                var user = db.Users.FirstOrDefault(u => u.Id == userId);
+            if( model.UserIds == null ) {
 
-                if( user != null ) {
+                errors.Add("You must select at least 1 user to manipulate.");
 
-                    foreach( int projectId in model.ProjectIds ) {
-                        var addRoleSuccess = projectHelper.AddUserToProject(userId, projectId);
+            } else if( model.ProjectIds == null ) {
 
-                        if( !addRoleSuccess ) {
-                            errors.Add($"Unable to add '{user.FullNameStandard}' to project '{db.Projects.Find(projectId).Name}'.");
+                errors.Add("You must select at least 1 project.");
+
+            } else {
+
+                foreach( string userId in model.UserIds ) {
+                    var user = db.Users.FirstOrDefault(u => u.Id == userId);
+
+                    if( user != null ) {
+
+                        foreach( int projectId in model.ProjectIds ) {
+                            var removeProjectSuccess = projectHelper.RemoveUserFromProject(userId, projectId);
+
+                            if( !removeProjectSuccess ) {
+                                errors.Add($"Unable to remove '{user.FullNameStandard}' from project '{db.Projects.Find(projectId).Name}'.");
+                            } else {
+                                successes.Add($"'{user.FullNameStandard}' has been removed from the '{db.Projects.Find(projectId).Name}' project.");
+                            }
                         }
-                    }
 
 
-                } else { //user ID was not found.
+                    } else { //user ID was not found.
 
-                    if( !errors.Contains("Unable to locate one or more selected users.") ) {
-                        errors.Add("Unable to locate one or more selected users.");
+                        if( !errors.Contains("Unable to locate one or more selected users.") ) {
+                            errors.Add("Unable to locate one or more selected users.");
+                        }
+
                     }
 
                 }
@@ -198,10 +341,14 @@ namespace Semplicita.Controllers
             }
 
             if( errors.Count > 0 ) {
-                ViewBag.AddUsersToProjectErrors = errors;
+                ViewBag.UserProjectAllocErrors = errors;
+            }
+            if( successes.Count > 0 ) {
+                ViewBag.UserProjectAllocMessages = successes;
             }
 
-            return View();
+
+            return View(new UsersAllocViewModel() { Users = db.Users.ToList(), Projects = db.Projects.ToList() });
         }
 
         #endregion Project Managment
@@ -215,6 +362,28 @@ namespace Semplicita.Controllers
                 ModelState.AddModelError("", error);
             }
         }
+
+
         #endregion
+    }
+
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+    public class MultipleButtonAttribute : ActionNameSelectorAttribute
+    {
+        public string Name { get; set; }
+        public string Argument { get; set; }
+
+        public override bool IsValidName(ControllerContext controllerContext, string actionName, MethodInfo methodInfo) {
+            var isValidName = false;
+            var keyValue = string.Format("{0}:{1}", Name, Argument);
+            var value = controllerContext.Controller.ValueProvider.GetValue(keyValue);
+
+            if( value != null ) {
+                controllerContext.Controller.ControllerContext.RouteData.Values[ Name ] = Argument;
+                isValidName = true;
+            }
+
+            return isValidName;
+        }
     }
 }

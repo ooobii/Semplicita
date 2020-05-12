@@ -9,45 +9,22 @@
         </a>
         <ul class="nav-treeview" data-widget="treeview" role="menu" data-accordion="false">
             <li class="nav-item">
-                <a href="@Url.Action("Index", "Admin")" class="nav-link" id="navAdmin_General">
+                <a href="@Url.Action("UserAllocation", "Admin")" class="nav-link" id="navAdmin_UserAlloc">
                     <i class="fas fa-cog nav-icon"></i>
-                    <p>General Options</p>
+                    <p>User Allocation</p>
                 </a>
-            </li>
-            <li class="nav-item has-treeview" id="navAdminFolder">
-                <a class="nav-link" id="navAdmin">
-                    <i class="nav-icon fas fa-users-cog"></i>
-                    <p>
-                        Users
-                        <i class="right fas fa-angle-left"></i>
-                    </p>
-                </a>
-                <ul class="nav-treeview" data-widget="treeview" role="menu" data-accordion="false">
-                    <li class="nav-item">
-                        <a href="@Url.Action("Users", "Admin")" class="nav-link" id="navAdmin_Roles">
-                            <i class="fas fa-user nav-icon"></i>
-                            <p>Manage Users</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="@Url.Action("Projects", "Admin")" class="nav-link" id="navAdmin_Projects">
-                            <i class="fas fa-users nav-icon"></i>
-                            <p>Manage Roles</p>
-                        </a>
-                    </li>
-                    <li class="ui-menu-divider"><hr /></li>
-                </ul>
             </li>
             <li class="nav-item">
                 <a href="@Url.Action("Projects", "Admin")" class="nav-link" id="navAdmin_Projects">
                     <i class="fas fa-project-diagram nav-icon"></i>
-                    <p>Manage Projects</p>
+                    <p>Project Managment</p>
                 </a>
             </li>
+
             <li class="nav-item">
                 <a href="@Url.Action("Tickets", "Admin")" class="nav-link" id="navAdmin_Tickets">
                     <i class="fas fa-ticket-alt nav-icon"></i>
-                    <p>Manage Tickets</p>
+                    <p>Ticket Managment</p>
                 </a>
             </li>
 
