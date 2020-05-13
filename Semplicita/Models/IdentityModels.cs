@@ -63,7 +63,7 @@ namespace Semplicita.Models
         public DbSet<TicketHistoryEntry> TicketHistoryEntries { get; set; }
         public DbSet<TicketNotification> TicketNotifications { get; set; }
         public DbSet<TicketPriority> TicketPriorityTypes { get; set; }
-        public DbSet<TicketStatus> TicketStatusTypes { get; set; }
+        public DbSet<TicketStatus> TicketStatuses { get; set; }
         public DbSet<TicketType> TicketTypes { get; set; }
     }
 }
