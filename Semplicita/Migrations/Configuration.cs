@@ -86,7 +86,7 @@ namespace Semplicita.Migrations
                 context.TicketTypes.Add(new TicketType() { Name = "Missing/Broken Dependancy", Description = "The issue is suspected of originating from a missing, corrupt, or outdated package/module." });
             }
             if( !context.TicketTypes.Any(tt => tt.Name == "Bug") ) {
-                context.TicketTypes.Add(new TicketType() { Name = "Bug)", Description = "Normal functionality is breaking when the user is operating in particular conditions." });
+                context.TicketTypes.Add(new TicketType() { Name = "Bug", Description = "Normal functionality is breaking when the user is operating in particular conditions." });
             }
             if( !context.TicketTypes.Any(tt => tt.Name == "Not as Intended") ) {
                 context.TicketTypes.Add(new TicketType() { Name = "Not as Intended", Description = "A feature is not working within proper specification, or is not generating proper results." });
