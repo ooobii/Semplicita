@@ -35,8 +35,9 @@ namespace Semplicita
         public RoleDisplayDictionary() {
             Add("ServerAdmin", "Server Administrator");
             Add("ProjectAdmin", "Project Administrator");
-            Add("Solver", "Issue Solver");
-            Add("Reporter", "Issue Reporter");
+            Add("SuperSolver", "Master Solver");
+            Add("Solver", "Solver");
+            Add("Reporter", "Reporter");
         }
     }
     #endregion

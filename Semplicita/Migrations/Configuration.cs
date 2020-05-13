@@ -24,6 +24,9 @@ namespace Semplicita.Migrations
             if( !context.Roles.Any(r => r.Name == "ProjectAdmin") ) {
                 roleManager.Create(new IdentityRole { Name = "ProjectAdmin" });
             }
+            if( !context.Roles.Any(r => r.Name == "SuperSolver") ) {
+                roleManager.Create(new IdentityRole { Name = "SuperSolver" });
+            }
             if( !context.Roles.Any(r => r.Name == "Solver") ) {
                 roleManager.Create(new IdentityRole { Name = "Solver" });
             }
@@ -99,6 +102,7 @@ namespace Semplicita.Migrations
             #region TicketStatus Creation
 
             #endregion
+
         }
     }
 }
