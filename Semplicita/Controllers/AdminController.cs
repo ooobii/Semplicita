@@ -41,199 +41,7 @@ namespace Semplicita.Controllers
             return View();
         }
 
-        #region User Managment
-        [HttpPost]
-        [Authorize(Roles = "ServerAdmin")]
-        [MultipleButton(Name = "userRoles", Argument = "Add")]
-        public ActionResult AddUsersToRoles(AddRemoveUsersRolesViewModel model) {
-            var errors = new List<string>();
-            var successes = new List<string>();
-
-            if( model.UserIds == null ) {
-
-                errors.Add("You must select at least 1 user to manipulate.");
-
-            } else if( model.Roles == null ) {
-
-                errors.Add("You must select at least 1 role.");
-
-            } else {
-
-                foreach( string userId in model.UserIds ) {
-                    var user = db.Users.FirstOrDefault(u => u.Id == userId);
-
-                    if( user != null ) {
-
-                        foreach( string role in model.Roles ) {
-                            var addRoleSuccess = rolesHelper.AddUserToRole(userId, role);
-
-                            if( !addRoleSuccess ) {
-                                errors.Add($"Unable to add '{user.FullNameStandard}' to the role '{roleDisplays[ role ]}'.");
-                            } else {
-                                successes.Add($"'{user.FullNameStandard}' has been added to the '{roleDisplays[ role ]}' role.");
-                            }
-                        }
-
-
-                    } else { //user ID was not found.
-
-                        if( !errors.Contains("Unable to locate one of the selected users.") ) {
-                            errors.Add("Unable to locate one of the selected users.");
-                        }
-
-                    }
-
-                }
-            }
-
-            if( errors.Count > 0 ) {
-                ViewBag.UserRoleAssignErrors = errors;
-            }
-            if( successes.Count > 0 ) {
-                ViewBag.UserRoleAssignMessages = successes;
-            }
-
-            return View(new UsersAllocViewModel() { Users = db.Users.ToList(), Projects = db.Projects.ToList() });
-        }
-        [HttpPost]
-        [Authorize(Roles = "ServerAdmin")]
-        [MultipleButton(Name = "userRoles", Argument = "Remove")]
-        public ActionResult RemoveUsersFromRoles(AddRemoveUsersRolesViewModel model) {
-            var errors = new List<string>();
-            var successes = new List<string>();
-
-            if( model.UserIds == null ) {
-
-                errors.Add("You must select at least 1 user to manipulate.");
-
-            } else if( model.Roles == null ) {
-
-                errors.Add("You must select at least 1 role.");
-
-            } else {
-
-                foreach( string userId in model.UserIds ) {
-                    var user = db.Users.FirstOrDefault(u => u.Id == userId);
-
-                    if( user != null ) {
-
-                        foreach( string role in model.Roles ) {
-                            var removeRoleSuccess = rolesHelper.RemoveUserFromRole(userId, role);
-
-                            if( !removeRoleSuccess ) {
-                                errors.Add($"Unable to remove '{user.FullNameStandard}' from the role '{roleDisplays[ role ]}'. Is the user in this role?");
-                            } else {
-                                successes.Add($"'{user.FullNameStandard}' has been removed from the '{roleDisplays[ role ]}' role.");
-                            }
-                        }
-
-
-                    } else { //user ID was not found.
-
-                        if( !errors.Contains("Unable to locate one of the selected users.") ) {
-                            errors.Add("Unable to locate one of the selected users.");
-                        }
-
-                    }
-
-                }
-            }
-
-            if( errors.Count > 0 ) {
-                ViewBag.UserRoleAssignErrors = errors;
-            }
-            if( successes.Count > 0 ) {
-                ViewBag.UserRoleAssignMessages = successes;
-            }
-
-            return View(new UsersAllocViewModel() { Users = db.Users.ToList(), Projects = db.Projects.ToList() });
-        }
-
-        #endregion
-
-
-        #region Project Managment
-
-        [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        public ActionResult Projects() {
-            return View(db.Projects.ToList());
-        }
-
-        public ActionResult ProjectDetails(int? id) {
-            if( id == null ) {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Project project = db.Projects.Find(id);
-            if( project == null ) {
-                return HttpNotFound();
-            }
-            return View(project);
-        }
-
-        [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        public ActionResult NewProject() {
-            return View();
-        }
-
-        [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult CreateProject([Bind(Include = "Id,Name,Description,CreatedAt,ModifiedAt,IsActiveProject")] Project project) {
-            if( ModelState.IsValid ) {
-                db.Projects.Add(project);
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-
-            return View(project);
-        }
-
-        [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        public ActionResult EditProject(int? id) {
-            if( id == null ) {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Project project = db.Projects.Find(id);
-            if( project == null ) {
-                return HttpNotFound();
-            }
-            return View(project);
-        }
-
-        [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult EditProject([Bind(Include = "Id,Name,Description,CreatedAt,ModifiedAt,IsActiveProject")] Project project) {
-            if( ModelState.IsValid ) {
-                db.Entry(project).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(project);
-        }
-
-        [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        public ActionResult DeleteProject(int? id) {
-            if( id == null ) {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Project project = db.Projects.Find(id);
-            if( project == null ) {
-                return HttpNotFound();
-            }
-            return View(project);
-        }
-
-        [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        [HttpPost, ActionName("DeleteProject")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteProjectConfirmed(int id) {
-            Project project = db.Projects.Find(id);
-            db.Projects.Remove(project);
-            db.SaveChanges();
-            return RedirectToAction("Index");
-        }
-
+        #region User Allocation
 
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         public ActionResult UserAllocation() {
@@ -296,6 +104,60 @@ namespace Semplicita.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "ServerAdmin")]
+        [MultipleButton(Name = "userRoles", Argument = "Add")]
+        public ActionResult AddUsersToRoles(AddRemoveUsersRolesViewModel model) {
+            var errors = new List<string>();
+            var successes = new List<string>();
+
+            if( model.UserIds == null ) {
+
+                errors.Add("You must select at least 1 user to manipulate.");
+
+            } else if( model.Roles == null ) {
+
+                errors.Add("You must select at least 1 role.");
+
+            } else {
+
+                foreach( string userId in model.UserIds ) {
+                    var user = db.Users.FirstOrDefault(u => u.Id == userId);
+
+                    if( user != null ) {
+
+                        foreach( string role in model.Roles ) {
+                            var addRoleSuccess = rolesHelper.AddUserToRole(userId, role);
+
+                            if( !addRoleSuccess ) {
+                                errors.Add($"Unable to add '{user.FullNameStandard}' to the role '{roleDisplays[ role ]}'.");
+                            } else {
+                                successes.Add($"'{user.FullNameStandard}' has been added to the '{roleDisplays[ role ]}' role.");
+                            }
+                        }
+
+
+                    } else { //user ID was not found.
+
+                        if( !errors.Contains("Unable to locate one of the selected users.") ) {
+                            errors.Add("Unable to locate one of the selected users.");
+                        }
+
+                    }
+
+                }
+            }
+
+            if( errors.Count > 0 ) {
+                ViewBag.UserRoleAssignErrors = errors;
+            }
+            if( successes.Count > 0 ) {
+                ViewBag.UserRoleAssignMessages = successes;
+            }
+
+            return View(new UsersAllocViewModel() { Users = db.Users.ToList(), Projects = db.Projects.ToList() });
+        }
+
+        [HttpPost]
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         [MultipleButton(Name = "projectUsers", Argument = "Remove")]
         public ActionResult RemoveUserFromProject([Bind(Include = "UserIds,ProjectIds")]AddRemoveUsersProjectsViewModel model) {
@@ -347,6 +209,59 @@ namespace Semplicita.Controllers
                 ViewBag.UserProjectAllocMessages = successes;
             }
 
+
+            return View(new UsersAllocViewModel() { Users = db.Users.ToList(), Projects = db.Projects.ToList() });
+        }
+        [HttpPost]
+        [Authorize(Roles = "ServerAdmin")]
+        [MultipleButton(Name = "userRoles", Argument = "Remove")]
+        public ActionResult RemoveUsersFromRoles(AddRemoveUsersRolesViewModel model) {
+            var errors = new List<string>();
+            var successes = new List<string>();
+
+            if( model.UserIds == null ) {
+
+                errors.Add("You must select at least 1 user to manipulate.");
+
+            } else if( model.Roles == null ) {
+
+                errors.Add("You must select at least 1 role.");
+
+            } else {
+
+                foreach( string userId in model.UserIds ) {
+                    var user = db.Users.FirstOrDefault(u => u.Id == userId);
+
+                    if( user != null ) {
+
+                        foreach( string role in model.Roles ) {
+                            var removeRoleSuccess = rolesHelper.RemoveUserFromRole(userId, role);
+
+                            if( !removeRoleSuccess ) {
+                                errors.Add($"Unable to remove '{user.FullNameStandard}' from the role '{roleDisplays[ role ]}'. Is the user in this role?");
+                            } else {
+                                successes.Add($"'{user.FullNameStandard}' has been removed from the '{roleDisplays[ role ]}' role.");
+                            }
+                        }
+
+
+                    } else { //user ID was not found.
+
+                        if( !errors.Contains("Unable to locate one of the selected users.") ) {
+                            errors.Add("Unable to locate one of the selected users.");
+                        }
+
+                    }
+
+                }
+            }
+
+            if( errors.Count > 0 ) {
+                ViewBag.UserRoleAssignErrors = errors;
+            }
+            if( successes.Count > 0 ) {
+                ViewBag.UserRoleAssignMessages = successes;
+            }
 
             return View(new UsersAllocViewModel() { Users = db.Users.ToList(), Projects = db.Projects.ToList() });
         }

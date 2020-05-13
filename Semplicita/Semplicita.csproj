@@ -457,17 +457,13 @@
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Shared\_AccountNavPartial.cshtml" />
     <Content Include="Views\Shared\_ServerAdministrationNavSection.cshtml" />
-    <Content Include="Views\Admin\CreateProject.cshtml" />
-    <Content Include="Views\Admin\DeleteProject.cshtml" />
-    <Content Include="Views\Admin\ProjectDetails.cshtml" />
-    <Content Include="Views\Admin\EditProject.cshtml" />
-    <Content Include="Views\Admin\Projects.cshtml" />
     <Content Include="Views\Admin\Index.cshtml" />
     <Content Include="Views\Shared\_HomeNavSection.cshtml" />
     <Content Include="Views\Account\ConfirmationSent.cshtml" />
     <Content Include="Views\Account\ResendConfirmationEmail.cshtml" />
     <Content Include="Views\Account\ResendEmailConfirmation.cshtml" />
     <Content Include="Views\Admin\UserAllocation.cshtml" />
+    <Content Include="Views\Shared\_TicketsNavSection.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
