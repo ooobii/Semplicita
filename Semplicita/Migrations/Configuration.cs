@@ -62,6 +62,18 @@ namespace Semplicita.Migrations
                 userManager.AddToRole(user.Id, "ProjectAdmin");
             }
 
+            //Drew
+            if( !context.Users.Any(u => u.Email == "arussell@coderfoundry.com") ) {
+                var user = new ApplicationUser {
+                    UserName = "arussell@coderfoundry.com",
+                    Email = "arussell@coderfoundry.com",
+                    FirstName = "Andrew",
+                    LastName = "Russell"
+                };
+                userManager.Create(user, "Abc&123!");
+                userManager.AddToRole(user.Id, "SuperSolver");
+            }
+
             #endregion User Creation
 
         }
