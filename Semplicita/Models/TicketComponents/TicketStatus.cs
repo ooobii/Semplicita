@@ -1,9 +1,12 @@
-﻿namespace Semplicita.Models
+﻿using System.EnterpriseServices.Internal;
+
+namespace Semplicita.Models
 {
     public class TicketStatus
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string Display { get; set; }
         public int OrdinalWorkflowPosition { get; set; }
 
         //the issue has been started to be looked into by the assigned solver.

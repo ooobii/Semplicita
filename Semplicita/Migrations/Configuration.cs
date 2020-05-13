@@ -100,7 +100,9 @@ namespace Semplicita.Migrations
             #endregion
 
             #region TicketStatus Creation
+            if(!context.TicketStatusTypes.Any(tst => tst.Name == "Waiting for Solver")) {
 
+            }
             #endregion
 
         }
