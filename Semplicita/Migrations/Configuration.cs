@@ -6,6 +6,7 @@ namespace Semplicita.Migrations
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Migrations;
+    using System.Drawing;
     using System.Linq;
 
     internal sealed class Configuration : DbMigrationsConfiguration<Semplicita.Models.ApplicationDbContext>
@@ -100,9 +101,181 @@ namespace Semplicita.Migrations
             #endregion
 
             #region TicketStatus Creation
-            if(!context.TicketStatusTypes.Any(tst => tst.Name == "Waiting for Solver")) {
 
+            if( !context.TicketStatuses.Any(tst => tst.Name == "New-Unassigned") ) {
+                var status = new TicketStatus() {
+                    Name = "New-Unassigned",
+                    Display = "New (Unassigned)",
+                    Description = "The issue has just been created, and has not been assigned to a solver yet.",
+                    IsStarted = false,
+                    IsInProgress = false,
+                    IsPausedPending = false,
+                    IsResolved = false,
+                    IsClosed = false,
+                    IsCanceled = false
+                };
+                context.TicketStatuses.Add(status);
             }
+            if( !context.TicketStatuses.Any(tst => tst.Name == "New-Assigned") ) {
+                var status = new TicketStatus() {
+                    Name = "New-Assigned",
+                    Display = "New",
+                    Description = "The issue has been created, and has been assigned to a solver pending first contact.",
+                    IsStarted = false,
+                    IsInProgress = false,
+                    IsPausedPending = false,
+                    IsResolved = false,
+                    IsClosed = false,
+                    IsCanceled = false
+                };
+                context.TicketStatuses.Add(status);
+            }
+
+            if( !context.TicketStatuses.Any(tst => tst.Name == "Investigation") ) {
+                var status = new TicketStatus() {
+                    Name = "Investigation",
+                    Display = "Investigation",
+                    Description = "The solver has started looking into potential solutions to the reporter's inquiry.",
+                    IsStarted = true,
+                    IsInProgress = false,
+                    IsPausedPending = false,
+                    IsResolved = false,
+                    IsClosed = false,
+                    IsCanceled = false
+                };
+                context.TicketStatuses.Add(status);
+            }
+            if( !context.TicketStatuses.Any(tst => tst.Name == "InProgress") ) {
+                var status = new TicketStatus() {
+                    Name = "InProgress",
+                    Display = "Solution In Progress",
+                    Description = "The solver is in the middle of implimenting a potential solution discovered.",
+                    IsStarted = true,
+                    IsInProgress = true,
+                    IsPausedPending = false,
+                    IsResolved = false,
+                    IsClosed = false,
+                    IsCanceled = false
+                };
+                context.TicketStatuses.Add(status);
+            }
+            if( !context.TicketStatuses.Any(tst => tst.Name == "NeedInfo") ) {
+                var status = new TicketStatus() {
+                    Name = "NeedInfo",
+                    Display = "More Information Required",
+                    Description = "This issue cannot be worked on with the information redialy available. More information is required from the reporter before work can continue.",
+                    IsStarted = true,
+                    IsInProgress = false,
+                    IsPausedPending = true,
+                    IsResolved = false,
+                    IsClosed = false,
+                    IsCanceled = false
+                };
+                context.TicketStatuses.Add(status);
+            }
+            if( !context.TicketStatuses.Any(tst => tst.Name == "Reviewing") ) {
+                var status = new TicketStatus() {
+                    Name = "Reviewing",
+                    Display = "Under Review",
+                    Description = "The solver needs time to review findings before working on implementing a solution.",
+                    IsStarted = true,
+                    IsInProgress = false,
+                    IsPausedPending = true,
+                    IsResolved = false,
+                    IsClosed = false,
+                    IsCanceled = false
+                };
+                context.TicketStatuses.Add(status);
+            }
+            if( !context.TicketStatuses.Any(tst => tst.Name == "Pending") ) {
+                var status = new TicketStatus() {
+                    Name = "Pending",
+                    Display = "Pending/Blocked",
+                    Description = "This issue cannot be worked on at the moment due to other pending issues, or because a potential solution has not yet been found.",
+                    IsStarted = true,
+                    IsInProgress = false,
+                    IsPausedPending = true,
+                    IsResolved = false,
+                    IsClosed = false,
+                    IsCanceled = false
+                };
+                context.TicketStatuses.Add(status);
+            }
+
+            if( !context.TicketStatuses.Any(tst => tst.Name == "Solved") ) {
+                var status = new TicketStatus() {
+                    Name = "Solved",
+                    Display = "Solved!",
+                    Description = "The reporter's issue has been resolved, and resulted in a resolution that alligns with the intended outcome of their inquiry.",
+                    IsStarted = true,
+                    IsInProgress = false,
+                    IsPausedPending = false,
+                    IsResolved = true,
+                    IsClosed = false,
+                    IsCanceled = false
+                };
+                context.TicketStatuses.Add(status);
+            }
+
+            if( !context.TicketStatuses.Any(tst => tst.Name == "CantSolve") ) {
+                var status = new TicketStatus() {
+                    Name = "CantSolve",
+                    Display = "Can't Solve",
+                    Description = "The reporter's issue was not able to be solved due to a block or obstruction that would result from available potential solutions.",
+                    IsStarted = true,
+                    IsInProgress = false,
+                    IsPausedPending = false,
+                    IsResolved = true,
+                    IsClosed = false,
+                    IsCanceled = true
+                };
+                context.TicketStatuses.Add(status);
+            }
+            if( !context.TicketStatuses.Any(tst => tst.Name == "WontSolve") ) {
+                var status = new TicketStatus() {
+                    Name = "WontSolve",
+                    Display = "Refused/Won't Solve",
+                    Description = "The reporter's issue will not be solved, because the reporter is inquiring about intended functionality or a procedure that is actually working as intended.",
+                    IsStarted = true,
+                    IsInProgress = false,
+                    IsPausedPending = false,
+                    IsResolved = true,
+                    IsClosed = false,
+                    IsCanceled = true
+                };
+                context.TicketStatuses.Add(status);
+            }
+
+            if( !context.TicketStatuses.Any(tst => tst.Name == "Closed") ) {
+                var status = new TicketStatus() {
+                    Name = "Closed",
+                    Display = "Closed",
+                    Description = "The reporter's issue has been resolved and has been confirmed as satisfactory with the reporter.",
+                    IsStarted = true,
+                    IsInProgress = false,
+                    IsPausedPending = false,
+                    IsResolved = true,
+                    IsClosed = true,
+                    IsCanceled = false
+                };
+                context.TicketStatuses.Add(status);
+            }
+            if( !context.TicketStatuses.Any(tst => tst.Name == "Disposed") ) {
+                var status = new TicketStatus() {
+                    Name = "Disposed",
+                    Display = "Disposed",
+                    Description = "The reporter's issue was cancled, and has been archived.",
+                    IsStarted = true,
+                    IsInProgress = false,
+                    IsPausedPending = false,
+                    IsResolved = false,
+                    IsClosed = true,
+                    IsCanceled = true
+                };
+                context.TicketStatuses.Add(status);
+            }
+
+
             #endregion
 
         }
