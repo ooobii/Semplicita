@@ -10,6 +10,7 @@ using Semplicita.Models;
 
 namespace Semplicita.Controllers
 {
+    [Authorize]
     public class ProjectsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -21,7 +22,7 @@ namespace Semplicita.Controllers
         }
 
         // GET: Projects/Details/5
-        public ActionResult Details(int? id)
+        public ActionResult Show(int? id)
         {
             if (id == null)
             {
@@ -36,7 +37,8 @@ namespace Semplicita.Controllers
         }
 
         // GET: Projects/Create
-        public ActionResult Create()
+        [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
+        public ActionResult New()
         {
             return View();
         }
@@ -44,9 +46,10 @@ namespace Semplicita.Controllers
         // POST: Projects/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Name,Description,CreatedAt,ModifiedAt,IsActiveProject")] Project project)
+        public ActionResult CreateNew([Bind(Include = "Id,Name,Description,CreatedAt,ModifiedAt,IsActiveProject")] Project project)
         {
             if (ModelState.IsValid)
             {
@@ -59,6 +62,7 @@ namespace Semplicita.Controllers
         }
 
         // GET: Projects/Edit/5
+        [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -76,6 +80,7 @@ namespace Semplicita.Controllers
         // POST: Projects/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "Id,Name,Description,CreatedAt,ModifiedAt,IsActiveProject")] Project project)
@@ -90,6 +95,7 @@ namespace Semplicita.Controllers
         }
 
         // GET: Projects/Delete/5
+        [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -105,6 +111,7 @@ namespace Semplicita.Controllers
         }
 
         // POST: Projects/Delete/5
+        [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)

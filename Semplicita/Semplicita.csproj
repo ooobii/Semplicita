@@ -465,9 +465,9 @@
     <Content Include="Views\Account\ResendEmailConfirmation.cshtml" />
     <Content Include="Views\Admin\UserAllocation.cshtml" />
     <Content Include="Views\Shared\_TicketsNavSection.cshtml" />
-    <Content Include="Views\Projects\Create.cshtml" />
+    <Content Include="Views\Projects\CreateNew.cshtml" />
     <Content Include="Views\Projects\Delete.cshtml" />
-    <Content Include="Views\Projects\Details.cshtml" />
+    <Content Include="Views\Projects\Show.cshtml" />
     <Content Include="Views\Projects\Edit.cshtml" />
     <Content Include="Views\Projects\Index.cshtml" />
   </ItemGroup>
