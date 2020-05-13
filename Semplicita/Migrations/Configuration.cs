@@ -76,6 +76,29 @@ namespace Semplicita.Migrations
 
             #endregion User Creation
 
+            #region TicketType Creation
+
+            if( !context.TicketTypes.Any(tt => tt.Name == "Missing/Broken Dependancy") ) {
+                context.TicketTypes.Add(new TicketType() { Name = "Missing/Broken Dependancy", Description = "The issue is suspected of originating from a missing, corrupt, or outdated package/module." });
+            }
+            if( !context.TicketTypes.Any(tt => tt.Name == "Bug") ) {
+                context.TicketTypes.Add(new TicketType() { Name = "Bug)", Description = "Normal functionality is breaking when the user is operating in particular conditions." });
+            }
+            if( !context.TicketTypes.Any(tt => tt.Name == "Not as Intended") ) {
+                context.TicketTypes.Add(new TicketType() { Name = "Not as Intended", Description = "A feature is not working within proper specification, or is not generating proper results." });
+            }
+            if( !context.TicketTypes.Any(tt => tt.Name == "Aesthetic Correction") ) {
+                context.TicketTypes.Add(new TicketType() { Name = "Aesthetic Correction", Description = "A request for spelling correction, grammar validation, paragraph structure, or layout changes. This issue should not be impactful to functionality." });
+            }
+            if( !context.TicketTypes.Any(tt => tt.Name == "Feature Request") ) {
+                context.TicketTypes.Add(new TicketType() { Name = "Feature Request", Description = "Features that the reporter desires are missing, and this request is for consideration to add the requested feature." });
+            }
+
+            #endregion
+
+            #region TicketStatus Creation
+
+            #endregion
         }
     }
 }
