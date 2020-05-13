@@ -1,4 +1,5 @@
-﻿using System.EnterpriseServices.Internal;
+﻿using System.Drawing;
+using System.EnterpriseServices.Internal;
 
 namespace Semplicita.Models
 {
@@ -7,7 +8,7 @@ namespace Semplicita.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public string Display { get; set; }
-        public int OrdinalWorkflowPosition { get; set; }
+        public string Description { get; set; }
 
         //the issue has been started to be looked into by the assigned solver.
         public bool IsStarted { get; set; }
