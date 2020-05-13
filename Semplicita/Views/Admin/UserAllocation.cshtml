@@ -14,185 +14,13 @@
     <p class="lead">View or edit user role assignments of the members of this server.</p>
 </div>
 
-<div class="row">
-    @* Add/Remove from Roles *@
-    <div class="col-lg-6">
-        <form action="" method="post">
-            <div class="card card-default collapsed-card" id="userAssignRoleCard">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-hands-helping" style="margin-right:10px;"></i><b>Add/Remove from Role</b></h3>
-
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus" id="userAssignRoleCardCollapseIcon"></i></button>
-                    </div>
-                </div>
-
-                <div class="card-body">
-                    @if( ViewBag.UserRoleAssignErrors != null ) {
-                        <ul>
-                            @foreach( string err in ViewBag.UserRoleAssignErrors ) {
-                                <li class="text-danger">@err</li>
-                            }
-                        </ul>
-                    }
-
-                    <div class="form-group">
-
-                        <div class="row p-3">
-                            <div class="col-12">
-                                <h4>Step 1: Select Users</h4>
-                                <div class="select2-purple">
-                                    <select class="select2" multiple="multiple" data-placeholder="Select or Type Name..." hidden="hidden" data-dropdown-css-class="select2-purple" style="width: 100%;" name="UserIds">
-                                        @foreach( ApplicationUser u in Model.Users ) {
-                                            <option value="@u.Id">@u.FullNameStandard</option>
-                                        }
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <div class="row p-3">
-                            <div class="col-12">
-                                <h4>Step 2: Select Roles</h4>
-                                <div class="select2-purple">
-                                    <select class="select2" multiple="multiple" data-placeholder="Select or Type Role..." hidden="hidden" data-dropdown-css-class="select2-purple" style="width: 100%;" name="Roles">
-                                        @foreach( var pair in roleDisplays ) {
-                                            <option value="@pair.Key">@pair.Value</option>
-                                        }
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <div class="row p-3">
-                            <div class="col">
-                                <h4>Step 3: Select Action</h4>
-                                <div class="row">
-                                    <div class="col-6">
-                                        <input type="submit" name="userRoles:Remove" value="Remove User(s)" class="btn btn-danger btn-block" />
-                                    </div>
-                                    <div class="col-6">
-                                        <input type="submit" name="userRoles:Add" value="Add User(s)" class="btn btn-success btn-block" />
-
-                                    </div>
-                                </div>
-                                @if( ViewBag.UserRoleAssignMessages != null ) {
-                                    <div class="row">
-                                        <ul>
-                                            @foreach( string msg in ViewBag.UserRoleAssignMessages ) {
-                                                <li class="text-success">@msg</li>
-                                            }
-                                        </ul>
-                                    </div>
-                                }
-
-                            </div>
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-        </form>
-    </div>
-
-
-    @* Add/Remove from Projects *@
-    <div class="col-lg-6">
-        <form action="" method="post">
-            <div class="card card-default collapsed-card" id="userAssignProjectCard">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-user-plus" style="margin-right:10px;"></i><b>Add/Remove from Projects</b></h3>
-
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus" id="userAssignProjectCardCollapseIcon"></i></button>
-                    </div>
-                </div>
-
-                <div class="card-body">
-                    <p>In order for users to be able to create tickets or manage projects, they first need to be a member of the project. </p>
-                    <p>Their abilities within the project vary based on what roles their username are assigned.</p>
-                    <hr />
-                    @if( ViewBag.UserProjectAllocErrors != null ) {
-                        <ul>
-                            @foreach( string err in ViewBag.UserProjectAllocErrors ) {
-                                <li class="text-danger">@err</li>
-                            }
-                        </ul>
-                    }
-                    @if( ViewBag.UserProjectAllocMessages != null ) {
-                        <ul>
-                            @foreach( string msg in ViewBag.UserProjectAllocMessages ) {
-                                <li class="text-success">@msg</li>
-                            }
-                        </ul>
-                    }
-
-                    <div class="form-group">
-
-                        <div class="row p-3">
-                            <div class="col-12">
-                                <h4>Step 1: Select Users</h4>
-                                <div class="select2-purple">
-                                    <select class="select2" multiple="multiple" data-placeholder="Select or Type Name..." hidden="hidden" data-dropdown-css-class="select2-purple" style="width: 100%;" name="UserIds">
-                                        @foreach( ApplicationUser u in Model.Users ) {
-                                            <option value="@u.Id">@u.FullNameStandard</option>
-                                        }
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <div class="row p-3">
-                            <div class="col-12">
-                                <h4>Step 2: Select Projects</h4>
-                                <div class="select2-purple">
-                                    <select class="select2" multiple="multiple" data-placeholder="Select or Type Project Name..." hidden="hidden" data-dropdown-css-class="select2-purple" style="width: 100%;" name="ProjectIds">
-                                        @foreach( Project p in Model.Projects ) {
-                                            <option value="@p.Id">@p.Name</option>
-                                        }
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <div class="row p-3">
-                            <div class="col">
-                                <h4>Step 3: Select Action</h4>
-                                <div class="row">
-                                    <div class="col-6">
-                                        <input type="submit" name="projectUsers:Remove" value="Remove User(s) to Project(s)" class="btn btn-danger btn-block" />
-                                    </div>
-                                    <div class="col-6">
-                                        <input type="submit" name="projectUsers:Add" value="Add User(s) to Project(s)" class="btn btn-success btn-block" />
-
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-        </form>
-    </div>
-</div>
-
 
 @* User Summary *@
-<div class="row">
+<div class="row p-3">
     <div class="col-lg-12">
         <div class="card card-default">
             <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-table" style="margin-right:10px;"></i><b>User Summary</b></h3>
+                <h3 class="card-title"><i class="fas fa-table" style="margin-right:10px;"></i><b>Summary</b></h3>
 
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
@@ -224,14 +52,183 @@
 </div>
 
 
-@* Explinations *@
-<div class="row">
+<div class="row p-3">
+    @* Add/Remove from Roles *@
+    <div class="col-xl-6">
+        <form action="" method="post">
+            <div class="card card-default collapsed-card" id="userAssignRoleCard">
+                <div class="card-header" style="background-color:#F0F0F0">
+                    <h3 class="card-title"><i class="fas fa-hands-helping" style="margin-right:10px;"></i><b>Add/Remove from Role</b></h3>
+
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus" id="userAssignRoleCardCollapseIcon"></i></button>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <p>To add/remove users to/from roles, please enter their full names and the name of the roles you wish to add/remove them from.</p>
+                    <hr />
+                    @if( ViewBag.UserRoleAssignErrors != null ) {
+                        <ul>
+                            @foreach( string err in ViewBag.UserRoleAssignErrors ) {
+                                <li class="text-danger">@err</li>
+                            }
+                        </ul>
+                    }
+                    @if( ViewBag.UserRoleAssignMessages != null ) {
+                        <div class="row">
+                            <ul>
+                                @foreach( string msg in ViewBag.UserRoleAssignMessages ) {
+                                    <li class="text-success">@msg</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <div class="form-group">
+
+                        <div class="row p-3">
+                            <div class="col-12">
+                                <h4>Step 1: Select Users</h4>
+                                <div class="select2-purple">
+                                    <select class="select2" multiple="multiple" data-placeholder="Select or Type Name..." hidden="hidden" data-dropdown-css-class="select2-purple" style="width: 100%;" name="UserIds">
+                                        @foreach( ApplicationUser u in Model.Users.OrderBy(u => u.LastName) ) {
+                                            <option value="@u.Id">@u.FullNameStandard</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="row p-3">
+                            <div class="col-12">
+                                <h4>Step 2: Select Roles</h4>
+                                <div class="select2-purple">
+                                    <select class="select2" multiple="multiple" data-placeholder="Select or Type Role..." hidden="hidden" data-dropdown-css-class="select2-purple" style="width: 100%;" name="Roles">
+                                        @foreach( var pair in roleDisplays ) {
+                                            <option value="@pair.Key">@pair.Value</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="row p-3">
+                            <div class="col">
+                                <h4>Step 3:</h4>
+                                <div class="row">
+                                    <div class="col-xl-6">
+                                        <input type="submit" name="userRoles:Remove" value="Remove Role(s)" class="btn btn-danger btn-block" />
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <input type="submit" name="userRoles:Add" value="Add Role(s)" class="btn btn-success btn-block" />
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+
+    @* Add/Remove from Projects *@
+    <div class="col-xl-6">
+        <form action="" method="post">
+            <div class="card card-default collapsed-card" id="userAssignProjectCard">
+                <div class="card-header" style="background-color:#F0F0F0">
+                    <h3 class="card-title"><i class="fas fa-user-plus" style="margin-right:10px;"></i><b>Add/Remove from Projects</b></h3>
+
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus" id="userAssignProjectCardCollapseIcon"></i></button>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <p>To add/remove users to/from projects, please enter their full names and the name of projects you wish to add/remove them from.</p>
+                    <hr />
+                    @if( ViewBag.UserProjectAllocErrors != null ) {
+                        <ul>
+                            @foreach( string err in ViewBag.UserProjectAllocErrors ) {
+                                <li class="text-danger">@err</li>
+                            }
+                        </ul>
+                    }
+                    @if( ViewBag.UserProjectAllocMessages != null ) {
+                        <ul>
+                            @foreach( string msg in ViewBag.UserProjectAllocMessages ) {
+                                <li class="text-success">@msg</li>
+                            }
+                        </ul>
+                    }
+
+                    <div class="form-group">
+
+                        <div class="row p-3">
+                            <div class="col-12">
+                                <h4>Step 1: Select Users</h4>
+                                <div class="select2-purple">
+                                    <select class="select2" multiple="multiple" data-placeholder="Select or Type Name..." hidden="hidden" data-dropdown-css-class="select2-purple" style="width: 100%;" name="UserIds">
+                                        @foreach( ApplicationUser u in Model.Users.OrderBy(u => u.LastName) ) {
+                                            <option value="@u.Id">@u.FullNameStandard</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="row p-3">
+                            <div class="col-12">
+                                <h4>Step 2: Select Projects</h4>
+                                <div class="select2-purple">
+                                    <select class="select2" multiple="multiple" data-placeholder="Select or Type Project Name..." hidden="hidden" data-dropdown-css-class="select2-purple" style="width: 100%;" name="ProjectIds">
+                                        @foreach( Project p in Model.Projects ) {
+                                            <option value="@p.Id">@p.Name</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="card-footer">
+                            <div class="row p-3">
+                                <div class="col-xl-6">
+                                    <input type="submit" name="projectUsers:Remove" value="Remove User(s)" class="btn btn-danger btn-block" />
+                                </div>
+                                <div class="col-xl-6">
+                                    <input type="submit" name="projectUsers:Add" value="Add User(s)" class="btn btn-success btn-block" />
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+@* Help *@
+<div class="row p-3">
 
     @* About Roles *@
     <div class="col-lg-12">
         <div class="card card-default collapsed-card" id="userAssignRoleCard">
-            <div class="card-header">
-                <h3 class="card-title"><i class="far fa-question-circle" style="margin-right:10px;"></i><b>Help: About Roles</b> - Restrictions and Abilities</h3>
+            <div class="card-header" style="background-color:#C8E7FF">
+                <h3 class="card-title"><i class="far fa-question-circle" style="margin-right:10px;color:#1B1075"></i><b>Help: About Roles</b> - Restrictions and Abilities</h3>
 
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
@@ -277,7 +274,8 @@
 
                 <p>
                     Some roles are dependent on project assignments in order to be accessable, while others are not. For example, Server Administrators do not <i>need</i> to be assigned to projects,
-                    but they are allowed to be even though they already have access to all components of the server. Meanwhile, Project Administrators depend on project assignments in order to 
+                    but they are allowed to be even though they already have access to all components of the server. Meanwhile, Project Administrators depend on project assignments in order to be able
+                    to manipulate 
                 </p>
 
             </div>
