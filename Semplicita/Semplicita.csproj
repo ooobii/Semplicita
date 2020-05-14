@@ -190,6 +190,7 @@
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\ProjectComponents\Project.cs" />
+    <Compile Include="Models\ProjectComponents\ProjectWorkflow.cs" />
     <Compile Include="Models\TicketComponents\Ticket.cs" />
     <Compile Include="Models\TicketComponents\TicketAttachment.cs" />
     <Compile Include="Models\TicketComponents\TicketComment.cs" />
@@ -472,6 +473,7 @@
     <Content Include="Views\Projects\Edit.cshtml" />
     <Content Include="Views\Projects\Index.cshtml" />
     <Content Include="Views\Shared\_ProjectsNavSection.cshtml" />
+    <Content Include="Views\Admin\ProjectConfiguration.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

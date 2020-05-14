@@ -268,7 +268,18 @@ namespace Semplicita.Controllers
 
         #endregion Project Managment
 
+        #region Project Configuration
 
+        [Authorize(Roles = "ServerAdmin")]
+        public ActionResult ProjectConfiguration() {
+            return View(new ProjectConfigViewModel() { 
+                Users = db.Users.ToList(), 
+                Projects = db.Projects.ToList(),
+                Workflows = db.ProjectWorkflows.ToList()
+            });
+        }
+
+        #endregion
 
 
         #region Helpers

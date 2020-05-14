@@ -24,4 +24,12 @@ namespace Semplicita.Models
         public ICollection<string> Roles { get; set; }
     } 
 
+
+    public class ProjectConfigViewModel
+    {
+        public ICollection<ApplicationUser> Users { get; set; }
+        public ICollection<Project> Projects { get; set; }
+
+        public ICollection<ProjectWorkflow> Workflows { get; set; }
+    }
 }

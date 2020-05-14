@@ -57,6 +57,7 @@ namespace Semplicita.Models
         }
 
         public DbSet<Project> Projects { get; set; }
+        public DbSet<ProjectWorkflow> ProjectWorkflows { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<TicketAttachment> TicketAttachments { get; set; }
         public DbSet<TicketComment> TicketComments { get; set; }
