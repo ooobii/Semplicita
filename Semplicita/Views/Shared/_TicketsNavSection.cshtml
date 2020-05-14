@@ -8,11 +8,25 @@
     </a>
     <ul class="nav-treeview">
         <li class="nav-item">
-            <a href="@Url.Action("Index", "Home")" class="nav-link active" id="navTickets">
-                <i class="far fa-user-tag nav-icon"></i>
+            <a href="@Url.Action("Index", "Home")" class="nav-link" id="navTickets">
+                <i class="fas fa-user-tag nav-icon"></i>
+                <p>All Tickets</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="@Url.Action("Index", "Home")" class="nav-link" id="navTickets">
+                <i class="fas fa-file-medical-alt nav-icon"></i>
                 <p>Your Tickets</p>
             </a>
         </li>
+        @if( User.IsInRole("Reporter") ) {
+            <li class="nav-item">
+                <a href="@Url.Action("Index", "Home")" class="nav-link" id="navTickets">
+                    <i class="fas fa-plus nav-icon"></i>
+                    <p>Submit New Ticket</p>
+                </a>
+            </li>
+        }
         <li class="nav-item">
             <hr />
         </li>

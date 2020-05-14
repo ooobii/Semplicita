@@ -1,11 +1,12 @@
 ﻿@using Semplicita.Models
+@using Semplicita.Helpers
 @model UsersAllocViewModel
 
 @{
     ViewBag.Title = "Manage User Allocation";
 
-    var roleHelper = new Semplicita.Helpers.UserRolesHelper();
-    var roleDisplays = new Semplicita.RoleDisplayDictionary();
+    var roleHelper = new UserRolesHelper();
+    var roleDisplays = new RoleDisplayDictionary();
 
 }
 

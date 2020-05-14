@@ -105,16 +105,31 @@
 
             <!-- Sidebar -->
             <div class="sidebar">
-                <!-- Sidebar Login -->
-                @Html.Partial("_AccountNavPartial")
 
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="true">
+                        <!-- Sidebar Login -->
+                        @Html.Partial("_AccountNavPartial")
+
+                        <li>
+                            <hr />
+                        </li>
+
                         @Html.Partial("_HomeNavSection")
 
-                        @*@Html.Partial("_ProjectsNavSection")*@
+                        <li>
+                            <hr />
+                        </li>
+
+
+                        @Html.Partial("_ProjectsNavSection")
+
                         @Html.Partial("_TicketsNavSection")
+
+                        <li>
+                            <hr />
+                        </li>
 
                         @Html.Partial("_ServerAdministrationNavSection")
                     </ul>

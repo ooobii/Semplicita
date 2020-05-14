@@ -25,20 +25,3 @@ namespace Semplicita.Models
     } 
 
 }
-
-namespace Semplicita
-{
-
-    #region Helpers
-    public class RoleDisplayDictionary : Dictionary<string, string>
-    {
-        public RoleDisplayDictionary() {
-            Add("ServerAdmin", "Server Administrator");
-            Add("ProjectAdmin", "Project Administrator");
-            Add("SuperSolver", "Master Solver");
-            Add("Solver", "Solver");
-            Add("Reporter", "Reporter");
-        }
-    }
-    #endregion
-}
