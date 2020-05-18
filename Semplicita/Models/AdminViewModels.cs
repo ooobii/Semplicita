@@ -7,29 +7,29 @@ using System.Web;
 
 namespace Semplicita.Models
 {
-    public class UsersAllocViewModel
+    public class ServerConfigViewModel
     {
         public ICollection<ApplicationUser> Users { get; set; }
         public ICollection<Project> Projects { get; set; }
+        public ICollection<ProjectWorkflow> Workflows { get; set; }
     }
 
-    public class AddRemoveUsersProjectsViewModel
+    public class AddRemoveUsersProjectsModel
     {
         public ICollection<string> UserIds { get; set; }
         public ICollection<int> ProjectIds { get; set; }
+        public string ReturningViewName { get; set; }
     }
-    public class AddRemoveUsersRolesViewModel
+    public class AddRemoveUsersRolesModel
     {
         public ICollection<string> UserIds { get; set; }
         public ICollection<string> Roles { get; set; }
     } 
 
 
-    public class ProjectConfigViewModel
+    public class SetProjectWorkflowModel
     {
-        public ICollection<ApplicationUser> Users { get; set; }
-        public ICollection<Project> Projects { get; set; }
-
-        public ICollection<ProjectWorkflow> Workflows { get; set; }
+        public ICollection<int> ProjectIds { get; set; }
+        public int? WorkflowId { get; set; }
     }
 }
