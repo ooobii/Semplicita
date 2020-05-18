@@ -71,6 +71,33 @@ namespace Semplicita.Helpers
             return db.Users.Where(u => u.Projects.All(p => p.Id != projectId)).ToList();
         }
 
+        public bool SetProjectWorkflow(int projectId, int workflowId) {
+            if (db.Projects.Find(projectId).ActiveWorkflowId == workflowId) { return false; }
 
+            try {
+                var foundWorkflow = db.ProjectWorkflows.Find(workflowId);
+                db.Projects.Find(projectId).ActiveWorkflowId = foundWorkflow.Id;
+                //db.Projects.Find(projectId).ActiveWorkflow = foundWorkflow;
+                db.SaveChanges();
+                return true;
+            } catch {
+                return false;
+            }
+
+        }
+        public bool SetProjectWorkflow(int projectId, int workflowId, ApplicationDbContext context) {
+            if( context.Projects.Find(projectId).ActiveWorkflowId == workflowId ) { return false; }
+
+            try {
+                var foundWorkflow = db.ProjectWorkflows.Find(workflowId);
+                context.Projects.Find(projectId).ActiveWorkflowId = foundWorkflow.Id;
+                //context.Projects.Find(projectId).ActiveWorkflow = foundWorkflow;
+                context.SaveChanges();
+                return true;
+            } catch {
+                return false;
+            }
+
+        }
     }
 }
