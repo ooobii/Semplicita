@@ -135,9 +135,9 @@ namespace Semplicita.Migrations
                 var status = new TicketStatus() {
                     Name = "Investigation",
                     Display = "Investigation",
-                    Description = "The solver has started looking into potential solutions to the reporter's inquiry.",
+                    Description = "The solver has started looking into potential solutions for the reporter's inquiry.",
                     IsStarted = true,
-                    IsInProgress = false,
+                    IsInProgress = true,
                     IsPausedPending = false,
                     IsResolved = false,
                     IsClosed = false,
@@ -159,20 +159,6 @@ namespace Semplicita.Migrations
                 };
                 context.TicketStatuses.Add(status);
             }
-            if( !context.TicketStatuses.Any(tst => tst.Name == "NeedInfo") ) {
-                var status = new TicketStatus() {
-                    Name = "NeedInfo",
-                    Display = "More Information Required",
-                    Description = "This issue cannot be worked on with the information redialy available. More information is required from the reporter before work can continue.",
-                    IsStarted = true,
-                    IsInProgress = false,
-                    IsPausedPending = true,
-                    IsResolved = false,
-                    IsClosed = false,
-                    IsCanceled = false
-                };
-                context.TicketStatuses.Add(status);
-            }
             if( !context.TicketStatuses.Any(tst => tst.Name == "Reviewing") ) {
                 var status = new TicketStatus() {
                     Name = "Reviewing",
@@ -187,11 +173,12 @@ namespace Semplicita.Migrations
                 };
                 context.TicketStatuses.Add(status);
             }
-            if( !context.TicketStatuses.Any(tst => tst.Name == "Pending") ) {
+
+            if( !context.TicketStatuses.Any(tst => tst.Name == "NeedInfo") ) {
                 var status = new TicketStatus() {
-                    Name = "Pending",
-                    Display = "Pending/Blocked",
-                    Description = "This issue cannot be worked on at the moment due to other pending issues, or because a potential solution has not yet been found.",
+                    Name = "NeedInfo",
+                    Display = "More Information Required",
+                    Description = "This issue cannot be worked on with the information redialy available. More information is required from the reporter before work can continue.",
                     IsStarted = true,
                     IsInProgress = false,
                     IsPausedPending = true,
@@ -201,6 +188,21 @@ namespace Semplicita.Migrations
                 };
                 context.TicketStatuses.Add(status);
             }
+            if( !context.TicketStatuses.Any(tst => tst.Name == "ReporterWaiting") ) {
+                var status = new TicketStatus() {
+                    Name = "ReporterWaiting",
+                    Display = "Reporter Waiting",
+                    Description = "The reporter has added additional information, and is waiting for confirmation from the solver.",
+                    IsStarted = true,
+                    IsInProgress = false,
+                    IsPausedPending = false,
+                    IsResolved = false,
+                    IsClosed = false,
+                    IsCanceled = false
+                };
+                context.TicketStatuses.Add(status);
+            }
+
 
             if( !context.TicketStatuses.Any(tst => tst.Name == "Solved") ) {
                 var status = new TicketStatus() {
