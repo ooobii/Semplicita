@@ -45,14 +45,15 @@ namespace Semplicita.Controllers
 
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         public ActionResult UserAllocation() {
-            var model = new UsersAllocViewModel() { Users = db.Users.ToList(), Projects = db.Projects.ToList() };
+            var model = new ServerConfigViewModel() { Users = db.Users.ToList(), Projects = db.Projects.ToList() };
             return View(model);
         }
 
         [HttpPost]
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         [MultipleButton(Name = "projectUsers", Argument = "Add")]
-        public ActionResult AddUsersToProject([Bind(Include = "UserIds,ProjectIds")]AddRemoveUsersProjectsViewModel model) {
+        [ValidateAntiForgeryToken]
+        public ActionResult AddUsersToProject(AddRemoveUsersProjectsModel model) {
             var errors = new List<string>();
             var successes = new List<string>();
 
@@ -100,13 +101,19 @@ namespace Semplicita.Controllers
                 ViewBag.UserProjectAllocMessages = successes;
             }
 
-            return View(new UsersAllocViewModel() { Users = db.Users.ToList(), Projects = db.Projects.ToList() });
+            ServerConfigViewModel viewModel = new ServerConfigViewModel() {
+                Users = db.Users.ToList(),
+                Projects = db.Projects.ToList(),
+                Workflows = db.ProjectWorkflows.ToList()
+            };
+            return View(viewName: model.ReturningViewName ?? null, model: viewModel);
         }
 
         [HttpPost]
         [Authorize(Roles = "ServerAdmin")]
         [MultipleButton(Name = "userRoles", Argument = "Add")]
-        public ActionResult AddUsersToRoles(AddRemoveUsersRolesViewModel model) {
+        [ValidateAntiForgeryToken]
+        public ActionResult AddUsersToRoles(AddRemoveUsersRolesModel model) {
             var errors = new List<string>();
             var successes = new List<string>();
 
@@ -154,13 +161,19 @@ namespace Semplicita.Controllers
                 ViewBag.UserRoleAssignMessages = successes;
             }
 
-            return View(new UsersAllocViewModel() { Users = db.Users.ToList(), Projects = db.Projects.ToList() });
+            ServerConfigViewModel viewModel = new ServerConfigViewModel() {
+                Users = db.Users.ToList(),
+                Projects = db.Projects.ToList(),
+                Workflows = db.ProjectWorkflows.ToList()
+            };
+            return View(viewModel);
         }
 
         [HttpPost]
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         [MultipleButton(Name = "projectUsers", Argument = "Remove")]
-        public ActionResult RemoveUserFromProject([Bind(Include = "UserIds,ProjectIds")]AddRemoveUsersProjectsViewModel model) {
+        [ValidateAntiForgeryToken]
+        public ActionResult RemoveUserFromProject(AddRemoveUsersProjectsModel model) {
             var errors = new List<string>();
             var successes = new List<string>();
 
@@ -210,12 +223,18 @@ namespace Semplicita.Controllers
             }
 
 
-            return View(new UsersAllocViewModel() { Users = db.Users.ToList(), Projects = db.Projects.ToList() });
+            ServerConfigViewModel viewModel = new ServerConfigViewModel() { 
+                Users = db.Users.ToList(), 
+                Projects = db.Projects.ToList(),
+                Workflows = db.ProjectWorkflows.ToList()
+            };
+            return View(viewName: model.ReturningViewName ?? null, model: viewModel);
         }
         [HttpPost]
         [Authorize(Roles = "ServerAdmin")]
         [MultipleButton(Name = "userRoles", Argument = "Remove")]
-        public ActionResult RemoveUsersFromRoles(AddRemoveUsersRolesViewModel model) {
+        [ValidateAntiForgeryToken]
+        public ActionResult RemoveUsersFromRoles(AddRemoveUsersRolesModel model) {
             var errors = new List<string>();
             var successes = new List<string>();
 
@@ -263,16 +282,23 @@ namespace Semplicita.Controllers
                 ViewBag.UserRoleAssignMessages = successes;
             }
 
-            return View(new UsersAllocViewModel() { Users = db.Users.ToList(), Projects = db.Projects.ToList() });
+            ServerConfigViewModel viewModel = new ServerConfigViewModel() { 
+                Users = db.Users.ToList(), 
+                Projects = db.Projects.ToList(),
+                Workflows = db.ProjectWorkflows.ToList()
+            };
+            return View(viewModel);
         }
 
-        #endregion Project Managment
+        #endregion
+
+
 
         #region Project Configuration
 
         [Authorize(Roles = "ServerAdmin")]
         public ActionResult ProjectConfiguration() {
-            return View(new ProjectConfigViewModel() { 
+            return View(new ServerConfigViewModel() { 
                 Users = db.Users.ToList(), 
                 Projects = db.Projects.ToList(),
                 Workflows = db.ProjectWorkflows.ToList()
