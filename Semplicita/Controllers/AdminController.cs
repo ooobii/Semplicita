@@ -305,6 +305,67 @@ namespace Semplicita.Controllers
             });
         }
 
+        [HttpPost]
+        [Authorize]
+        [MultipleButton(Name = "projWorkflow", Argument = "Set")]
+        public ActionResult SetProjectWorkflow(SetProjectWorkflowModel model) {
+            var errors = new List<string>();
+            var successes = new List<string>();
+
+            if( model.ProjectIds == null ) {
+
+                errors.Add("You must select at least 1 project to set the workflow of.");
+
+            } else if( model.WorkflowId == null ) {
+
+                errors.Add("You must select at least 1 workflow to assign.");
+
+            } else {
+                var workflow = db.ProjectWorkflows.FirstOrDefault(pwf => pwf.Id == model.WorkflowId);
+
+                if (workflow == null) {
+
+                    errors.Add("Unable to locate the selected workflow.");
+
+                } else {
+                    foreach( int projectId in model.ProjectIds ) {
+                        var project = db.Projects.FirstOrDefault(p => p.Id == projectId);
+
+                        if( project != null ) {
+
+                            var result = projectHelper.SetProjectWorkflow(projectId, workflow.Id, db);
+                            if (!result) {
+                                errors.Add($"Unable to change the workflow of project '{project.Name}' to '{workflow.Name}'.");
+                            } else {
+                                successes.Add($"{project.Name}'s workflow has been changed to {workflow.Name}");
+                            }
+
+                        } else { //project ID was not found.
+                            errors.Add("Unable to locate one of the selected projects.");
+                        }
+
+                    }
+                }
+            }
+            db.SaveChanges();
+
+
+            if( errors.Count > 0 ) {
+                ViewBag.ProjWorkflowAssignErrors = errors;
+            }
+            if( successes.Count > 0 ) {
+                ViewBag.ProjWorkflowAssignMessages = successes;
+            }
+
+            var viewModel = new ServerConfigViewModel() {
+                Users = db.Users.ToList(),
+                Projects = db.Projects.ToList(),
+                Workflows = db.ProjectWorkflows.ToList()
+            };
+
+            return View(viewModel);
+        }
+
         #endregion
 
 
