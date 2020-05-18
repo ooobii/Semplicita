@@ -16,11 +16,25 @@ namespace Semplicita.Helpers
         private UserManager<ApplicationUser> userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext()));
 
         public ICollection<string> ListAllRoles() {
-            return db.Roles.Select(r => r.Name).ToList();
+            return db.Roles.Select(r => r.Name).OrderBy(x =>
+                x == "ServerAdmin" ? 1 :
+                x == "ProjectAdmin" ? 2 :
+                x == "SuperSolver" ? 3 :
+                x == "Solver" ? 4 :
+                x == "Reporter" ? 5 :
+                6
+            ).ToList();
         }
         public ICollection<string> ListAllRoleDisplayNames() {
             var output = new List<string>();
-            foreach (var role in db.Roles.Select(r => r.Name).ToList()) {
+            foreach (var role in db.Roles.Select(r => r.Name).OrderBy(x =>
+                x == "ServerAdmin" ? 1 :
+                x == "ProjectAdmin" ? 2 :
+                x == "SuperSolver" ? 3 :
+                x == "Solver" ? 4 :
+                x == "Reporter" ? 5 :
+                6
+            ).ToList()) {
                 output.Add(roleDictionary[ role ]);
             }
             return output;
@@ -30,7 +44,14 @@ namespace Semplicita.Helpers
         }
         public ICollection<string> ListUserRoleDisplayNames(string userId) {
             var output = new List<string>();
-            foreach( var role in userManager.GetRoles(userId) ) {
+            foreach( var role in userManager.GetRoles(userId).OrderBy(x =>
+                x == "ServerAdmin" ? 1:
+                x == "ProjectAdmin" ? 2:
+                x == "SuperSolver" ? 3:
+                x == "Solver" ? 4:
+                x == "Reporter" ? 5:
+                6
+            )) {
                 output.Add(roleDictionary[ role ]);
             }
             return output;
