@@ -18,21 +18,25 @@ namespace Semplicita.Models
 
         public int Id { get; set; }
         public string Name { get; set; }
+        public string Description { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? ModifiedAt { get; set; }
 
 
         //ticket auto-assign behavior
         public AutoTicketAssignBehaviorType AutoTicketAssignBehavior { get; set; }
         public string AutoTicketAssignUserId { get; set; }
-        public int MinutesUntilAutoAssigned { get; set; }
+        public int? MinutesUntilAutoAssigned { get; set; }
 
 
         //event-based status change IDs for each role interaction with the ticket
-        public int InitialTicketStatusId { get; set; }
-        public int ReporterInteractionStatusId { get; set; }
-        public int SolverInteractionStatusId { get; set; }
-        public int SuperSolverInteractionStatusId { get; set; }
-        public int ProjMgrInteractionStatusId { get; set; }
-        public int ServerAdminInteractionStatusId { get; set; }
+        public int? InitialTicketStatusId { get; set; }
+        public int? TicketAssignedStatusId { get; set; }
+        public int? ReporterInteractionStatusId { get; set; }
+        public int? SolverInteractionStatusId { get; set; }
+        public int? SuperSolverInteractionStatusId { get; set; }
+        public int? ProjMgrInteractionStatusId { get; set; }
+        public int? ServerAdminInteractionStatusId { get; set; }
 
 
         //allow reporter or staff (solver and above) to manually set ticket statuses after interaction
