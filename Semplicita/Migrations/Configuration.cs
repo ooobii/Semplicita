@@ -4,9 +4,11 @@ namespace Semplicita.Migrations
     using Microsoft.AspNet.Identity.EntityFramework;
     using Semplicita.Models;
     using System;
+    using System.Collections.Generic;
     using System.Data.Entity;
     using System.Data.Entity.Migrations;
     using System.Drawing;
+    using System.EnterpriseServices;
     using System.Linq;
 
     internal sealed class Configuration : DbMigrationsConfiguration<Semplicita.Models.ApplicationDbContext>
@@ -219,6 +221,20 @@ namespace Semplicita.Migrations
                 context.TicketStatuses.Add(status);
             }
 
+            if( !context.TicketStatuses.Any(tst => tst.Name == "Pending") ) {
+                var status = new TicketStatus() {
+                    Name = "Pending",
+                    Display = "Pending/Blocked",
+                    Description = "This issue cannot be worked on at the moment due to other pending issues, or because a potential solution has not yet been found.",
+                    IsStarted = true,
+                    IsInProgress = false,
+                    IsPausedPending = true,
+                    IsResolved = false,
+                    IsClosed = false,
+                    IsCanceled = false
+                };
+                context.TicketStatuses.Add(status);
+            }
             if( !context.TicketStatuses.Any(tst => tst.Name == "CantSolve") ) {
                 var status = new TicketStatus() {
                     Name = "CantSolve",
@@ -280,6 +296,67 @@ namespace Semplicita.Migrations
 
             #endregion
 
+            #region Project Workflow Creation
+
+            if( !context.ProjectWorkflows.Any(pwf => pwf.Name == "Blank Workflow") ) {
+                var workflow = new ProjectWorkflow() {
+                    Name = "Blank Workflow",
+                    Description = "As named, this allows tickets to flow through projects, with all statuses being set manually.",
+                    CreatedAt = DateTime.Now,
+
+                    AutoTicketAssignBehavior = ProjectWorkflow.AutoTicketAssignBehaviorType.LeaveUnassigned,
+
+                    CanStaffSetStatusOnInteract = true,
+                    CanTicketOwnerSetStatusOnInteract = true
+                };
+
+                context.ProjectWorkflows.Add(workflow);               
+            }
+
+            if( !context.ProjectWorkflows.Any(pwf => pwf.Name == "Default Workflow") ) {
+                var workflow = new ProjectWorkflow() {
+                    Name = "Default Workflow",
+                    Description = "An example workflow that takes tickets into standard statuses upon normal interactions.",
+                    CreatedAt = DateTime.Now,
+
+                    AutoTicketAssignBehavior = ProjectWorkflow.AutoTicketAssignBehaviorType.WorkloadBasedAvailability,
+
+                    InitialTicketStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "New-Unassigned").Id,
+                    TicketAssignedStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "New-Assigned").Id,
+                    ReporterInteractionStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "ReporterWaiting").Id,
+                    SolverInteractionStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Investigation").Id,
+                    SuperSolverInteractionStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Investigation").Id,
+
+                    CanStaffSetStatusOnInteract = true,
+                    CanTicketOwnerSetStatusOnInteract = false
+                };
+
+                context.ProjectWorkflows.Add(workflow);
+            }
+
+            #endregion
+
+            #region Project Creation
+
+            if( !context.Projects.Any(p => p.Name == "Default Project") ) {
+                var project = new Project() {
+                    Name = "Default Project",
+                    Description = "The default project that issues get placed into.",
+                    CreatedAt = DateTime.Now,
+                    ProjectManagerId = context.Users.First(u => u.Email == "matt_wendel@hotmail.com").Id,
+                    IsActiveProject = true,
+
+                    Members = new List<ApplicationUser>() { context.Users.ToList().First(u => u.Email == "matt_wendel@hotmail.com"),
+                                                            context.Users.ToList().First(u => u.Email == "JasonTwichell@coderfoundry.com"),
+                                                            context.Users.ToList().First(u => u.Email == "arussell@coderfoundry.com")
+                                                          },
+
+                    ActiveWorkflowId = context.ProjectWorkflows.ToList().FirstOrDefault(pwf => pwf.Name == "Default Workflow").Id
+                };
+                context.Projects.Add(project);
+            }
+
+            #endregion
         }
     }
 }
