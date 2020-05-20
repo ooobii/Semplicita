@@ -31,6 +31,11 @@ namespace Semplicita.Models
         public virtual ICollection<TicketHistoryEntry> HistoryEntries { get; set; }
         public virtual ICollection<TicketNotification> Notifications { get; set; }
 
+
+        public string GetTicketIdentifier() {
+            return ParentProject.TicketTag + this.Id;
+        }
+
         public Ticket() {
             Attachments = new HashSet<TicketAttachment>();
             Comments = new HashSet<TicketComment>();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Semplicita.Models
 {
@@ -8,6 +9,11 @@ namespace Semplicita.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+
+        [Required]
+        [StringLength(3, MinimumLength = 1)]
+        public string TicketTag { get; set; }
+
         public DateTime CreatedAt { get; set; }
         public DateTime? ModifiedAt { get; set; }
         public string ProjectManagerId { get; set; }
