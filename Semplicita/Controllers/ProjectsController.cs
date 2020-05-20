@@ -36,7 +36,7 @@ namespace Semplicita.Controllers
             return View("Show", project);
         }
 
-        // GET: Projects/Create
+        // View
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         [Route("CreateNewProject")]
         public ActionResult New() {
@@ -62,9 +62,7 @@ namespace Semplicita.Controllers
             return View(viewModel);
         }
 
-        // POST: Projects/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        // Post
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
