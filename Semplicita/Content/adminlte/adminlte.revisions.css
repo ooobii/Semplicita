@@ -73,9 +73,43 @@
 .select2-selection select2-selection--single, select2-selection__arrow {
     height: 38px;
 }
+.callout {
+    background-color: rgba(255, 255, 255, 0.85);
+}
 
- /*Footer*/
+.card-header-icon {
+    margin-right: 10px;
+}
+
+.radio-success.custom-control-input:checked ~ .custom-control-label::before {
+    border-color: #5FCF5F;
+    background-color: #015a00;
+    box-shadow: 0px 0px 5px #B7FFA7;
+}
+.radio-warning.custom-control-input:checked ~ .custom-control-label::before {
+    border-color: #91951D;
+    background-color: #FFD900;
+    box-shadow: 0px 0px 3px #FFD900;
+}
+.radio-danger.custom-control-input:checked ~ .custom-control-label::before {
+    background-color: #CB0801;
+}
+/*Footer*/
 .main-footer {
     color: black;
     background-color: #B2B0B7;
+}
+
+
+/*Jumbotron*/
+@media (min-width: 576px) {
+    .jumbotron-skinny {
+        padding: 1.5rem 2rem;
+    }
+}
+.bg-green {
+    background-color: green !important;
+}
+.bg-darkgreen {
+    background-color: #015a00 !important;
 }
