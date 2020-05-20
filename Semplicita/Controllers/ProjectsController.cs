@@ -38,6 +38,7 @@ namespace Semplicita.Controllers
 
         // GET: Projects/Create
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
+        [Route("CreateNewProject")]
         public ActionResult New() {
             var projAdmins = new List<ApplicationUser>();
             var availMembers = new List<ApplicationUser>();
