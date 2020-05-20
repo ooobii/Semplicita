@@ -19,26 +19,15 @@ namespace Semplicita.Controllers
 
 
         // GET: Projects
+        [Route("projects")]
         public ActionResult Index()
         {
             return View(db.Projects.ToList());
         }
 
-        [Route("Projects/{tickettag}")]
-        public ActionResult Index(string tickettag) {
-            if( tickettag == null ) {
-                return View(db.Projects.ToList());
-            }
-            Project project = db.Projects.FirstOrDefault(p => p.TicketTag == tickettag);
-            if( project == null ) {
-                return HttpNotFound();
-            }
-            return View("Show", project);
-        }
-
         // View
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        [Route("CreateNewProject")]
+        [Route("projects/create")]
         public ActionResult New() {
             var projAdmins = new List<ApplicationUser>();
             var availMembers = new List<ApplicationUser>();
@@ -92,15 +81,30 @@ namespace Semplicita.Controllers
             return View(project);
         }
 
+
+
+        [Route("project/{tickettag}")]
+        public ActionResult Project(string tickettag) {
+            if( tickettag == null ) {
+                return View(db.Projects.ToList());
+            }
+            Project project = db.Projects.FirstOrDefault(p => p.TicketTag == tickettag);
+            if( project == null ) {
+                return HttpNotFound();
+            }
+            return View("Show", project);
+        }
+
         // GET: Projects/Edit/5
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        public ActionResult Edit(int? id)
+        [Route("project/edit/{tickettag}")]
+        public ActionResult Edit(string tickettag)
         {
-            if (id == null)
+            if (tickettag == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Project project = db.Projects.Find(id);
+            Project project = db.Projects.FirstOrDefault(p => p.TicketTag == tickettag);
             if (project == null)
             {
                 return HttpNotFound();
@@ -109,8 +113,6 @@ namespace Semplicita.Controllers
         }
 
         // POST: Projects/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -127,15 +129,14 @@ namespace Semplicita.Controllers
 
         // GET: Projects/Delete/5
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        public ActionResult Delete(int? id)
+        [Route("project/delete/{tickettag}")]
+        public ActionResult Delete(string tickettag)
         {
-            if (id == null)
-            {
+            if( tickettag == null ) {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Project project = db.Projects.Find(id);
-            if (project == null)
-            {
+            Project project = db.Projects.FirstOrDefault(p => p.TicketTag == tickettag);
+            if( project == null ) {
                 return HttpNotFound();
             }
             return View(project);
@@ -152,6 +153,9 @@ namespace Semplicita.Controllers
             db.SaveChanges();
             return RedirectToAction("Index");
         }
+
+
+
 
         protected override void Dispose(bool disposing)
         {

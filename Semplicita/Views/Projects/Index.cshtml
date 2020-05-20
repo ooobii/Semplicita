@@ -45,13 +45,13 @@
             <td>
                 <div class="row">
                     <div class="col-xl-4">
-                        @Html.ActionLink("Edit", "Edit", new { id = item.Id }, new { @class = "btn btn-success btn-block text-center" })
+                        @Html.ActionLink("Edit", "Edit", new { tickettag = item.TicketTag }, new { @class = "btn btn-success btn-block text-center" })
                     </div>
                     <div class="col-xl-4">
-                        @Html.ActionLink("Details", "Index", new { tickettag = item.TicketTag }, new { @class = "btn btn-info btn-block text-center" })
+                        @Html.ActionLink("Details", "Project", new { tickettag = item.TicketTag }, new { @class = "btn btn-info btn-block text-center" })
                     </div>
                     <div class="col-xl-4">
-                        @Html.ActionLink("Delete", "Delete", new { id = item.Id }, new { @class = "btn btn-danger btn-block text-center" })
+                        @Html.ActionLink("Delete", "Delete", new { tickettag = item.TicketTag }, new { @class = "btn btn-danger btn-block text-center" })
                     </div>
                 </div>
                 
