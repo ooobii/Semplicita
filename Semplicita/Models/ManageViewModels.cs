@@ -12,6 +12,8 @@ namespace Semplicita.Models
         public string PhoneNumber { get; set; }
         public bool TwoFactor { get; set; }
         public bool BrowserRemembered { get; set; }
+
+        public ApplicationUser ThisUser { get; set; }
     }
 
     public class ManageLoginsViewModel
@@ -82,5 +84,18 @@ namespace Semplicita.Models
     {
         public string SelectedProvider { get; set; }
         public ICollection<System.Web.Mvc.SelectListItem> Providers { get; set; }
+    }
+
+    public class ChangeNameViewModel
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string ReturnViewName { get; set; }
+    }
+
+    public class ChangeEmailViewModel
+    {
+        public string NewEmail { get; set; }
+        public string NewEmailConfirmed { get; set; }
     }
 }
