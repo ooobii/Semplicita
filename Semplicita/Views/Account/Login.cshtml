@@ -35,6 +35,9 @@
         <div class="card">
             <div class="card-body login-card-body">
                 <p class="login-box-msg">Please enter your credentials to continue.</p>
+                @if( ViewBag.AccountUpdateEmailMessage != null ) {
+                    <p class="text-success">@ViewBag.AccountUpdateEmailMessage</p>
+                }
 
                 @using( Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }) ) {
                     @Html.AntiForgeryToken()
