@@ -9,34 +9,132 @@
 </div>
 
 <div class="row">
-    <div class="col-xl-4">
+    <div class="col-xl-4 p-3 pt-0">
         <div class="card card-warning">
             <div class="card-header">
-                <h5>Authentication</h5>
+                <h5 class="pt-2">Authentication</h5>
             </div>
 
             <div class="card-body">
+                @if( ViewBag.StatusMessage != "" ) {
+                    <div class="alert alert-success alert-dismissibl">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        <h6><i class="icon fas fa-check"></i> <b>Success!</b></h6>
+                        @ViewBag.StatusMessage
+                    </div>
+                }
                 <a class="p-2" href="@Url.Action("ChangePassword")"><div class="btn btn-dark btn-block">Change Password</div></a>
                 <a class="p-2" href="@Url.Action("ManageLogins")"><div class="btn btn-dark btn-block">Manage External Logins (@Model.Logins.Count total) </div></a>
             </div>
         </div>
     </div>
 
-    <div class="col-xl-8">
-        <div class="card card-info">
-            <div class="card-header">
-                <h5>User Preferences:</h5>
+    <div class="col-xl-8 p-3 pt-0">
+        <div class="card card-info card-tabs">
+            <div class="card-header p-0 pt-3">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="pt-2 px-3"><h5 class="card-title">User Preferences</h5></li>
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="pill" href="#manage-tab-name" role="tab" aria-selected="true">Name</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="pill" href="#manage-tab-email" role="tab" aria-selected="false">Email</a>
+                    </li>
+                </ul>
             </div>
-
             <div class="card-body">
-                <form action="" method="post">
+                <div class="tab-content" id="custom-tabs-two-tabContent">
+                    <div class="tab-pane fade show active" id="manage-tab-name" role="tabpanel" aria-labelledby="manage-tab-name">
+                        <p>
+                            To change the name associated with your account, please enter your changes here and click "Change Name" below.
+                            This will change the name that is shown on all tickets, projects, and interactions including past and future updates.
+                        </p>
+                        @if( ViewBag.AccountChangeNameMessage != null ) {
+                            <p class="text-success">@ViewBag.AccountChangeNameMessage</p>
+                        }
+                        @if( ViewBag.AccountChangeNameError != null ) {
+                            <p class="text-danger">@ViewBag.AccountChangeNameError</p>
+                        }
+                        <form action="" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="row pb-4">
+                                <div class="col-lg-6 pt-2">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text right" id="basic-addon1">First Name</span>
+                                        </div>
+                                        <input type="text" class="form-control" name="FirstName" value="@Model.ThisUser.FirstName">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 pt-2">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="basic-addon1">Last Name</span>
+                                        </div>
+                                        <input type="text" class="form-control" name="LastName" value="@Model.ThisUser.LastName">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-8 p-0"></div>
+                                <div class="col-4 p-0">
+                                    <div class="input-group">
+                                        <input type="submit" name="accountUpdate:ChangeName" class="btn btn-sm btn-block btn-success" value="Change Name" />
+                                    </div>
+                                </div>
+                            </div>
 
-                </form>
+                        </form>
+
+                    </div>
+                    <div class="tab-pane fade" id="manage-tab-email" role="tabpanel" aria-labelledby="manage-tab-email">
+                        <p>To change the email associated with your account, please enter your changes here and click the "Update Email" button below.</p>
+                        <div class="callout callout-danger">
+                            <p><b class="text-danger"><u>Careful</u>!</b> If you change the email associated with your account, you will be logged out. You <b>must confirm</b> your new email address before you will be able to log in again.</p>
+                        </div>
+                        @if( ViewBag.AccountChangeNameMessage != null ) {
+                            <p class="text-success">@ViewBag.AccountChangeNameMessage</p>
+                        }
+                        @if( ViewBag.AccountChangeNameError != null ) {
+                            <p class="text-danger">@ViewBag.AccountChangeNameError</p>
+                        }
+                    <form action="" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="row pb-2 pt-2">
+                            <div class="col">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text right" id="basic-addon1">@@</span>
+                                    </div>
+                                    <input type="text" class="form-control" name="NewEmail" value="@Model.ThisUser.Email">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row pb-4">
+                            <div class="col">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text right" id="basic-addon1">@@</span>
+                                    </div>
+                                    <input type="text" class="form-control" name="NewEmailConfirmed" value="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-8 p-0"></div>
+                            <div class="col-4 p-0">
+                                <div class="input-group">
+                                    <input type="submit" name="accountUpdate:UpdateEmail" class="btn btn-sm btn-block btn-success" value="Update Email" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+
+                    </div>
+                </div>
             </div>
-
-            <div class="card-footer">
-
-            </div>
+            <!-- /.card -->
         </div>
 
     </div>
