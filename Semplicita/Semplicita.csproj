@@ -192,6 +192,7 @@
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\ProjectComponents\Project.cs" />
     <Compile Include="Models\ProjectComponents\ProjectWorkflow.cs" />
+    <Compile Include="Models\ProjectViewModels.cs" />
     <Compile Include="Models\TicketComponents\Ticket.cs" />
     <Compile Include="Models\TicketComponents\TicketAttachment.cs" />
     <Compile Include="Models\TicketComponents\TicketComment.cs" />
