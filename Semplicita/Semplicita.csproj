@@ -472,7 +472,6 @@
     <Content Include="Views\Admin\Index.cshtml" />
     <Content Include="Views\Shared\_HomeNavSection.cshtml" />
     <Content Include="Views\Account\ConfirmationSent.cshtml" />
-    <Content Include="Views\Account\ResendConfirmationEmail.cshtml" />
     <Content Include="Views\Account\ResendEmailConfirmation.cshtml" />
     <Content Include="Views\Admin\UserAllocation.cshtml" />
     <Content Include="Views\Shared\_TicketsNavSection.cshtml" />
