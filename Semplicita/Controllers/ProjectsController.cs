@@ -36,21 +36,6 @@ namespace Semplicita.Controllers
             return View("Show", project);
         }
 
-        // GET: Projects/Details/5
-        public ActionResult Show(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Project project = db.Projects.Find(id);
-            if (project == null)
-            {
-                return HttpNotFound();
-            }
-            return View(project);
-        }
-
         // GET: Projects/Create
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         public ActionResult New() {
