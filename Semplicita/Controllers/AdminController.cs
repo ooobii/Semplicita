@@ -110,66 +110,6 @@ namespace Semplicita.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "ServerAdmin")]
-        [MultipleButton(Name = "userRoles", Argument = "Add")]
-        [ValidateAntiForgeryToken]
-        public ActionResult AddUsersToRoles(AddRemoveUsersRolesModel model) {
-            var errors = new List<string>();
-            var successes = new List<string>();
-
-            if( model.UserIds == null ) {
-
-                errors.Add("You must select at least 1 user to manipulate.");
-
-            } else if( model.Roles == null ) {
-
-                errors.Add("You must select at least 1 role.");
-
-            } else {
-
-                foreach( string userId in model.UserIds ) {
-                    var user = db.Users.FirstOrDefault(u => u.Id == userId);
-
-                    if( user != null ) {
-
-                        foreach( string role in model.Roles ) {
-                            var addRoleSuccess = rolesHelper.AddUserToRole(userId, role);
-
-                            if( !addRoleSuccess ) {
-                                errors.Add($"Unable to add '{user.FullNameStandard}' to the role '{roleDisplays[ role ]}'.");
-                            } else {
-                                successes.Add($"'{user.FullNameStandard}' has been added to the '{roleDisplays[ role ]}' role.");
-                            }
-                        }
-
-
-                    } else { //user ID was not found.
-
-                        if( !errors.Contains("Unable to locate one of the selected users.") ) {
-                            errors.Add("Unable to locate one of the selected users.");
-                        }
-
-                    }
-
-                }
-            }
-
-            if( errors.Count > 0 ) {
-                ViewBag.UserRoleAssignErrors = errors;
-            }
-            if( successes.Count > 0 ) {
-                ViewBag.UserRoleAssignMessages = successes;
-            }
-
-            ServerConfigViewModel viewModel = new ServerConfigViewModel() {
-                Users = db.Users.ToList(),
-                Projects = db.Projects.ToList(),
-                Workflows = db.ProjectWorkflows.ToList()
-            };
-            return View(viewModel);
-        }
-
-        [HttpPost]
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         [MultipleButton(Name = "projectUsers", Argument = "Remove")]
         [ValidateAntiForgeryToken]
@@ -229,6 +169,66 @@ namespace Semplicita.Controllers
                 Workflows = db.ProjectWorkflows.ToList()
             };
             return View(viewName: model.ReturningViewName ?? null, model: viewModel);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "ServerAdmin")]
+        [MultipleButton(Name = "userRoles", Argument = "Add")]
+        [ValidateAntiForgeryToken]
+        public ActionResult AddUsersToRoles(AddRemoveUsersRolesModel model) {
+            var errors = new List<string>();
+            var successes = new List<string>();
+
+            if( model.UserIds == null ) {
+
+                errors.Add("You must select at least 1 user to manipulate.");
+
+            } else if( model.Roles == null ) {
+
+                errors.Add("You must select at least 1 role.");
+
+            } else {
+
+                foreach( string userId in model.UserIds ) {
+                    var user = db.Users.FirstOrDefault(u => u.Id == userId);
+
+                    if( user != null ) {
+
+                        foreach( string role in model.Roles ) {
+                            var addRoleSuccess = rolesHelper.AddUserToRole(userId, role);
+
+                            if( !addRoleSuccess ) {
+                                errors.Add($"Unable to add '{user.FullNameStandard}' to the role '{roleDisplays[ role ]}'.");
+                            } else {
+                                successes.Add($"'{user.FullNameStandard}' has been added to the '{roleDisplays[ role ]}' role.");
+                            }
+                        }
+
+
+                    } else { //user ID was not found.
+
+                        if( !errors.Contains("Unable to locate one of the selected users.") ) {
+                            errors.Add("Unable to locate one of the selected users.");
+                        }
+
+                    }
+
+                }
+            }
+
+            if( errors.Count > 0 ) {
+                ViewBag.UserRoleAssignErrors = errors;
+            }
+            if( successes.Count > 0 ) {
+                ViewBag.UserRoleAssignMessages = successes;
+            }
+
+            ServerConfigViewModel viewModel = new ServerConfigViewModel() {
+                Users = db.Users.ToList(),
+                Projects = db.Projects.ToList(),
+                Workflows = db.ProjectWorkflows.ToList()
+            };
+            return View(viewModel);
         }
         [HttpPost]
         [Authorize(Roles = "ServerAdmin")]
@@ -291,7 +291,6 @@ namespace Semplicita.Controllers
         }
 
         #endregion
-
 
 
         #region Project Configuration
