@@ -2,6 +2,7 @@
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Semplicita.Models;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -10,10 +11,10 @@ using System.Web.Mvc;
 namespace Semplicita.Controllers
 {
     [Authorize]
-    public class ManageController : Controller
-    {
+    public class ManageController : Controller {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
+        private ApplicationDbContext db = new ApplicationDbContext();
 
         public ManageController() {
         }
@@ -59,7 +60,8 @@ namespace Semplicita.Controllers
                 PhoneNumber = await UserManager.GetPhoneNumberAsync(userId),
                 TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId),
                 Logins = await UserManager.GetLoginsAsync(userId),
-                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId)
+                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),
+                ThisUser = db.Users.Find(User.Identity.GetUserId())
             };
             return View(model);
         }
@@ -252,6 +254,75 @@ namespace Semplicita.Controllers
                 OtherLogins = otherLogins
             });
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [MultipleButton(Name = "accountUpdate", Argument = "ChangeName")]
+        public async Task<ActionResult> ChangeName(ChangeNameViewModel model) {
+            var userId = User.Identity.GetUserId();
+
+            try {
+                var oldFullName = db.Users.Find(userId).FullNameStandard;
+
+                db.Users.Find(User.Identity.GetUserId()).FirstName = model.FirstName;
+                db.Users.Find(User.Identity.GetUserId()).LastName = model.LastName;
+                await db.SaveChangesAsync();
+
+                ViewBag.AccountChangeNameMessage = $"Your name has been changed from '{oldFullName}' to '{model.FirstName} {model.LastName}'.";
+            } catch {
+                ViewBag.AccountChangeNameError = "We were unable to update your name. Please try again later.";
+            }
+
+            var viewModel = new IndexViewModel() {
+                HasPassword = HasPassword(),
+                PhoneNumber = await UserManager.GetPhoneNumberAsync(userId),
+                TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId),
+                Logins = await UserManager.GetLoginsAsync(userId),
+                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),
+                ThisUser = db.Users.Find(User.Identity.GetUserId())
+            };
+
+            return View(model.ReturnViewName, viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [MultipleButton(Name = "accountUpdate", Argument = "UpdateEmail")]
+        public async Task<ActionResult> UpdateEmail(ChangeEmailViewModel model) {
+            var userId = User.Identity.GetUserId();
+
+            if (model.NewEmail == model.NewEmailConfirmed) {
+                try {
+                    var oldEmail = db.Users.Find(userId).Email;
+
+                    db.Users.Find(User.Identity.GetUserId()).Email = model.NewEmail;
+                    db.Users.Find(User.Identity.GetUserId()).UserName = model.NewEmail;
+                    db.Users.Find(User.Identity.GetUserId()).EmailConfirmed = false;
+                    await db.SaveChangesAsync();
+
+                    ViewBag.AccountUpdateEmailMessage = $"Your email has been changed from '{oldEmail}' to '{model.NewEmail}'.";
+                    HttpContext.GetOwinContext().Authentication.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+
+                    
+                } catch {
+                    ViewBag.AccountUpdateEmailError = "We were unable to update the email address for your account. Please try again later.";
+                }
+            } else {
+                ViewBag.AccountUpdateEmailError = "The emails you entered were not the same. Please verify your email entries and try again.";
+            }
+
+
+            var viewModel = new IndexViewModel() {
+                HasPassword = HasPassword(),
+                PhoneNumber = await UserManager.GetPhoneNumberAsync(userId),
+                TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId),
+                Logins = await UserManager.GetLoginsAsync(userId),
+                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),
+                ThisUser = db.Users.Find(User.Identity.GetUserId())
+            };
+            return View(viewModel);
+        }
+
 
         //
         // POST: /Manage/LinkLogin
