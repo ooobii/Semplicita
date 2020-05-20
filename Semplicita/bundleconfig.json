@@ -40,5 +40,17 @@
     "inputFiles": [
       "Content/adminlte/adminlte.revisions.css"
     ]
+  },
+  {
+    "outputFileName": "Content/bootstrap-duallistbox.min.css",
+    "inputFiles": [
+      "Content/bootstrap-duallistbox.css"
+    ]
+  },
+  {
+    "outputFileName": "Scripts/jquery.bootstrap-duallistbox.min.js",
+    "inputFiles": [
+      "Scripts/jquery.bootstrap-duallistbox.js"
+    ]
   }
 ]
