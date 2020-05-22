@@ -1,79 +1,215 @@
-﻿@model Semplicita.Models.Project
-
+﻿@using Semplicita.Models
+@model EditProjectViewModel
 @{
-    Layout = null;
+    
 }
 
-<!DOCTYPE html>
+@section Stylesheets {
+    <!-- duallistbox -->
+    <link href="~/Content/bootstrap-duallistbox.min.css" rel="stylesheet" />
+}
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Edit</title>
-</head>
-<body>
-    @using (Html.BeginForm())
-    {
-        @Html.AntiForgeryToken()
-        
-        <div class="form-horizontal">
-            <h4>Project</h4>
-            <hr />
-            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-            @Html.HiddenFor(model => model.Id)
-    
-            <div class="form-group">
-                @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
-                </div>
+@using( Html.BeginForm("EditProject", "Projects", FormMethod.Post) ) {
+    @Html.AntiForgeryToken()
+    @Html.Hidden("ProjectId", Model.SelectedProject.Id)
+
+    <div class="jumbotron jumbotron-skinny bg-navy">
+        <h1>Edit Project: "@Model.SelectedProject.Name"</h1>
+        <p class="lead">Change settings for how this project behaves, and who is allowed access to it's contents.</p>
+
+        <div class="col-xl-7 mb-0">
+            <div class="callout callout-info" style="color:black;">
+                <i class="fas fa-bullhorn"></i> <b>Just so you know</b>: fields marked with <b><span class="text-danger">*</span></b> are required fields, and cannot be left blank.
             </div>
-    
-            <div class="form-group">
-                @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="card card-purple">
+                <div class="card-header">
+                    <h5><i class="card-header-icon fas fa-info-circle"></i>Basic Information</h5>
                 </div>
-            </div>
-    
-            <div class="form-group">
-                @Html.LabelFor(model => model.CreatedAt, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.CreatedAt, new { htmlAttributes = new { @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.CreatedAt, "", new { @class = "text-danger" })
+
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label>Project Name <span class="text-danger">*</span></label>
+                                <input type="text" name="Name" class="form-control" placeholder="Enter Project Name..." value="@Model.SelectedProject.Name">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label>Ticket Prefix Tag <span class="text-danger">*</span></label>
+                                <input type="text" name="TicketTag" class="form-control" placeholder="Enter up to 3 characters..." value="@Model.SelectedProject.TicketTag">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description <span class="text-danger">*</span></label>
+                        <textarea name="Description" class="form-control" rows="3" placeholder="Enter Project Description...">@Model.SelectedProject.Description</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="custom-control custom-radio">
+                            <input class="radio-success custom-control-input" type="radio" value="true" id="projActiveRadio" name="IsActiveProject" @Html.Raw(Model.SelectedProject.IsActiveProject ? "checked=\"checked\"":"")>
+                            <label value="true" for="projActiveRadio" class="custom-control-label">Project is Active</label>
+                        </div>
+                        <div class="custom-control custom-radio">
+                            <input class="radio-warning custom-control-input" type="radio" value="false" id="projInactiveRadio" name="IsActiveProject" @Html.Raw(!Model.SelectedProject.IsActiveProject ? "checked=\"checked\"":"")>
+                            <label value="false" for="projInactiveRadio" class="custom-control-label">Project is Inactive</label>
+                        </div>
+                    </div>
+
                 </div>
+
             </div>
-    
-            <div class="form-group">
-                @Html.LabelFor(model => model.ModifiedAt, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.ModifiedAt, new { htmlAttributes = new { @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.ModifiedAt, "", new { @class = "text-danger" })
-                </div>
-            </div>
-    
-            <div class="form-group">
-                @Html.LabelFor(model => model.IsActiveProject, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    <div class="checkbox">
-                        @Html.EditorFor(model => model.IsActiveProject)
-                        @Html.ValidationMessageFor(model => model.IsActiveProject, "", new { @class = "text-danger" })
+        </div>
+
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    </div>
+    <div class="row pt-3">
+        <div class="col-xl-4">
+            <div class="row">
+                <div class="col">
+                    <div class="card card-blue">
+                        <div class="card-header">
+                            <h5><i class="card-header-icon fas fa-bezier-curve"></i>Project Manager</h5>
+                        </div>
+                        <div class="card-body">
+                            @if( ViewBag.ProjectManagerAssignErrors != null ) {
+                                <div class="row">
+                                    <p class="text-danger">@ViewBag.ProjectManagerAssignErrors</p>
+                                </div>
+                            }
+                            @if( ViewBag.ProjectManagerAssignMessages != null ) {
+                                <div class="row">
+                                    <p class="text-success">@ViewBag.ProjectManagerAssignMessages</p>
+                                </div>
+                            }
+
+                            <p>Select the managing user of this project:</p>
+
+                            <div class="select2-purple">
+                                <select class="select2" data-placeholder="Select or Type Name..." hidden="hidden" data-dropdown-css-class="select2-purple" style="width: 100%;" name="ProjectManagerId">
+                                    @foreach( ApplicationUser u in Model.ProjectAdministrators.OrderBy(u => u.LastName) ) {
+                                        <option value="@u.Id" @Html.Raw(u.Id == Model.SelectedProject.ProjectManagerId ? "selected=\"selected\"" : "")>@u.FullNameStandard (@u.Email)</option>
+                                    }
+                                </select>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
             </div>
-    
-            <div class="form-group">
-                <div class="col-md-offset-2 col-md-10">
-                    <input type="submit" value="Save" class="btn btn-default" />
+            <div class="row">
+                <div class="col">
+                    <div class="card card-navy">
+                        <div class="card-header">
+                            <h5><i class="card-header-icon far fa-paper-plane"></i>Ticket Workflow</h5>
+                        </div>
+                        <div class="card-body">
+                            @if( ViewBag.ProjectManagerAssignErrors != null ) {
+                                <div class="row">
+                                    <p class="text-danger">@ViewBag.ProjectManagerAssignErrors</p>
+                                </div>
+                            }
+                            @if( ViewBag.ProjectManagerAssignMessages != null ) {
+                                <div class="row">
+                                    <p class="text-success">@ViewBag.ProjectManagerAssignMessages</p>
+                                </div>
+                            }
+
+                            <p>Select the the workflow that will be used as a strategy to set ticket statuses and assignment automatically:</p>
+
+                            <div class="select2-purple">
+                                <select class="select2" data-placeholder="Select or Type Workflow Name..." hidden="hidden" data-dropdown-css-class="select2-purple" style="width: 100%;" name="ActiveWorkflowId">
+                                    @foreach( ProjectWorkflow pwf in Model.Workflows.OrderBy(pwf => pwf.Name) ) {
+                                        <option value="@pwf.Id" @Html.Raw(Model.SelectedProject.ActiveWorkflowId == pwf.Id ? "selected=\"selected\"" : "")>@pwf.Name</option>
+                                    }
+                                </select>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    }
-    
-    <div>
-        @Html.ActionLink("Back to List", "Index")
+        <div class="col-xl-8">
+            <div class="card card-cyan">
+                <div class="card-header">
+                    <h5><i class="card-header-icon fas fa-street-view"></i>Members</h5>
+                </div>
+                <div class="card-body">
+                    @if( ViewBag.ProjectManagerAssignErrors != null ) {
+                        <div class="row">
+                            <p class="text-danger">@ViewBag.ProjectManagerAssignErrors</p>
+                        </div>
+                    }
+                    @if( ViewBag.ProjectManagerAssignMessages != null ) {
+                        <div class="row">
+                            <p class="text-success">@ViewBag.ProjectManagerAssignMessages</p>
+                        </div>
+                    }
+
+                    <p>Select the users that will participate in solving and reporting issues within this project:</p>
+                    @*<div class="row">
+                            <div class="col">
+                                <b>Available Users:</b>
+                            </div>
+                            <div class="col">
+                                <b>Selected Users:</b>
+                            </div>
+                        </div>*@
+                    <select class="duallistbox" multiple="multiple" name="MemberIds">
+                        @foreach( ApplicationUser u in Model.AvailableMembers ) {
+                            <option value="@u.Id" @Html.Raw(Model.SelectedProject.Members.Select(m => m.Id).ToList().Contains(u.Id) ? "selected=\"selected\"" : "") }>@u.FullNameStandard (@u.Email)</option>
+                        }
+                    </select>
+
+                </div>
+            </div>
+        </div>
     </div>
-</body>
-</html>
+    <div class="row pt-5 pb-3">
+        <div class="col-8"></div>
+        <div class="col-4 justify-content-end">
+            <div class="input-group float-right">
+                <input type="submit" value="Submit Changes" class="btn btn-success btn-block" />
+            </div>
+        </div>
+    </div>
+
+}
+
+@section Scripts {
+    <!-- duallistselect -->
+    <script src="~/Scripts/jquery.bootstrap-duallistbox.min.js"></script>
+
+
+
+    @*select2 Init*@
+    <script>
+        $(document).ready(function () {
+            //Initialize Select2 Elements
+            $('.select2').select2()
+
+        })
+    </script>
+
+    @*init duallistbox*@
+    <script>
+        //Bootstrap Duallistbox
+        $('.duallistbox').bootstrapDualListbox({
+            nonSelectedListLabel: 'Available Members',
+            selectedListLabel: 'Selected Members',
+            preserveSelectionOnMove: 'moved',
+            moveOnSelect: false,
+            iconPrefix: 'fas',
+            iconMove: 'fa-arrow-right',
+            iconRemove: 'fa-arrow-left',
+        });
+    </script>
+
+}
