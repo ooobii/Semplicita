@@ -83,6 +83,7 @@ namespace Semplicita.Controllers
 
 
 
+
         [Route("project/{tickettag}")]
         public ActionResult Project(string tickettag) {
             if( tickettag == null ) {
@@ -94,6 +95,9 @@ namespace Semplicita.Controllers
             }
             return View("Show", project);
         }
+
+
+
 
         // GET: Projects/Edit/5
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
@@ -109,23 +113,80 @@ namespace Semplicita.Controllers
             {
                 return HttpNotFound();
             }
-            return View(project);
+
+            var projAdmins = new List<ApplicationUser>();
+            var availMembers = new List<ApplicationUser>();
+
+            foreach( ApplicationUser u in db.Users ) {
+                var roles = rolesHelper.ListUserRoles(u.Id);
+                if( roles.Contains("SuperSolver") || roles.Contains("Solver") || roles.Contains("Reporter") ) {
+                    availMembers.Add(u);
+                }
+                if( roles.Contains("ProjectAdmin") ) {
+                    projAdmins.Add(u);
+                }
+            }
+
+            var veiwModel = new EditProjectViewModel() {
+                SelectedProject = project,
+                ProjectAdministrators = projAdmins,
+                AvailableMembers = availMembers,
+                Workflows = db.ProjectWorkflows.ToList()
+            };
+            return View(veiwModel);
         }
 
         // POST: Projects/Edit/5
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,Name,Description,CreatedAt,ModifiedAt,IsActiveProject")] Project project)
+        public ActionResult EditProject(EditProjectModel model)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(project).State = EntityState.Modified;
+                Project project = db.Projects.Find(model.ProjectId);
+                var projectMembers = new List<ApplicationUser>();
+                projectMembers.AddRange(db.Users.Where(u => model.MemberIds.Contains(u.Id)));
+
+                project.Name = model.Name;
+                project.Description = model.Description;
+                project.ModifiedAt = DateTime.Now;
+                project.TicketTag = model.TicketTag;
+                project.IsActiveProject = model.IsActiveProject;
+                project.ProjectManagerId = model.ProjectManagerId;
+                project.ActiveWorkflowId = model.ActiveWorkflowId;
+                project.Members.Clear();
+                foreach (string uId in model.MemberIds) {
+                    project.Members.Add(db.Users.Find(uId));
+                }
+
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            return View(project);
+            var projAdmins = new List<ApplicationUser>();
+            var availMembers = new List<ApplicationUser>();
+
+            foreach( ApplicationUser u in db.Users ) {
+                var roles = rolesHelper.ListUserRoles(u.Id);
+                if( roles.Contains("SuperSolver") || roles.Contains("Solver") || roles.Contains("Reporter") ) {
+                    availMembers.Add(u);
+                }
+                if( roles.Contains("ProjectAdmin") ) {
+                    projAdmins.Add(u);
+                }
+            }
+
+            var veiwModel = new EditProjectViewModel() {
+                SelectedProject = db.Projects.Find(model.ProjectId),
+                ProjectAdministrators = projAdmins,
+                AvailableMembers = availMembers,
+                Workflows = db.ProjectWorkflows.ToList()
+            };
+            return View(veiwModel);
         }
+
+
+
 
         // GET: Projects/Delete/5
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
