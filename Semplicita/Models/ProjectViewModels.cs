@@ -43,4 +43,13 @@ namespace Semplicita.Models
         public ICollection<string> MemberIds { get; set; }
        
     }
+
+    public class EditProjectViewModel : CreateProjectViewModel
+    {
+        public Project SelectedProject { get; set; }
+    }
+    public class EditProjectModel : NewProjectModel
+    {
+        public int ProjectId { get; set; }
+    }
 }
