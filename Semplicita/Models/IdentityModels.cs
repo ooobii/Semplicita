@@ -13,6 +13,7 @@ namespace Semplicita.Models
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public bool IsDemoUser { get; set; }
         public string AvatarImagePath { get; set; }
 
         [NotMapped]

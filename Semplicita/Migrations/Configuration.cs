@@ -89,7 +89,8 @@ namespace Semplicita.Migrations
                     Email = "demo_admin@matthewwendel.info",
                     FirstName = "Demo:",
                     LastName = "Server Admin",
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    IsDemoUser = true
                 };
                 userManager.Create(user, Util.GetSetting("demo:Password"));
                 userManager.AddToRole(user.Id, "ServerAdmin");
@@ -100,7 +101,8 @@ namespace Semplicita.Migrations
                     Email = "demo_projadmin@matthewwendel.info",
                     FirstName = "Demo:",
                     LastName = "Project Admin",
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    IsDemoUser = true
                 };
                 userManager.Create(user, Util.GetSetting("demo:Password"));
                 userManager.AddToRole(user.Id, "ProjectAdmin");
@@ -111,7 +113,8 @@ namespace Semplicita.Migrations
                     Email = "demo_ssolver@matthewwendel.info",
                     FirstName = "Demo:",
                     LastName = "Super Solver",
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    IsDemoUser = true
                 };
                 userManager.Create(user, Util.GetSetting("demo:Password"));
                 userManager.AddToRole(user.Id, "SuperSolver");
@@ -122,7 +125,8 @@ namespace Semplicita.Migrations
                     Email = "demo_solver@matthewwendel.info",
                     FirstName = "Demo:",
                     LastName = "Solver",
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    IsDemoUser = true
                 };
                 userManager.Create(user, Util.GetSetting("demo:Password"));
                 userManager.AddToRole(user.Id, "Solver");
@@ -133,7 +137,8 @@ namespace Semplicita.Migrations
                     Email = "demo@matthewwendel.info",
                     FirstName = "Demo:",
                     LastName = "Reporter",
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    IsDemoUser = true
                 };
                 userManager.Create(user, Util.GetSetting("demo:Password"));
                 userManager.AddToRole(user.Id, "Reporter");
