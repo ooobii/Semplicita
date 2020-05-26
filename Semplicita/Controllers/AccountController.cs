@@ -11,6 +11,7 @@ using System.Web;
 using System.Web.Configuration;
 using System.Web.Mvc;
 using System.Web.UI.WebControls;
+using static Util;
 
 namespace Semplicita.Controllers
 {
@@ -90,6 +91,34 @@ namespace Semplicita.Controllers
                 default:
                     ModelState.AddModelError("", "Invalid login attempt.");
                     return View(model);
+            }
+        }
+
+
+        [AllowAnonymous]
+        public ActionResult DemoLogin(string returnUrl) {
+            return View("DemoLogin");
+        }
+
+        //
+        // POST: /Account/Login
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> DemoLogin(string emailKey, string returnUrl) {
+            var loginEmail = GetSetting(emailKey);
+            var loginPassword = GetSetting("demo:Password");
+
+            // This doesn't count login failures towards account lockout
+            // To enable password failures to trigger account lockout, change to shouldLockout: true
+            var result = await SignInManager.PasswordSignInAsync(loginEmail, loginPassword, isPersistent: false, shouldLockout: false);
+            switch( result ) {
+                case SignInStatus.Success:
+                    return RedirectToAction("Index", "Home");
+
+                case SignInStatus.Failure:
+                default:
+                    return RedirectToAction("Login", "Account");
             }
         }
 
