@@ -1,63 +1,9 @@
 ﻿@model IEnumerable<Semplicita.Models.Project>
 
-    <p>
-        @Html.ActionLink("Create New Project", "CreateNew")
-    </p>
-    <table class="table">
-        <tr>
-            <th>
-                Project Name
-            </th>
-            <th>
-                Description
-            </th>
-            <th>
-                Created
-            </th>
-            <th>
-                Modified
-            </th>
-            <th class="text-center">
-                Is Active?
-            </th>
-            <th class="text-center">
-                Actions
-            </th>
-        </tr>
-    
-    @foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ModifiedAt)
-            </td>
-            <td class="text-center">
-                @Html.DisplayFor(modelItem => item.IsActiveProject)
-            </td>
-            <td>
-                <div class="row">
-                    <div class="col-xl-4">
-                        @Html.ActionLink("Edit", "Edit", new { tickettag = item.TicketTag }, new { @class = "btn btn-success btn-block text-center" })
-                    </div>
-                    <div class="col-xl-4">
-                        @Html.ActionLink("Details", "Project", new { tickettag = item.TicketTag }, new { @class = "btn btn-info btn-block text-center" })
-                    </div>
-                    <div class="col-xl-4">
-                        @Html.ActionLink("Delete", "Delete", new { tickettag = item.TicketTag }, new { @class = "btn btn-danger btn-block text-center" })
-                    </div>
-                </div>
-                
-                
-            </td>
-        </tr>
-    }
-    
-    </table>
+@{
+    ViewBag.Title = "View Projects";
+}
+
+<div class="jumbotron bg-gradient-dkpurple">
+    <h1>Projects</h1>
+</div>
