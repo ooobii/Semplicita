@@ -5,6 +5,7 @@ namespace Semplicita.Migrations
     using Semplicita.Models;
     using System;
     using System.Collections.Generic;
+    using System.Configuration;
     using System.Data.Entity;
     using System.Data.Entity.Migrations;
     using System.Drawing;
@@ -79,6 +80,65 @@ namespace Semplicita.Migrations
                 userManager.Create(user, "Abc&123!");
                 userManager.AddToRole(user.Id, "SuperSolver");
             }
+
+
+            //Demo Users
+            if( !context.Users.Any(u => u.Email == "demo_admin@matthewwendel.info") ) {
+                var user = new ApplicationUser {
+                    UserName = "demo_admin@matthewwendel.info",
+                    Email = "demo_admin@matthewwendel.info",
+                    FirstName = "Demo:",
+                    LastName = "Server Admin",
+                    EmailConfirmed = true
+                };
+                userManager.Create(user, Util.GetSetting("demo:Password"));
+                userManager.AddToRole(user.Id, "ServerAdmin");
+            }
+            if( !context.Users.Any(u => u.Email == "demo_projadmin@matthewwendel.info") ) {
+                var user = new ApplicationUser {
+                    UserName = "demo_projadmin@matthewwendel.info",
+                    Email = "demo_projadmin@matthewwendel.info",
+                    FirstName = "Demo:",
+                    LastName = "Project Admin",
+                    EmailConfirmed = true
+                };
+                userManager.Create(user, Util.GetSetting("demo:Password"));
+                userManager.AddToRole(user.Id, "ProjectAdmin");
+            }
+            if( !context.Users.Any(u => u.Email == "demo_ssolver@matthewwendel.info") ) {
+                var user = new ApplicationUser {
+                    UserName = "demo_ssolver@matthewwendel.info",
+                    Email = "demo_ssolver@matthewwendel.info",
+                    FirstName = "Demo:",
+                    LastName = "Super Solver",
+                    EmailConfirmed = true
+                };
+                userManager.Create(user, Util.GetSetting("demo:Password"));
+                userManager.AddToRole(user.Id, "SuperSolver");
+            }
+            if( !context.Users.Any(u => u.Email == "demo_solver@matthewwendel.info") ) {
+                var user = new ApplicationUser {
+                    UserName = "demo_solver@matthewwendel.info",
+                    Email = "demo_solver@matthewwendel.info",
+                    FirstName = "Demo:",
+                    LastName = "Solver",
+                    EmailConfirmed = true
+                };
+                userManager.Create(user, Util.GetSetting("demo:Password"));
+                userManager.AddToRole(user.Id, "Solver");
+            }
+            if( !context.Users.Any(u => u.Email == "demo@matthewwendel.info") ) {
+                var user = new ApplicationUser {
+                    UserName = "demo@matthewwendel.info",
+                    Email = "demo@matthewwendel.info",
+                    FirstName = "Demo:",
+                    LastName = "Reporter",
+                    EmailConfirmed = true
+                };
+                userManager.Create(user, Util.GetSetting("demo:Password"));
+                userManager.AddToRole(user.Id, "Reporter");
+            }
+
 
             #endregion User Creation
 
