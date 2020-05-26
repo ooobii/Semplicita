@@ -185,6 +185,7 @@
     <Compile Include="Helpers\ProjectHelper.cs" />
     <Compile Include="Helpers\RoleDisplayDictionary.cs" />
     <Compile Include="Helpers\UserRolesHelper.cs" />
+    <Compile Include="Helpers\Util.cs" />
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdminViewModels.cs" />
@@ -484,6 +485,7 @@
     <Content Include="Views\Projects\Index.cshtml" />
     <Content Include="Views\Shared\_ProjectsNavSection.cshtml" />
     <Content Include="Views\Admin\ProjectConfiguration.cshtml" />
+    <Content Include="Views\Account\DemoLogin.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
