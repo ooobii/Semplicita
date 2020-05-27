@@ -34,9 +34,6 @@ namespace Semplicita.Controllers
             var projects = projHelper.GetProjectsAvailableToUser(User);
             var availTickets = ticketsHelper.GetTicketsAvailableToUser(User);
 
-
-
-
             var viewModel = new ProjectIndexViewModel() {
                 AvailableProjects = projects,
                 Users = db.Users.ToList(),
