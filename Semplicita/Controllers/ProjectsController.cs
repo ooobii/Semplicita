@@ -14,8 +14,16 @@ namespace Semplicita.Controllers
     [Authorize]
     public class ProjectsController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
-        private UserRolesHelper rolesHelper = new UserRolesHelper();
+        public ApplicationDbContext db = new ApplicationDbContext();
+        private ProjectHelper projHelper;
+        private TicketsHelper ticketsHelper;
+        private UserRolesHelper rolesHelper;
+        public ProjectsController() {
+            projHelper = new ProjectHelper(db);
+            ticketsHelper = new TicketsHelper(db);
+            rolesHelper = new UserRolesHelper(db);
+        }
+
 
 
         // GET: Projects
