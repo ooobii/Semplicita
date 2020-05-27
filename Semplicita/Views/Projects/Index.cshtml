@@ -1,9 +1,61 @@
-﻿@model IEnumerable<Semplicita.Models.Project>
+﻿@using Semplicita.Models
+@model ProjectIndexViewModel
 
 @{
-    ViewBag.Title = "View Projects";
+    ViewBag.Title = "Projects";
 }
 
 <div class="jumbotron bg-gradient-dkpurple">
     <h1>Projects</h1>
+    <p class="lead">The projects you have access to are listed below.</p>
+</div>
+
+
+<div class="row p-3">
+
+    @* Projects Summary *@
+    <div class="col-xl-12 p-3">
+        <div class="card card-default">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-table" style="margin-right:10px;"></i><b>Projects</b></h3>
+
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <table id="projtable" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Manager</th>
+                            <th>Members</th>
+                            <th>Tickets</th>
+                            <th>Your Tickets</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach( Project p in Model.AvailableProjects ) {
+                            <tr>
+                                <td>@p.Name</td>
+                                <td>@(p.ProjectManagerId == null ? "None" : Model.Users.FirstOrDefault(u => u.Id == p.ProjectManagerId).FullNameStandard)</td>
+                                <td>@(p.Members.Count)</td>
+                                <td>@p.ChildTickets.Count
+                                    @if( @p.ChildTickets.Select(t => t.TicketStatus.IsClosed == false).Count() > 0 ) {
+                                        <font>(@p.ChildTickets.Select(t => t.TicketStatus.IsClosed == false).Count() open)</font>
+                                    }
+                                </td>
+                                <td>@p.ChildTickets.Where(t => Model.AvailableTickets.Contains(t)).Count()
+                                    @if ( p.ChildTickets.Where(t => t.TicketStatus.IsClosed == false && Model.AvailableTickets.Contains(t)).Count() > 0) {
+                                        <font>(@p.ChildTickets.Where(t => t.TicketStatus.IsClosed == false && Model.AvailableTickets.Contains(t)).Count() open)</font>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
