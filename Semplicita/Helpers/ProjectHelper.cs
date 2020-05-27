@@ -1,9 +1,8 @@
-﻿using Microsoft.Ajax.Utilities;
-using Semplicita.Models;
-using System;
+﻿using Semplicita.Models;
 using System.Collections.Generic;
+using Microsoft.AspNet.Identity;
 using System.Linq;
-using System.Web;
+using System.Security.Principal;
 
 namespace Semplicita.Helpers
 {
@@ -74,20 +73,22 @@ namespace Semplicita.Helpers
             return db.Users.Where(u => u.Projects.All(p => p.Id != projectId)).ToList();
         }
 
-        public bool SetProjectWorkflow(int projectId, int workflowId) {
-            if (db.Projects.Find(projectId).ActiveWorkflowId == workflowId) { return false; }
+        public List<Project> GetProjectsAvailableToUser(IPrincipal User) {
+            var projects = new List<Project>();
 
-            try {
-                var foundWorkflow = db.ProjectWorkflows.Find(workflowId);
-                db.Projects.Find(projectId).ActiveWorkflowId = foundWorkflow.Id;
-                //db.Projects.Find(projectId).ActiveWorkflow = foundWorkflow;
-                db.SaveChanges();
-                return true;
-            } catch {
-                return false;
+            if( User.IsInRole("ServerAdmin") ) {
+                projects = db.Projects.ToList();
+
+            } else if( User.IsInRole("ProjectAdmin") ||
+                       User.IsInRole("SuperSolver") ||
+                       User.IsInRole("Solver") ||
+                       User.IsInRole("Reporter") ) {
+                projects = db.Projects.Where(p => p.Members.Contains(db.Users.Find(User.Identity.GetUserId()))).ToList();
             }
 
+            return projects;
         }
+
         public bool SetProjectWorkflow(int projectId, int workflowId, ApplicationDbContext context) {
             if( context.Projects.Find(projectId).ActiveWorkflowId == workflowId ) { return false; }
 
