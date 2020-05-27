@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using Microsoft.AspNet.Identity;
 using Semplicita.Helpers;
 using Semplicita.Models;
 
@@ -30,7 +31,19 @@ namespace Semplicita.Controllers
         [Route("projects")]
         public ActionResult Index()
         {
-            return View(db.Projects.ToList());
+            var projects = projHelper.GetProjectsAvailableToUser(User);
+            var availTickets = ticketsHelper.GetTicketsAvailableToUser(User);
+
+
+
+
+            var viewModel = new ProjectIndexViewModel() {
+                AvailableProjects = projects,
+                Users = db.Users.ToList(),
+
+                AvailableTickets = availTickets
+            };
+            return View(viewModel);
         }
 
         // View

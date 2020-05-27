@@ -6,6 +6,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Semplicita.Models
 {
+    public class ProjectIndexViewModel
+    {
+        public ICollection<Project> AvailableProjects { get; set; }
+        public ICollection<ApplicationUser> Users { get; set; }
+
+        public ICollection<Ticket> AvailableTickets { get; set; }
+    }
+
     public class CreateProjectViewModel
     {
         public ICollection<ApplicationUser> ProjectAdministrators { get; set; }
