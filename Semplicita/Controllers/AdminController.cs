@@ -20,6 +20,13 @@ namespace Semplicita.Controllers
     public class AdminController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
+        private UserRolesHelper rolesHelper;
+        private ProjectHelper projectHelper;
+        public AdminController() {
+            rolesHelper = new UserRolesHelper(db);
+            projectHelper = new ProjectHelper(db);
+        }
+        private RoleDisplayDictionary roleDisplays = new RoleDisplayDictionary();
 
         private ApplicationUserManager _userManager;
         public ApplicationUserManager UserManager {
@@ -31,9 +38,6 @@ namespace Semplicita.Controllers
             }
         }
 
-        private UserRolesHelper rolesHelper = new UserRolesHelper();
-        private ProjectHelper projectHelper = new ProjectHelper();
-        private RoleDisplayDictionary roleDisplays = new RoleDisplayDictionary();
 
         // GET: Admin
         [Authorize(Roles = "ServerAdmin")]

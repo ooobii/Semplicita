@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using Microsoft.Ajax.Utilities;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Semplicita.Models;
 using System;
@@ -12,7 +13,11 @@ namespace Semplicita.Helpers
     {
         private RoleDisplayDictionary roleDictionary = new RoleDisplayDictionary();
 
-        private ApplicationDbContext db = new ApplicationDbContext();
+        private ApplicationDbContext db { get; set; }
+        public UserRolesHelper(ApplicationDbContext context) {
+            db = context;
+        }
+
         private UserManager<ApplicationUser> userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext()));
 
         public ICollection<string> ListAllRoles() {

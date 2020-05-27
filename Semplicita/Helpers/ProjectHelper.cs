@@ -9,7 +9,10 @@ namespace Semplicita.Helpers
 {
     public class ProjectHelper
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
+        public ApplicationDbContext db { get; set; }
+        public ProjectHelper(ApplicationDbContext context) {
+            db = context;
+        }
 
         public bool IsUserOnProject(string userId, int projectId) {
             return db.Projects.Find(projectId).Members.Any(u => u.Id == userId);
