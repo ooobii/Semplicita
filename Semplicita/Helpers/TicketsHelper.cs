@@ -3,6 +3,7 @@ using Microsoft.AspNet.Identity;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Semplicita.Helpers
 {
@@ -11,6 +12,14 @@ namespace Semplicita.Helpers
         public ApplicationDbContext db { get; set; }
         public TicketsHelper(ApplicationDbContext context) {
             db = context;
+        }
+
+        public ICollection<Ticket> TicketSearch(string content) {
+            var output = new List<Ticket>();
+
+
+
+            return output;
         }
 
         public List<Ticket> GetTicketsAvailableToUser(IPrincipal User) {
