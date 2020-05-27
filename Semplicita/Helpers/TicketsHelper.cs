@@ -13,6 +13,9 @@ namespace Semplicita.Helpers
         public TicketsHelper(ApplicationDbContext context) {
             db = context;
         }
+        public TicketsHelper() {
+            db = new ApplicationDbContext();
+        }
 
         public ICollection<Ticket> TicketSearch(string content) {
             var output = new List<Ticket>();

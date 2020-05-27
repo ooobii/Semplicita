@@ -17,6 +17,9 @@ namespace Semplicita.Helpers
         public UserRolesHelper(ApplicationDbContext context) {
             db = context;
         }
+        public UserRolesHelper() {
+            db = new ApplicationDbContext();
+        }
 
         private UserManager<ApplicationUser> userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext()));
 
