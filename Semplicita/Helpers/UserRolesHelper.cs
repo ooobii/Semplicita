@@ -106,5 +106,63 @@ namespace Semplicita.Helpers
         }
 
 
+        public bool CanCreateProject(IPrincipal User) {
+            //Server Admins can OR
+            //Project Admins can
+
+            if( User.IsInRole("ServerAdmin") || User.IsInRole("ProjectAdmin") ) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        public bool CanViewProject(IPrincipal User, int projectId) {
+            //Server Admins can OR
+            //Project Admins can IF assigned as project manager OR
+            //Any other role (as long as user is member of project) can
+            var project = db.Projects.Find(projectId);
+            var userId = User.Identity.GetUserId();
+
+            if( User.IsInRole("ServerAdmin") ||
+                ( User.IsInRole("ProjectAdmin") && project.ProjectManagerId == userId ) ||
+                project.Members.Select(u => u.Id).Contains(userId) ) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        public bool CanEditProject(IPrincipal User, int projectId) {
+            //Server Admins can OR
+            //Project Admins can IF assigned as project manager.
+
+            var project = db.Projects.Find(projectId);
+            var userId = User.Identity.GetUserId();
+
+            if( User.IsInRole("ServerAdmin") ||
+               ( User.IsInRole("ProjectAdmin") && project.ProjectManagerId == userId ) ) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        public bool CanArchiveProject(IPrincipal User, int projectId) {
+            //Server Admins can OR
+            //Project Admins can IF assigned as project manager.
+
+            var project = db.Projects.Find(projectId);
+            var userId = User.Identity.GetUserId();
+
+            if( User.IsInRole("ServerAdmin") ||
+               ( User.IsInRole("ProjectAdmin") && project.ProjectManagerId == userId ) ) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+
     }
+
 }
+
+
