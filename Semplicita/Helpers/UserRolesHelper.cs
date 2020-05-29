@@ -5,7 +5,9 @@ using Semplicita.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Principal;
 using System.Web;
+using System.Web.Security;
 
 namespace Semplicita.Helpers
 {
@@ -48,7 +50,18 @@ namespace Semplicita.Helpers
             return output;
         }
         public ICollection<string> ListUserRoles(string userId) {
-            return userManager.GetRoles(userId);
+            var output = new List<string>();
+            foreach( var role in userManager.GetRoles(userId).OrderBy(x =>
+                x == "ServerAdmin" ? 1 :
+                x == "ProjectAdmin" ? 2 :
+                x == "SuperSolver" ? 3 :
+                x == "Solver" ? 4 :
+                x == "Reporter" ? 5 :
+                6
+            ).ToList() ) {
+                output.Add(role);
+            }
+            return output;
         }
         public ICollection<string> ListUserRoleDisplayNames(string userId) {
             var output = new List<string>();
