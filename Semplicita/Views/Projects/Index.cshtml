@@ -1,8 +1,10 @@
 ﻿@using Semplicita.Models
+@using Microsoft.AspNet.Identity
 @model ProjectIndexViewModel
 
 @{
     ViewBag.Title = "Projects";
+    var roleHelper = new Semplicita.Helpers.UserRolesHelper();
 }
 
 <div class="jumbotron bg-gradient-dkpurple">
@@ -54,15 +56,29 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="row">
-                                        <div class="col">
+                                        @if( roleHelper.CanViewProject(User, p.Id) ) {
+                                            <div class="col pl-1 pr-1">
+                                                <a href="@Url.Action("Project", "Projects", new { p.TicketTag } )">
+                                                    <div class="btn btn-sm btn-block btn-success">Show</div>
+                                                </a>
+                                            </div>
+                                        }
 
-                                        </div>
-                                        <div class="col">
+                                        @if( roleHelper.CanEditProject(User, p.Id) ) {
+                                            <div class="col pl-1 pr-1">
+                                                <a href="@Url.Action("Edit", "Projects", new { p.TicketTag } )">
+                                                    <div class="btn btn-sm btn-block btn-warning">Edit</div>
+                                                </a>
+                                            </div>
+                                        }
 
-                                        </div>
-                                        <div class="col">
-
-                                        </div>
+                                        @if( roleHelper.CanArchiveProject(User, p.Id) ) {
+                                            <div class="col pl-1 pr-1">
+                                                <a href="@Url.Action("Archive", "Projects", new { p.TicketTag } )">
+                                                    <div class="btn btn-sm btn-block btn-danger">Archive</div>
+                                                </a>
+                                            </div>
+                                        }
                                     </div>
                                 </td>
                             </tr>
