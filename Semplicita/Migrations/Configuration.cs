@@ -167,6 +167,36 @@ namespace Semplicita.Migrations
 
             #endregion
 
+            #region TicketPriority Creation
+
+            if( !context.TicketPriorityTypes.Any(tpt => tpt.Name == "Low") ) {
+                var priority = new TicketPriority()
+                {
+                    Name = "Low",
+                    Rank = 100
+                };
+
+                context.TicketPriorityTypes.Add(priority);
+            }
+            if( !context.TicketPriorityTypes.Any(tpt => tpt.Name == "Medium") ) {
+                var priority = new TicketPriority() {
+                    Name = "Medium",
+                    Rank = 50
+                };
+
+                context.TicketPriorityTypes.Add(priority);
+            }
+            if( !context.TicketPriorityTypes.Any(tpt => tpt.Name == "High") ) {
+                var priority = new TicketPriority() {
+                    Name = "High",
+                    Rank = 1
+                };
+
+                context.TicketPriorityTypes.Add(priority);
+            }
+
+            #endregion
+
             #region TicketStatus Creation
 
             if( !context.TicketStatuses.Any(tst => tst.Name == "New-Unassigned") ) {
@@ -375,7 +405,7 @@ namespace Semplicita.Migrations
                     CanTicketOwnerSetStatusOnInteract = true
                 };
 
-                context.ProjectWorkflows.Add(workflow);               
+                context.ProjectWorkflows.Add(workflow);
             }
 
             if( !context.ProjectWorkflows.Any(pwf => pwf.Name == "Default Workflow") ) {
