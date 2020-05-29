@@ -22,6 +22,21 @@
 
 
 /*Side NavBar Elements*/
+.ui-menu-divider {
+    margin-top:-10px;
+    margin-bottom:20px;
+    background-color:rgba(87, 0, 193, 0.12);
+}
+.nav-sep-bottom {
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+.nav-sep-top {
+    border-top: 1px solid #dee2e6;
+    padding-top: 5px;
+    margin-top: 10px;
+}
 .sidebar {
     overflow: visible;
 }
