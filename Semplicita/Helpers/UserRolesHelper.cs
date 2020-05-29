@@ -35,14 +35,14 @@ namespace Semplicita.Helpers
         }
         public ICollection<string> ListAllRoleDisplayNames() {
             var output = new List<string>();
-            foreach (var role in db.Roles.Select(r => r.Name).OrderBy(x =>
+            foreach( var role in db.Roles.Select(r => r.Name).OrderBy(x =>
                 x == "ServerAdmin" ? 1 :
                 x == "ProjectAdmin" ? 2 :
                 x == "SuperSolver" ? 3 :
                 x == "Solver" ? 4 :
                 x == "Reporter" ? 5 :
                 6
-            ).ToList()) {
+            ).ToList() ) {
                 output.Add(roleDictionary[ role ]);
             }
             return output;
@@ -53,13 +53,13 @@ namespace Semplicita.Helpers
         public ICollection<string> ListUserRoleDisplayNames(string userId) {
             var output = new List<string>();
             foreach( var role in userManager.GetRoles(userId).OrderBy(x =>
-                x == "ServerAdmin" ? 1:
-                x == "ProjectAdmin" ? 2:
-                x == "SuperSolver" ? 3:
-                x == "Solver" ? 4:
-                x == "Reporter" ? 5:
+                x == "ServerAdmin" ? 1 :
+                x == "ProjectAdmin" ? 2 :
+                x == "SuperSolver" ? 3 :
+                x == "Solver" ? 4 :
+                x == "Reporter" ? 5 :
                 6
-            )) {
+            ) ) {
                 output.Add(roleDictionary[ role ]);
             }
             return output;
@@ -71,7 +71,7 @@ namespace Semplicita.Helpers
             result = userManager.AddToRole(userId, role).Succeeded;
         }
         public bool AddUserToRole(string userId, string role) {
-            return userManager.AddToRole(userId, role).Succeeded;            
+            return userManager.AddToRole(userId, role).Succeeded;
         }
         public void RemoveUserFromRole(string userId, string role, out bool result) {
             result = userManager.RemoveFromRole(userId, role).Succeeded;
