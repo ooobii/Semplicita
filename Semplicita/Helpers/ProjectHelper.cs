@@ -78,6 +78,7 @@ namespace Semplicita.Helpers
 
         public List<Project> GetProjectsAvailableToUser(IPrincipal User) {
             var projects = new List<Project>();
+            var user = db.Users.Find(User.Identity.GetUserId());
 
             if( User.IsInRole("ServerAdmin") ) {
                 projects = db.Projects.ToList();
@@ -86,7 +87,7 @@ namespace Semplicita.Helpers
                        User.IsInRole("SuperSolver") ||
                        User.IsInRole("Solver") ||
                        User.IsInRole("Reporter") ) {
-                projects = db.Projects.Where(p => p.Members.Contains(db.Users.Find(User.Identity.GetUserId()))).ToList();
+                projects = db.Projects.ToList().Where(p => IsUserOnProject(user.Id, p.Id)).ToList();
             }
 
             return projects;
