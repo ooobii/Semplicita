@@ -109,6 +109,64 @@
 .radio-danger.custom-control-input:checked ~ .custom-control-label::before {
     background-color: #CB0801;
 }
+
+.badge {
+    font-weight:normal;
+    margin-left:3px;
+    margin:3.5px;
+}
+.badge-blue {
+    background-color: #3a40a8;
+    color:white;
+}
+.badge-sm {
+    font-size: 11px !important;
+}
+
+/* Dropdown Effect */
+.show > .dropdown-menu {
+    animation-name: slidenavAnimation;
+    animation-duration: .4s;
+    animation-iteration-count: 1;
+    animation-timing-function: ease;
+    animation-fill-mode: forwards;
+    -webkit-animation-name: slidenavAnimation;
+    -webkit-animation-duration: .4s;
+    -webkit-animation-iteration-count: 1;
+    -webkit-animation-timing-function: ease;
+    -webkit-animation-fill-mode: forwards;
+    -moz-animation-name: slidenavAnimation;
+    -moz-animation-duration: .4s;
+    -moz-animation-iteration-count: 1;
+    -moz-animation-timing-function: ease;
+    -moz-animation-fill-mode: forwards;
+}
+@keyframes slidenavAnimation {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+@-webkit-keyframes slidenavAnimation {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Dropdown Spacing */
+.dropdown-menu > a {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.14);
+}
+
 /*Footer*/
 .main-footer {
     color: black;
@@ -124,6 +182,20 @@
 }
 .bg-green {
     background-color: green !important;
+}
+.bg-gradient-h-green {
+    background: rgb(21,121,26);
+    background: -moz-linear-gradient(90deg, rgba(21,121,26,1) 0%, rgba(39,179,26,1) 100%);
+    background: -webkit-linear-gradient(90deg, rgba(21,121,26,1) 0%, rgba(39,179,26,1) 100%);
+    background: linear-gradient(90deg, rgba(21,121,26,1) 0%, rgba(39,179,26,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#15791a",endColorstr="#27b31a",GradientType=1);
+}
+.bg-gradient-green {
+    background: rgb(0,152,8);
+    background: -moz-linear-gradient(0deg, rgba(0,152,8,1) 0%, rgba(16,187,0,1) 26%, rgba(12,124,1,1) 100%);
+    background: -webkit-linear-gradient(0deg, rgba(0,152,8,1) 0%, rgba(16,187,0,1) 26%, rgba(12,124,1,1) 100%);
+    background: linear-gradient(0deg, rgba(0,152,8,1) 0%, rgba(16,187,0,1) 26%, rgba(12,124,1,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009808",endColorstr="#0c7c01",GradientType=1);
 }
 .bg-darkgreen {
     background: rgb(2,57,0);
