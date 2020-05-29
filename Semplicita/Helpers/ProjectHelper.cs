@@ -68,6 +68,18 @@ namespace Semplicita.Helpers
                 return false;
             }
         }
+        
+        public ApplicationUser GetManagerUserOfProject(int projectId) {
+            var project = db.Projects.Find(projectId);
+            return db.Users.Find(project.ProjectManagerId);
+        }
+        public bool IsUserManagerOfAnyProject(IPrincipal User) {
+            foreach (Project p in db.Projects.ToList()) {
+                if (p.ProjectManagerId == User.Identity.GetUserId()) { return true; }
+            }
+
+            return false;
+        }
 
         public ICollection<ApplicationUser> UsersOnProject(int projectId) {
             return db.Projects.Find(projectId).Members;
