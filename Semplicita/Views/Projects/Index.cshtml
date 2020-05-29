@@ -39,7 +39,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach( Project p in Model.AvailableProjects ) {
+                        @foreach( Project p in Model.AvailableProjects.Where(p => p.IsActiveProject == true) ) {
                             <tr>
                                 <td>@p.Name</td>
                                 <td>@(p.ProjectManagerId == null ? "None" : Model.Users.FirstOrDefault(u => u.Id == p.ProjectManagerId).FullNameStandard)</td>
