@@ -26,7 +26,6 @@ namespace Semplicita.Controllers
         }
 
 
-
         // GET: Projects
         [Route("projects")]
         public ActionResult Index()
@@ -69,6 +68,7 @@ namespace Semplicita.Controllers
             return View(viewModel);
         }
 
+
         // Post
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         [HttpPost]
@@ -103,11 +103,11 @@ namespace Semplicita.Controllers
 
 
         [Route("project/{tickettag}")]
-        public ActionResult Project(string tickettag) {
-            if( tickettag == null ) {
+        public ActionResult Project(string TicketTag) {
+            if( TicketTag == null ) {
                 return View(db.Projects.ToList());
             }
-            Project project = db.Projects.FirstOrDefault(p => p.TicketTag == tickettag);
+            Project project = db.Projects.FirstOrDefault(p => p.TicketTag == TicketTag);
             if( project == null ) {
                 return HttpNotFound();
             }
@@ -120,13 +120,13 @@ namespace Semplicita.Controllers
         // GET: Projects/Edit/5
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         [Route("project/edit/{tickettag}")]
-        public ActionResult Edit(string tickettag)
+        public ActionResult Edit(string TicketTag)
         {
-            if (tickettag == null)
+            if ( TicketTag == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Project project = db.Projects.FirstOrDefault(p => p.TicketTag == tickettag);
+            Project project = db.Projects.FirstOrDefault(p => p.TicketTag == TicketTag);
             if (project == null)
             {
                 return HttpNotFound();
