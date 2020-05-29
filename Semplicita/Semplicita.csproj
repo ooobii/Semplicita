@@ -480,7 +480,7 @@
     <Content Include="Views\Admin\UserAllocation.cshtml" />
     <Content Include="Views\Shared\_TicketsNavSection.cshtml" />
     <Content Include="Views\Projects\New.cshtml" />
-    <Content Include="Views\Projects\Delete.cshtml" />
+    <Content Include="Views\Projects\Archive.cshtml" />
     <Content Include="Views\Projects\Show.cshtml" />
     <Content Include="Views\Projects\Edit.cshtml" />
     <Content Include="Views\Projects\Index.cshtml" />

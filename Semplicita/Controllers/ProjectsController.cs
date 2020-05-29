@@ -208,13 +208,13 @@ namespace Semplicita.Controllers
 
         // GET: Projects/Delete/5
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        [Route("project/delete/{tickettag}")]
-        public ActionResult Delete(string tickettag)
+        [Route("project/archive/{tickettag}")]
+        public ActionResult Archive(string TicketTag)
         {
-            if( tickettag == null ) {
+            if( TicketTag == null ) {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Project project = db.Projects.FirstOrDefault(p => p.TicketTag == tickettag);
+            Project project = db.Projects.FirstOrDefault(p => p.TicketTag == TicketTag);
             if( project == null ) {
                 return HttpNotFound();
             }
@@ -223,12 +223,12 @@ namespace Semplicita.Controllers
 
         // POST: Projects/Delete/5
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        public ActionResult ArchiveProject(string TicketTag)
         {
-            Project project = db.Projects.Find(id);
-            db.Projects.Remove(project);
+            Project project = db.Projects.First(p => p.TicketTag == TicketTag);
+            project.IsActiveProject = false;
             db.SaveChanges();
             return RedirectToAction("Index");
         }
