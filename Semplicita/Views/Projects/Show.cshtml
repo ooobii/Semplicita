@@ -1,66 +1,306 @@
-﻿@model Semplicita.Models.Project
+﻿@using Semplicita.Models
+@using Semplicita.Helpers
+@using Microsoft.AspNet.Identity
 
+@model Project
 @{
-    Layout = null;
+    ProjectHelper projectHelper = new ProjectHelper();
+    UserRolesHelper rolesHelper = new UserRolesHelper();
+
+    var ProjectManageruser = projectHelper.GetManagerUserOfProject(Model.Id);
+
+    var memberUsers = Model.Members.Where(u => u.IsDemoUser == false).ToList();
+    var solverUsers = Model.Members.Where(u => (rolesHelper.IsInRole(u.Id, "SuperSolver") || rolesHelper.IsInRole(u.Id, "Solver")) && u.IsDemoUser == false).OrderBy(u => u.FullName).ToList();
+
+    var openTickets = Model.ChildTickets.Where(t => t.TicketStatus.IsClosed == false).ToList();
+    var resolvedTickets = Model.ChildTickets.Where(t => t.TicketStatus.IsResolved == true).ToList();
 }
 
-<!DOCTYPE html>
+<div class="jumbotron bg-gradient-purple mb-3" style="padding-bottom:25px;padding-top:45px;">
+    <h1>@Model.Name</h1>
+    <p class="lead">@Model.Description</p>
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Details</title>
-</head>
-<body>
-    <div>
-        <h4>Project</h4>
-        <hr />
-        <dl class="dl-horizontal">
-            <dt>
-                @Html.DisplayNameFor(model => model.Name)
-            </dt>
-    
-            <dd>
-                @Html.DisplayFor(model => model.Name)
-            </dd>
-    
-            <dt>
-                @Html.DisplayNameFor(model => model.Description)
-            </dt>
-    
-            <dd>
-                @Html.DisplayFor(model => model.Description)
-            </dd>
-    
-            <dt>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </dt>
-    
-            <dd>
-                @Html.DisplayFor(model => model.CreatedAt)
-            </dd>
-    
-            <dt>
-                @Html.DisplayNameFor(model => model.ModifiedAt)
-            </dt>
-    
-            <dd>
-                @Html.DisplayFor(model => model.ModifiedAt)
-            </dd>
-    
-            <dt>
-                @Html.DisplayNameFor(model => model.IsActiveProject)
-            </dt>
-    
-            <dd>
-                @Html.DisplayFor(model => model.IsActiveProject)
-            </dd>
-    
-        </dl>
+    <hr />
+
+    <div class="row pt-1">
+        <div class="col text-left">
+            <b>Created At: </b>@Model.CreatedAt.ToString("MMM d, yyyy', at' h:mm tt")
+        </div>
+        @if( Model.ModifiedAt != null ) {
+            <div class="col text-right">
+                <b>Last Modified: </b>@(( (DateTime)Model.ModifiedAt ).ToString("MMM d, yyyy', at' h:mm tt"))
+            </div>
+        }
     </div>
-    <p>
-        @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
-        @Html.ActionLink("Back to List", "Index")
-    </p>
-</body>
-</html>
+</div>
+
+<div class="row pt-2 pb-4">
+    <div class="col-4">
+        <!-- small box -->
+        <div class="small-box bg-cyan">
+            <div class="inner">
+                <h3>@Model.Members.Where(u => u.IsDemoUser == false).Count()</h3>
+
+                <p>Total Members</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-ios-people"></i>
+            </div>
+
+
+            @if( Model.Members.Count > 0 ) {
+                <a class="small-box-footer dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Members
+                </a>
+
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    @foreach( ApplicationUser u in memberUsers) {
+                        <a class="dropdown-item">
+                            <h6>@u.FullNameStandard</h6>
+                            @foreach( string role in rolesHelper.ListUserRoles(u.Id) ) {
+                                if( role == "ServerAdmin" ) {<small class="badge badge-dark">Server Admin</small> }
+                                if( role == "ProjectAdmin" ) { <small class="badge badge-blue">Project Mgr</small> }
+                                if( role == "SuperSolver" ) { <small class="badge badge-secondary">Super Solver</small>}
+                                if( role == "Solver" ) { <small class="badge badge-success">Solver</small>}
+                                if( role == "Reporter" ) { <small class="badge badge-info">Reporter</small>}
+                            }
+                        </a>
+                    }
+                </div>
+            } else {
+                <a class="small-box-footer">
+                    No Members Assigned! 😮
+                </a>
+            }
+
+        </div>
+    </div>
+    <div class="col-4">
+        <!-- small box -->
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3>@openTickets.Count</h3>
+
+                <p>Open Tickets</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-ios-list"></i>
+            </div>
+
+            @if( openTickets.Count > 0 ) {
+                <a class="small-box-footer dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    View
+                </a>
+
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    @foreach( Ticket t in openTickets ) {
+                        <a class="dropdown-item">
+                            @t.Title
+                        </a>
+                    }
+                </div>
+            } else {
+                <a class="small-box-footer">
+                    No open tickets! 🎉
+                </a>
+            }
+        </div>
+    </div>
+    <div class="col-4">
+        <!-- small box -->
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>@resolvedTickets.Count</h3>
+
+                <p>Resolved Tickets</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-checkmark-round"></i>
+            </div>
+
+            @if( resolvedTickets.Count > 0 ) {
+                <a class="small-box-footer dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    View
+                </a>
+
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    @foreach( Ticket t in resolvedTickets ) {
+                        <a class="dropdown-item">
+                            @t.Title
+                        </a>
+                    }
+                </div>
+            } else {
+                <a class="small-box-footer">
+                    None Resolved Yet! 🤔
+                </a>
+            }
+        </div>
+    </div>
+
+</div>
+
+<div class="row">
+
+    <div class="col-4">
+        <div class="row">
+            <div class="col">
+                <div class="card card-blue">
+                    <div class="card-header bg-gradient-h-blue">
+                        <h5><i class="card-header-icon fas fa-bezier-curve"></i>Project Manager</h5>
+                    </div>
+                    <div class="card-body">
+                        <h5>@ProjectManageruser.FullNameStandard</h5>
+                        <small>@ProjectManageruser.Email</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="card card-blue">
+                    <div class="card-header bg-gradient-h-green">
+                        <h5><i class="card-header-icon fas fa-user-astronaut"></i>Solvers</h5>
+                    </div>
+                    <div class="card-body">
+                        @foreach( ApplicationUser solver in solverUsers ) {
+                            <h5>
+                                @solver.FullNameStandard
+                                @if( rolesHelper.IsInRole(solver.Id, "SuperSolver") ){
+                                    <small class="text-sm badge badge-sm badge-secondary" >Super Solver</small>
+                                }
+                            </h5>
+                            <small>@solver.Email</small>
+
+                            if( solverUsers.IndexOf(solver) != solverUsers.Count - 1 ) { <hr />}
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        @if( User.Identity.GetUserId() == Model.ProjectManagerId || User.IsInRole("ServerAdmin") || User.IsInRole("SuperSolver") ) {
+            <div class="card card-default">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-ticket-alt" style="margin-right:10px; width: 18px;"></i><b>All Tickets</b></h3>
+
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    @if( Model.ChildTickets.Count > 0 ) {
+                        <ul class="todo-list ui-sortable" data-widget="todo-list">
+
+                            @foreach( Ticket t in openTickets ) {
+                                <li class="" style="">
+                                    <!-- drag handle -->
+                                    <span class="handle ui-sortable-handle">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </span>
+                                    <!-- todo text -->
+                                    <span class="text">@t.Title</span>
+                                    <!-- Emphasis label -->
+                                    <small class="badge badge-danger"><i class="far fa-clock"></i> 2 mins</small>
+                                    <!-- General tools such as edit or delete-->
+                                    <div class="tools">
+                                        <i class="fas fa-edit"></i>
+                                        <i class="fas fa-trash"></i>
+                                    </div>
+                                </li>
+                            }
+
+
+                        </ul>
+                    } else {
+                        <h5 class="text-center">No tickets yet! 😎</h5>
+                    }
+                </div>
+            </div>
+        } else {
+            <div class="card card-default">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-ticket-alt" style="margin-right:10px; width: 18px;"></i><b>Your Tickets</b></h3>
+
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    @if( Model.ChildTickets.Count > 0 ) {
+                        <ul class="todo-list ui-sortable" data-widget="todo-list">
+
+                            @foreach( Ticket t in Model.ChildTickets.Where(ticket => ticket.ReporterId == User.Identity.GetUserId() || ticket.AssignedSolverId == User.Identity.GetUserId()).ToList()) {
+                                <li class="" style="">
+                                    <!-- drag handle -->
+                                    <span class="handle ui-sortable-handle">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </span>
+                                    <!-- todo text -->
+                                    <span class="text">@t.Title</span>
+                                    <!-- Emphasis label -->
+                                    <small class="badge badge-danger"><i class="far fa-clock"></i> 2 mins</small>
+                                    <!-- General tools such as edit or delete-->
+                                    <div class="tools">
+                                        <i class="fas fa-edit"></i>
+                                        <i class="fas fa-trash"></i>
+                                    </div>
+                                </li>
+                            }
+
+                        </ul>
+                    } else {
+                        <h5 class="text-center">No tickets yet! 😎</h5>
+                    }
+                </div>
+            </div>
+        }
+
+    </div>
+</div>
+
+
+
+<hr class="mt-5" />
+<div class="row pb-5">
+    <div class="col-lg pr-4 pl-4 pb-2">
+        @if( rolesHelper.CanEditProject(User, Model.Id) ) {
+            <a href="@Url.Action("Edit", "Projects", new { Model.TicketTag })">
+                <div class="btn btn-block btn-warning">Edit Project</div>
+            </a>
+        }
+    </div>
+    <div class="col-lg pr-4 pl-4 pb-2">
+        @if( rolesHelper.CanArchiveProject(User, Model.Id) ) {
+            <a href="@Url.Action("Archive", "Projects", new { Model.TicketTag })">
+                <div class="btn btn-block btn-danger">Deactive Project</div>
+            </a>
+        }
+    </div>
+    <div class="col-lg pr-4 pl-4">
+        <a href="@Url.Action("Edit", "Projects", new { Model.TicketTag })">
+            <div class="btn btn-block btn-info">Back to Projects</div>
+        </a>
+    </div>
+</div>
+
+
+
+@section Scripts {
+
+    @* init todo list *@
+    <script>
+        $('.todo-list').sortable({
+            placeholder: 'sort-highlight',
+            handle: '.handle',
+            forcePlaceholderSize: true,
+            zIndex: 999999
+        })
+    </script>
+
+}
