@@ -1,0 +1,106 @@
+﻿@model Semplicita.Models.Ticket
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Ticket</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.AssignedSolver.FirstName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.AssignedSolver.FirstName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ParentProject.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ParentProject.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Reporter.FirstName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Reporter.FirstName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TicketPriorityLevel.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TicketPriorityLevel.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TicketStatus.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TicketStatus.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TicketType.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TicketType.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CreatedAt)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CreatedAt)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LastInteractionAt)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LastInteractionAt)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ResolvedAt)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ResolvedAt)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
