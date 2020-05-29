@@ -41,7 +41,7 @@ namespace Semplicita.Helpers
                 tickets = db.Tickets.Where(t => t.AssignedSolver == db.Users.Find(User.Identity.GetUserId())).ToList();
 
             } else if( User.IsInRole("Reporter") ) {
-                tickets = db.Tickets.Where(t => t.Reporter == db.Users.Find(User.Identity.GetUserId())).ToList();
+                tickets = db.Tickets.ToList().Where(t => t.Reporter == db.Users.Find(User.Identity.GetUserId())).ToList();
             }
 
             return tickets;
