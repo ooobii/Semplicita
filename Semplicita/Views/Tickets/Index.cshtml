@@ -83,9 +83,9 @@
             @Html.DisplayFor(modelItem => item.ResolvedAt)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+            @Html.ActionLink("Edit", "Edit", new { TicketIdentifier = item.GetTicketIdentifier() }) |
+            @Html.ActionLink("Details", "Details", new { TicketIdentifier = item.GetTicketIdentifier() }) |
+            @Html.ActionLink("Delete", "Delete", new { TicketIdentifier = item.GetTicketIdentifier() })
         </td>
     </tr>
 }
