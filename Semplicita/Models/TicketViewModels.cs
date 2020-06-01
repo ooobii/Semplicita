@@ -19,16 +19,16 @@ namespace Semplicita.Models
     }
     public class NewTicketModel
     {
-        public string Title { get; set; }//
-        public string Description { get; set; }//
+        public string Title { get; set; }
+        public string Description { get; set; }
         
-        public int ParentProjectId { get; set; }//
-        public int TicketTypeId { get; set; }//
-        public int TicketPriorityId { get; set; }//
-        public int? TicketStatusId { get; set; }//
+        public int ParentProjectId { get; set; }
+        public int TicketTypeId { get; set; }
+        public int TicketPriorityId { get; set; }
+        public int? TicketStatusId { get; set; }
 
 
-        public ICollection<HttpPostedFileBase> Attachments { get; set; }//
+        public ICollection<HttpPostedFileBase> Attachments { get; set; }
     }
 
 
