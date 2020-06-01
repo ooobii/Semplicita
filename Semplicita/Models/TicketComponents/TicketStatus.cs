@@ -13,6 +13,9 @@ namespace Semplicita.Models
         //the issue has been started to be looked into by the assigned solver.
         public bool IsStarted { get; set; }
 
+        //the issue has been assigned to a solver (on ticket status change, checks if solver is present before allowing status update)
+        public bool MustBeAssigned { get; set; }
+
         //the issue is currently being worked on by the assigned solver.
         public bool IsInProgress { get; set; }
 
