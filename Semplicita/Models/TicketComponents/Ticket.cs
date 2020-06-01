@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
+using System.Web;
 
 namespace Semplicita.Models
 {
@@ -46,7 +47,14 @@ namespace Semplicita.Models
         public string GetTicketIdentifier() {
             return ParentProject.TicketTag + this.Id;
         }
-        public TicketHistoryEntry GetCreatedHistoryEntry(IPrincipal User, ApplicationDbContext context) {
+
+        public void SaveTicketCreatedHistoryEntry(IPrincipal User, ApplicationDbContext context) {
+            var createdEntry = this.GetCreatedHistoryEntry(User, context);
+
+            context.TicketHistoryEntries.Add(createdEntry);
+            context.SaveChanges();
+        }
+        private TicketHistoryEntry GetCreatedHistoryEntry(IPrincipal User, ApplicationDbContext context) {
             var history = context.TicketHistoryEntries.FirstOrDefault(the => the.EntryType == TicketHistoryEntry.TicketHistoryEntryType.Created
                                                                           && the.ParentTicketId == this.Id);
             if( history == null ) {
@@ -225,6 +233,31 @@ namespace Semplicita.Models
 
             return history;
         }
+
+
+        public TicketAttachment AddAttachment(HttpPostedFileBase file, IPrincipal User, ApplicationDbContext context, HttpServerUtilityBase Server) {
+            var output = TicketAttachment.ProcessUpload(file, Server, this, User, context);
+            
+            context.TicketAttachments.Add(output);
+            context.SaveChanges();
+
+            return output;
+        }
+        public ICollection<TicketAttachment> AddAttachments(ICollection<HttpPostedFileBase> files, IPrincipal User, ApplicationDbContext context, HttpServerUtilityBase Server) {
+            var output = new List<TicketAttachment>();
+            foreach( HttpPostedFileBase file in files ) {
+                try {
+                    output.Add(TicketAttachment.ProcessUpload(file, Server, this, User, context));
+                } catch { }
+            }
+
+            context.TicketAttachments.AddRange(output);
+            context.SaveChanges();
+
+            return output;
+        }
+
+
 
     }
 }
