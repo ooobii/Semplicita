@@ -1,115 +1,153 @@
-﻿@model Semplicita.Models.Ticket
+﻿@using Semplicita.Models
+
+@model CreateTicketViewModel
 
 @{
-    ViewBag.Title = "Create";
+    ViewBag.Title = "Create Ticket";
 }
 
-<h2>Create</h2>
+<div class="jumbotron jumbotron-skinny bg-gradient-orange">
+    <h1>Submit a New Issue</h1>
+    <p class="lead">Report a new issue in '@Model.ParentProject.Name'.</p>
+</div>
 
-@using (Html.BeginForm()) 
-{
+<form action="@Url.Action("CreateTicket", "Tickets")" method="post" enctype="multipart/form-data" }>
     @Html.AntiForgeryToken()
-    
-    <div class="form-horizontal">
-        <h4>Ticket</h4>
-        <hr />
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        <div class="form-group">
-            @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+    @Html.Hidden("ParentProjectId", Model.ParentProject.Id)
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-8 pr-xl-5 pb-3">
+                <div class="row border-bottom">
+
+                    <div class="col pb-3">
+                        <input class="form-control form-control-xl" type="text" placeholder="Ticket Title..." id="Title" Name="Title">
+                    </div>
+
+                </div>
+
+                <div class="row border-bottom">
+
+                    <div class="col pb-3">
+                        <div class="input-group pt-3">
+                            <label for="TicketTypeId" class="pr-4 pt-1">Issue type: <span class="text-danger">*</span></label>
+                            <select class="form-control" id="TicketTypeId" name="TicketTypeId">
+                                @foreach( TicketType tt in Model.AvailableTicketTypes ) {
+                                    <option value="@tt.Id">@tt.Name (@tt.Description)</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row pt-3">
+
+                    <div class="col">
+                        <label for="TicketDescription">Please describe the issue you experience: <span class="text-danger">*</span></label>
+                        <textarea class="form-control" rows="4" placeholder="Description..." id="Description" name="Description"></textarea>
+                    </div>
+
+                </div>
+
+                <div class="row mt-3 pt-3 border-top">
+
+                    <div class="col">
+                        <label>Attachments:</label>
+                        <div class="input-group">
+                            <div class="custom-file" name>
+                                <input type="file" class="custom-file-input" id="InitialAttachments" name="InitialAttachments" multiple>
+                                <label class="custom-file-label text-truncate" for="InitialAttachments">Choose file...</label>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-xl-4">
+                <div class="row pt-4 pt-xl-0">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-header bg-gradient-navy">
+                                <h5>Issue Priority <span class="text-danger">*</span></h5>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="select2-purple">
+                                    <div class="text-sm" for="TicketPriorityId">The level of threat this issue holds</div>
+                                    <select class="select2" data-placeholder="Select Ticket Priority" hidden="hidden" data-dropdown-css-class="select2-purple" style="width: 100%;" id="TicketPriorityId" name="TicketPriorityId">
+                                        @foreach( KeyValuePair<string, int> tp in Model.PrioritySelections ) {
+                                            <option value="@tp.Value">@tp.Key</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if( Model.AvailableStatuses != null ) {
+                    <div class="row">
+                        <div class="col">
+                            <div class="card">
+                                <div class="card-header bg-gradient-yellow">
+                                    <h5>Current Status <span class="text-danger">*</span></h5>
+                                </div>
+
+                                <div class="card-body">
+                                    <div class="select2-purple">
+                                        <select class="select2" data-placeholder="Select Ticket Status" hidden="hidden" data-dropdown-css-class="select2-purple" style="width: 100%;" name="TicketStatusId" id="TicketStatusId">
+                                            @foreach( KeyValuePair<string, int> ts in Model.AvailableStatuses ) {
+                                                <option value="@ts.Value">@ts.Key</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+        <br />
+        <br />
+        <div class="row pt-5">
+            <div class="col-7">
+                <a href="@Url.Action("Project", "Projects", new { Model.ParentProject.TicketTag })">
+                    <div class="btn btn-info">Back to Project</div>
+                </a>
             </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.CreatedAt, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.CreatedAt, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.CreatedAt, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.LastInteractionAt, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.LastInteractionAt, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.LastInteractionAt, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.ResolvedAt, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.ResolvedAt, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.ResolvedAt, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.ParentProjectId, "ParentProjectId", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownList("ParentProjectId", null, htmlAttributes: new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.ParentProjectId, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.TicketTypeId, "TicketTypeId", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownList("TicketTypeId", null, htmlAttributes: new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.TicketTypeId, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.TicketStatusId, "TicketStatusId", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownList("TicketStatusId", null, htmlAttributes: new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.TicketStatusId, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.TicketPriorityLevelId, "TicketPriorityLevelId", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownList("TicketPriorityLevelId", null, htmlAttributes: new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.TicketPriorityLevelId, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.ReporterId, "ReporterId", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownList("ReporterId", null, htmlAttributes: new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.ReporterId, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.AssignedSolverId, "AssignedSolverId", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownList("AssignedSolverId", null, htmlAttributes: new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.AssignedSolverId, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
+            <div class="col-5">
+                <button type="submit" class="btn btn-lg btn-block btn-success">Submit New Issue</button>
             </div>
         </div>
     </div>
-}
+</form>
 
-<div>
-    @Html.ActionLink("Back to List", "Index")
-</div>
+@section Scripts {
+    @* bs-custom-file-input *@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bs-custom-file-input/1.3.4/bs-custom-file-input.min.js"></script>
+
+
+    @*select2 Init*@
+    <script>
+        $(document).ready(function () {
+            //Initialize Select2 Elements
+            $('.select2').select2()
+
+            //Initialize Select2 Elements
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+        })
+    </script>
+
+    @* bs-custom-file-input Upload *@
+    <script>
+        $(document).ready(function () {
+            bsCustomFileInput.init();
+        });
+    </script>
+
+}
