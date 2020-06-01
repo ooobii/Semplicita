@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Configuration;
 using System.Web.Mvc;
+using System.Web.WebSockets;
 
 namespace Semplicita.Controllers
 {
@@ -20,13 +21,7 @@ namespace Semplicita.Controllers
     public class AdminController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
-        private UserRolesHelper rolesHelper;
-        private ProjectHelper projectHelper;
-        public AdminController() {
-            rolesHelper = new UserRolesHelper(db);
-            projectHelper = new ProjectHelper(db);
-        }
-        private RoleDisplayDictionary roleDisplays = new RoleDisplayDictionary();
+
 
         private ApplicationUserManager _userManager;
         public ApplicationUserManager UserManager {
@@ -58,6 +53,8 @@ namespace Semplicita.Controllers
         [MultipleButton(Name = "projectUsers", Argument = "Add")]
         [ValidateAntiForgeryToken]
         public ActionResult AddUsersToProject(AddRemoveUsersProjectsModel model) {
+            var projectHelper = new ProjectHelper(db);
+
             var errors = new List<string>();
             var successes = new List<string>();
 
@@ -104,6 +101,7 @@ namespace Semplicita.Controllers
             if( successes.Count > 0 ) {
                 ViewBag.UserProjectAllocMessages = successes;
             }
+            
 
             ServerConfigViewModel viewModel = new ServerConfigViewModel() {
                 Users = db.Users.ToList(),
@@ -118,6 +116,7 @@ namespace Semplicita.Controllers
         [MultipleButton(Name = "projectUsers", Argument = "Remove")]
         [ValidateAntiForgeryToken]
         public ActionResult RemoveUserFromProject(AddRemoveUsersProjectsModel model) {
+            var projectHelper = new ProjectHelper(db);
             var errors = new List<string>();
             var successes = new List<string>();
 
@@ -180,6 +179,8 @@ namespace Semplicita.Controllers
         [MultipleButton(Name = "userRoles", Argument = "Add")]
         [ValidateAntiForgeryToken]
         public ActionResult AddUsersToRoles(AddRemoveUsersRolesModel model) {
+            var roleHelper = new UserRolesHelper(db);
+            var roleDisplays = new RoleDisplayDictionary();
             var errors = new List<string>();
             var successes = new List<string>();
 
@@ -199,7 +200,7 @@ namespace Semplicita.Controllers
                     if( user != null ) {
 
                         foreach( string role in model.Roles ) {
-                            var addRoleSuccess = rolesHelper.AddUserToRole(userId, role);
+                            var addRoleSuccess = roleHelper.AddUserToRole(userId, role);
 
                             if( !addRoleSuccess ) {
                                 errors.Add($"Unable to add '{user.FullNameStandard}' to the role '{roleDisplays[ role ]}'.");
@@ -239,6 +240,8 @@ namespace Semplicita.Controllers
         [MultipleButton(Name = "userRoles", Argument = "Remove")]
         [ValidateAntiForgeryToken]
         public ActionResult RemoveUsersFromRoles(AddRemoveUsersRolesModel model) {
+            var roleHelper = new UserRolesHelper(db);
+            var roleDisplays = new RoleDisplayDictionary();
             var errors = new List<string>();
             var successes = new List<string>();
 
@@ -258,7 +261,7 @@ namespace Semplicita.Controllers
                     if( user != null ) {
 
                         foreach( string role in model.Roles ) {
-                            var removeRoleSuccess = rolesHelper.RemoveUserFromRole(userId, role);
+                            var removeRoleSuccess = roleHelper.RemoveUserFromRole(user.Id, role);
 
                             if( !removeRoleSuccess ) {
                                 errors.Add($"Unable to remove '{user.FullNameStandard}' from the role '{roleDisplays[ role ]}'. Is the user in this role?");
@@ -312,6 +315,7 @@ namespace Semplicita.Controllers
         [Authorize]
         [MultipleButton(Name = "projWorkflow", Argument = "Set")]
         public ActionResult SetProjectWorkflow(SetProjectWorkflowModel model) {
+            var projectHelper = new ProjectHelper(db);
             var errors = new List<string>();
             var successes = new List<string>();
 
