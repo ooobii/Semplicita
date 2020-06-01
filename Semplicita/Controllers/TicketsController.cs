@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using Microsoft.AspNet.Identity;
 using Semplicita.Models;
 
 namespace Semplicita.Controllers
@@ -14,9 +16,10 @@ namespace Semplicita.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        // GET: Tickets
-        public ActionResult Index()
-        {
+
+
+
+        public ActionResult Index() {
             var tickets = db.Tickets.Include(t => t.AssignedSolver)
                                     .Include(t => t.ParentProject)
                                     .Include(t => t.Reporter)
@@ -28,66 +31,171 @@ namespace Semplicita.Controllers
             return View(tickets.ToList());
         }
 
-        // GET: Tickets/Details/5
-        public ActionResult Details(int? id)
-        {
-            if (id == null)
-            {
+
+        [Route("tickets/{TicketIdentifier}")]
+        public ActionResult Details(string TicketIdentifier) {
+            if( string.IsNullOrWhiteSpace(TicketIdentifier) ) {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Ticket ticket = db.Tickets.Find(id);
-            if (ticket == null)
-            {
+            Ticket ticket = db.Tickets.ToList().FirstOrDefault(t => t.GetTicketIdentifier() == TicketIdentifier);
+            if( ticket == null ) {
                 return HttpNotFound();
             }
             return View(ticket);
         }
 
-        // GET: Tickets/Create
-        public ActionResult Create()
-        {
-            ViewBag.AssignedSolverId = new SelectList(db.Users, "Id", "FirstName");
-            ViewBag.ParentProjectId = new SelectList(db.Projects, "Id", "Name");
-            ViewBag.ReporterId = new SelectList(db.Users, "Id", "FirstName");
-            ViewBag.TicketPriorityLevelId = new SelectList(db.TicketPriorityTypes, "Id", "Name");
-            ViewBag.TicketStatusId = new SelectList(db.TicketStatuses, "Id", "Name");
-            ViewBag.TicketTypeId = new SelectList(db.TicketTypes, "Id", "Name");
+
+
+
+        [Route("tickets/create-new")]
+        public ActionResult Create() {
+            Dictionary<string, int> availStatuses = null;
+            Project parentProj = db.Projects.First(p => p.TicketTag == "DEF");
+            ProjectWorkflow parentProjWorkflow = parentProj.ActiveWorkflow;
+
+            if( parentProjWorkflow.InitialTicketStatusId == null ) {
+                availStatuses = new Dictionary<string, int>();
+                foreach( TicketStatus ts in db.TicketStatuses.Where(ts => ts.MustBeAssigned == false && ts.IsStarted == false).ToList() ) {
+                    availStatuses.Add(ts.Display, ts.Id);
+                }
+            }
+
+            var viewModel = new CreateTicketViewModel() {
+                ParentProject = parentProj,
+                Reporter = db.Users.Find(User.Identity.GetUserId()),
+                PrioritySelections = db.TicketPriorityTypes.ToDictionary(tp => tp.Name, tp => tp.Id),
+                AvailableStatuses = availStatuses,
+                AvailableTicketTypes = db.TicketTypes.ToList()
+            };
+            return View(viewModel);
+        }
+
+        [Route("tickets/create-new/{TicketTag}")]
+        public ActionResult Create(string TicketTag) {
+            if( string.IsNullOrWhiteSpace(TicketTag) ) {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            } else {
+                Dictionary<string, int> availStatuses = null;
+                Project parentProj = db.Projects.First(p => p.TicketTag == TicketTag);
+                ProjectWorkflow parentProjWorkflow = parentProj.ActiveWorkflow;
+
+                if( parentProjWorkflow.InitialTicketStatusId == null ) {
+                    availStatuses = new Dictionary<string, int>();
+                    foreach( TicketStatus ts in db.TicketStatuses.Where(ts => ts.MustBeAssigned == false && ts.IsStarted == false).ToList() ) {
+                        availStatuses.Add(ts.Display, ts.Id);
+                    }
+                }
+
+                var viewModel = new CreateTicketViewModel() {
+                    ParentProject = parentProj,
+                    Reporter = db.Users.Find(User.Identity.GetUserId()),
+                    PrioritySelections = db.TicketPriorityTypes.ToDictionary(tp => tp.Name, tp => tp.Id),
+                    AvailableStatuses = availStatuses,
+                    AvailableTicketTypes = db.TicketTypes.ToList()
+                };
+                return View(viewModel);
+            }
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("tickets/create")]
+        public ActionResult CreateTicket(NewTicketModel model) {
+            if( ModelState.IsValid ) {
+                var now = DateTime.Now;
+                var userId = User.Identity.GetUserId();
+
+                Project parentProject = db.Projects.FirstOrDefault(p => p.Id == model.ParentProjectId);
+                if( parentProject == null ) {
+                    return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+                }
+
+                TicketStatus initStatus;
+                if( model.TicketStatusId == null && parentProject.ActiveWorkflow.InitialTicketStatusId != null ) {
+                    initStatus = db.TicketStatuses.ToList().FirstOrDefault(ts => ts.Id == parentProject.ActiveWorkflow.InitialTicketStatusId);
+                    if( initStatus == null ) { return new HttpStatusCodeResult(HttpStatusCode.InternalServerError); }
+
+                } else {
+                    initStatus = db.TicketStatuses.Find(model.TicketStatusId);
+
+                }
+
+                TicketPriority priority = db.TicketPriorityTypes.FirstOrDefault(tp => tp.Id == model.TicketPriorityId);
+                if( priority == null ) {
+                    return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+                }
+
+                string initSolverId;
+                switch( parentProject.ActiveWorkflow.AutoTicketAssignBehavior ) {
+                    case ProjectWorkflow.AutoTicketAssignBehaviorType.LeaveUnassigned:
+                        initSolverId = null;
+                        break;
+
+                    case ProjectWorkflow.AutoTicketAssignBehaviorType.AutoAssignToUser:
+                        if( parentProject.ActiveWorkflow.AutoTicketAssignUserId != null && parentProject.Members.Any(u => u.Id == parentProject.ActiveWorkflow.AutoTicketAssignUserId) ) {
+                            initSolverId = db.Users.ToList().FirstOrDefault(u => u.Id == parentProject.ActiveWorkflow.AutoTicketAssignUserId).Id;
+                        } else {
+                            initSolverId = null;
+                        }
+                        break;
+
+                    case ProjectWorkflow.AutoTicketAssignBehaviorType.RoundRobin:
+                    case ProjectWorkflow.AutoTicketAssignBehaviorType.EvenSteven:
+                    case ProjectWorkflow.AutoTicketAssignBehaviorType.WorkloadBasedAvailability:
+                    default:
+                        initSolverId = null;
+                        break;
+                }
+
+
+                var newTicket = new Ticket() {
+                    Title = model.Title
+                    ,Description = model.Description
+                    ,CreatedAt = now
+                    ,ParentProjectId = parentProject.Id
+                    ,TicketTypeId = model.TicketTypeId
+                    ,TicketStatusId = initStatus.Id
+                    ,TicketPriorityLevelId = priority.Id
+                    ,ReporterId = User.Identity.GetUserId()
+                    ,AssignedSolverId = initSolverId
+                };
+                db.Tickets.Add(newTicket);
+                db.SaveChanges();
+
+                var createdEntry = newTicket.GetCreatedHistoryEntry(User, db);
+                db.TicketHistoryEntries.Add(createdEntry);
+                db.SaveChanges();
+
+                if( model.InitialAttachments != null ) {
+                    var attachments = new List<TicketAttachment>();
+                    foreach( HttpPostedFileBase file in model.InitialAttachments ) {
+                        try {
+                            attachments.Add(TicketAttachment.CreateNewAttachmentEntry(file, newTicket, User, db, Server));
+                        } catch( Exception ex ) {
+                            System.Threading.Thread.Sleep(50);
+                        }
+                    }
+                    db.TicketAttachments.AddRange(attachments);
+                    db.SaveChanges();
+                }
+
+
+                return RedirectToAction("Index");
+            }
             return View();
         }
 
-        // POST: Tickets/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Title,Description,CreatedAt,LastInteractionAt,ResolvedAt,ParentProjectId,TicketTypeId,TicketStatusId,TicketPriorityLevelId,ReporterId,AssignedSolverId")] Ticket ticket)
-        {
-            if (ModelState.IsValid)
-            {
-                db.Tickets.Add(ticket);
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
 
-            ViewBag.AssignedSolverId = new SelectList(db.Users, "Id", "FirstName", ticket.AssignedSolverId);
-            ViewBag.ParentProjectId = new SelectList(db.Projects, "Id", "Name", ticket.ParentProjectId);
-            ViewBag.ReporterId = new SelectList(db.Users, "Id", "FirstName", ticket.ReporterId);
-            ViewBag.TicketPriorityLevelId = new SelectList(db.TicketPriorityTypes, "Id", "Name", ticket.TicketPriorityLevelId);
-            ViewBag.TicketStatusId = new SelectList(db.TicketStatuses, "Id", "Name", ticket.TicketStatusId);
-            ViewBag.TicketTypeId = new SelectList(db.TicketTypes, "Id", "Name", ticket.TicketTypeId);
-            return View(ticket);
-        }
 
-        // GET: Tickets/Edit/5
-        public ActionResult Edit(int? id)
-        {
-            if (id == null)
-            {
+
+        [Route("tickets/{TicketIdentifier}/edit")]
+        public ActionResult Edit(string TicketIdentifier) {
+            if( string.IsNullOrWhiteSpace(TicketIdentifier) ) {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Ticket ticket = db.Tickets.Find(id);
-            if (ticket == null)
-            {
+            Ticket ticket = db.Tickets.ToList().FirstOrDefault(t => t.GetTicketIdentifier() == TicketIdentifier);
+            if( ticket == null ) {
                 return HttpNotFound();
             }
             ViewBag.AssignedSolverId = new SelectList(db.Users, "Id", "FirstName", ticket.AssignedSolverId);
@@ -104,10 +212,8 @@ namespace Semplicita.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,Title,Description,CreatedAt,LastInteractionAt,ResolvedAt,ParentProjectId,TicketTypeId,TicketStatusId,TicketPriorityLevelId,ReporterId,AssignedSolverId")] Ticket ticket)
-        {
-            if (ModelState.IsValid)
-            {
+        public ActionResult EditTicket([Bind(Include = "Id,Title,Description,CreatedAt,LastInteractionAt,ResolvedAt,ParentProjectId,TicketTypeId,TicketStatusId,TicketPriorityLevelId,ReporterId,AssignedSolverId")] Ticket ticket) {
+            if( ModelState.IsValid ) {
                 db.Entry(ticket).State = EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("Index");
@@ -121,36 +227,34 @@ namespace Semplicita.Controllers
             return View(ticket);
         }
 
-        // GET: Tickets/Delete/5
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
+
+        [Route("tickets/{TicketIdentifier}/delete")]
+
+
+
+        public ActionResult Delete(string TicketIdentifier) {
+            if( string.IsNullOrWhiteSpace(TicketIdentifier) ) {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Ticket ticket = db.Tickets.Find(id);
-            if (ticket == null)
-            {
+            Ticket ticket = db.Tickets.ToList().FirstOrDefault(t => t.GetTicketIdentifier() == TicketIdentifier);
+            if( ticket == null ) {
                 return HttpNotFound();
             }
             return View(ticket);
         }
 
-        // POST: Tickets/Delete/5
+
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
+        public ActionResult DeleteConfirmed(int id) {
             Ticket ticket = db.Tickets.Find(id);
             db.Tickets.Remove(ticket);
             db.SaveChanges();
             return RedirectToAction("Index");
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
+        protected override void Dispose(bool disposing) {
+            if( disposing ) {
                 db.Dispose();
             }
             base.Dispose(disposing);
