@@ -143,8 +143,8 @@ namespace Semplicita.Controllers
                 db.SaveChanges();
 
                 newTicket.SaveTicketCreatedHistoryEntry(User, db);
-                if( model.InitialAttachments != null ) {
-                    newTicket.AddAttachments(model.InitialAttachments, User, db, Server);
+                if( model.Attachments != null ) {
+                    newTicket.AddAttachments(model.Attachments, User, db, Server);
                 }
 
                 return RedirectToAction("Details", "Tickets", new { TicketIdentifier = newTicket.GetTicketIdentifier() } );
@@ -164,40 +164,76 @@ namespace Semplicita.Controllers
             if( ticket == null ) {
                 return HttpNotFound();
             }
-            ViewBag.AssignedSolverId = new SelectList(db.Users, "Id", "FirstName", ticket.AssignedSolverId);
-            ViewBag.ParentProjectId = new SelectList(db.Projects, "Id", "Name", ticket.ParentProjectId);
-            ViewBag.ReporterId = new SelectList(db.Users, "Id", "FirstName", ticket.ReporterId);
-            ViewBag.TicketPriorityLevelId = new SelectList(db.TicketPriorityTypes, "Id", "Name", ticket.TicketPriorityLevelId);
-            ViewBag.TicketStatusId = new SelectList(db.TicketStatuses, "Id", "Name", ticket.TicketStatusId);
-            ViewBag.TicketTypeId = new SelectList(db.TicketTypes, "Id", "Name", ticket.TicketTypeId);
-            return View(ticket);
+
+            Project parentProj = db.Projects.First(p => p.TicketTag == "DEF");
+            ProjectWorkflow parentProjWorkflow = parentProj.ActiveWorkflow;
+            List<ApplicationUser> solvers = null;
+            if (User.Identity.GetUserId() == parentProj.ProjectManagerId || User.IsInRole("ServerAdmin")) {
+                solvers = parentProj.GetSolverMembers(db);
+            }
+
+            var viewModel = new EditTicketViewModel() {
+                ParentProject = parentProj,
+                Reporter = db.Users.Find(User.Identity.GetUserId()),
+                PrioritySelections = db.TicketPriorityTypes.ToDictionary(tp => tp.Name, tp => tp.Id),
+                AvailableTicketTypes = db.TicketTypes.ToList(),
+                CurrentTicket = ticket,
+                AvailableSolvers = solvers
+            };
+
+
+            return View(viewModel);
         }
 
-        // POST: Tickets/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditTicket([Bind(Include = "Id,Title,Description,CreatedAt,LastInteractionAt,ResolvedAt,ParentProjectId,TicketTypeId,TicketStatusId,TicketPriorityLevelId,ReporterId,AssignedSolverId")] Ticket ticket) {
+        [Route("Tickets/EditTicket")]
+        public ActionResult EditTicket(EditTicketModel model) {
             if( ModelState.IsValid ) {
-                db.Entry(ticket).State = EntityState.Modified;
+                var now = DateTime.Now;
+                var userId = User.Identity.GetUserId();
+
+                var parentProject = db.Projects.FirstOrDefault(p => p.Id == model.ParentProjectId);
+                if( parentProject == null ) {
+                    return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+                }
+
+                var nextStatus = db.TicketStatuses.Find(model.TicketStatusId);
+
+                var priority = db.TicketPriorityTypes.FirstOrDefault(tp => tp.Id == model.TicketPriorityId);
+                if( priority == null ) {
+                    return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+                }
+
+                var oldTicket = db.Tickets.Find(model.CurrentTicketId);
+                var newTicket = new Ticket() {
+                    Title = model.Title
+                    , Description = model.Description
+                    , CreatedAt = oldTicket.CreatedAt
+                    , LastInteractionAt = now
+                    , ParentProjectId = parentProject.Id
+                    , TicketTypeId = model.TicketTypeId
+                    , TicketType = db.TicketTypes.Find(model.TicketTypeId)
+                    , TicketStatusId = nextStatus.Id
+                    , TicketPriorityLevelId = priority.Id
+                    , ReporterId = User.Identity.GetUserId()
+                    , AssignedSolverId = model.SolverId
+                };
+
+                var histories = oldTicket.UpdateTicket(newTicket, User, db);
+                db.TicketHistoryEntries.AddRange(histories);
                 db.SaveChanges();
-                return RedirectToAction("Index");
+
+                return RedirectToAction("Details", "Tickets", new { TicketIdentifier = oldTicket.GetTicketIdentifier() });
             }
-            ViewBag.AssignedSolverId = new SelectList(db.Users, "Id", "FirstName", ticket.AssignedSolverId);
-            ViewBag.ParentProjectId = new SelectList(db.Projects, "Id", "Name", ticket.ParentProjectId);
-            ViewBag.ReporterId = new SelectList(db.Users, "Id", "FirstName", ticket.ReporterId);
-            ViewBag.TicketPriorityLevelId = new SelectList(db.TicketPriorityTypes, "Id", "Name", ticket.TicketPriorityLevelId);
-            ViewBag.TicketStatusId = new SelectList(db.TicketStatuses, "Id", "Name", ticket.TicketStatusId);
-            ViewBag.TicketTypeId = new SelectList(db.TicketTypes, "Id", "Name", ticket.TicketTypeId);
-            return View(ticket);
+
+            var ticket = db.Tickets.Find(model.CurrentTicketId);
+            return RedirectToAction("Edit", "Tickets", new { TicketIdentifier = ticket.GetTicketIdentifier() });
         }
 
 
         [Route("tickets/{TicketIdentifier}/delete")]
-
-
-
         public ActionResult Delete(string TicketIdentifier) {
             if( string.IsNullOrWhiteSpace(TicketIdentifier) ) {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -210,9 +246,9 @@ namespace Semplicita.Controllers
         }
 
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id) {
+        public ActionResult DeleteTicket(int id) {
             Ticket ticket = db.Tickets.Find(id);
             db.Tickets.Remove(ticket);
             db.SaveChanges();

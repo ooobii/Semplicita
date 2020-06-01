@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Security.Principal;
 using System.Web;
@@ -10,17 +11,34 @@ namespace Semplicita.Models
     public class Ticket
     {
         public int Id { get; set; }
+
+        [Required]
         public string Title { get; set; }
+
+        [Required]
         public string Description { get; set; }
+
+        [Required]
         public DateTime CreatedAt { get; set; }
+
         public DateTime? LastInteractionAt { get; set; }
         public DateTime? ResolvedAt { get; set; }
 
+        [Required]
         public int ParentProjectId { get; set; }
+
+        [Required]
         public int TicketTypeId { get; set; }
+
+        [Required]
         public int TicketStatusId { get; set; }
+
+        [Required]
         public int TicketPriorityLevelId { get; set; }
+
+        [Required]
         public string ReporterId { get; set; }
+
         public string AssignedSolverId { get; set; }
 
         public virtual Project ParentProject { get; set; }
@@ -159,6 +177,7 @@ namespace Semplicita.Models
             var ticket = context.Tickets.Find(this.Id);
             ticket.LastInteractionAt = DateTime.Now;
             ticket.TicketTypeId = newType.Id;
+            ticket.TicketType = newType;
             context.SaveChanges();
 
             return history;

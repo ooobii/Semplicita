@@ -101,8 +101,9 @@
 
     </dl>
 
-    @using (Html.BeginForm()) {
+    @using (Html.BeginForm("DeleteTicket", "Tickets", FormMethod.Post)) {
         @Html.AntiForgeryToken()
+        @Html.Hidden("Id", Model.Id)
 
         <div class="form-actions no-color">
             <input type="submit" value="Delete" class="btn btn-default" /> |

@@ -123,6 +123,10 @@
     border-bottom: 1.5px solid #dee2e6 !important;
 }
 
+
+/* ReadMore Buttons */
+
+
 .badge {
     font-weight:normal;
     margin-left:3px;
@@ -197,6 +201,7 @@
     background-color: green !important;
 }
 .bg-gradient-h-green {
+    color: white;
     background: rgb(21,121,26);
     background: -moz-linear-gradient(90deg, rgba(21,121,26,1) 0%, rgba(39,179,26,1) 100%);
     background: -webkit-linear-gradient(90deg, rgba(21,121,26,1) 0%, rgba(39,179,26,1) 100%);
@@ -276,4 +281,12 @@
     background: -webkit-linear-gradient(55deg, rgba(249,113,22,1) 0%, rgba(215,157,21,1) 100%) !important;
     background: linear-gradient(55deg, rgba(249,113,22,1) 0%, rgba(215,157,21,1) 100%) !important;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#f97116",endColorstr="#d79d15",GradientType=1) !important;
+}
+.bg-gradient-darkorange {
+    color:white !important;
+    background: rgb(175,82,19) !important;
+    background: -moz-linear-gradient(0deg, rgba(175,82,19,1) 0%, rgba(159,119,24,1) 90%, rgba(139,101,11,1) 100%) !important;
+    background: -webkit-linear-gradient(0deg, rgba(175,82,19,1) 0%, rgba(159,119,24,1) 90%, rgba(139,101,11,1) 100%) !important;
+    background: linear-gradient(0deg, rgba(175,82,19,1) 0%, rgba(159,119,24,1) 90%, rgba(139,101,11,1) 100%) !important;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#af5213",endColorstr="#8b650b",GradientType=1) !important;
 }

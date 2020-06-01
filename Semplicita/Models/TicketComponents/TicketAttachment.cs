@@ -14,6 +14,7 @@ namespace Semplicita.Models
         public string AuthorId { get; set; }
 
         public string Name { get; set; }
+        public DateTime UploadedAt { get; set; }
         public string MediaUrl { get; set; }
 
 
@@ -21,7 +22,7 @@ namespace Semplicita.Models
         public virtual ApplicationUser Author { get; set; }
 
 
-        public static TicketAttachment CreateNewAttachmentEntry(HttpPostedFileBase postedFile, Ticket parent, IPrincipal User, ApplicationDbContext context, HttpServerUtilityBase Server) {
+        public static TicketAttachment ProcessUpload(HttpPostedFileBase postedFile, HttpServerUtilityBase Server, Ticket parent, IPrincipal User, ApplicationDbContext context) {
             if( postedFile.ContentLength > 31457280 ) { //30MB in binary bytes
                 throw new Exception("File is too big!");
             } else {
@@ -36,7 +37,8 @@ namespace Semplicita.Models
 
                 //generate model for uploaded file
                 var output = new TicketAttachment() {
-                    ParentTicketId = parent.Id
+                    UploadedAt = DateTime.Now
+                    , ParentTicketId = parent.Id
                     , AuthorId = User.Identity.GetUserId()
                     , MediaUrl = "/AttachmentUploads/" + FileNameModded
                 };

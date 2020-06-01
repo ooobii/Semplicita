@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Semplicita.Helpers;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Web.WebSockets;
 
 namespace Semplicita.Models
 {
@@ -58,6 +60,31 @@ namespace Semplicita.Models
         public string GetNextSolverIdFromWorkflow(ApplicationDbContext context) {
             var output = GetNextSolverFromWorkflow(context);
             if ( output != null ) { return output.Id; } else { return null; }
+        }
+
+
+        public List<ApplicationUser> GetSolverMembers(ApplicationDbContext context) {
+            var roleHelper = new UserRolesHelper(context);
+
+            var output = new List<ApplicationUser>();
+
+            foreach(ApplicationUser u in this.Members.ToList().Where(m => roleHelper.ListUserRoles(m.Id).Contains("SuperSolver") ||
+                                                                          roleHelper.ListUserRoles(m.Id).Contains("Solver"))) {
+                if( u.IsDemoUser == false ) { output.Add(u); }
+            }
+
+            return output;
+        }
+        public List<ApplicationUser> GetReporterMembers(ApplicationDbContext context) {
+            var roleHelper = new UserRolesHelper(context);
+
+            var output = new List<ApplicationUser>();
+
+            foreach( ApplicationUser u in this.Members.ToList().Where(m => roleHelper.ListUserRoles(m.Id).Contains("Reporter"))) {
+                if( u.IsDemoUser == false ) { output.Add(u); }
+            }
+
+            return output;
         }
 
 
