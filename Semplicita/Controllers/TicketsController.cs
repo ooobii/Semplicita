@@ -126,28 +126,7 @@ namespace Semplicita.Controllers
                     return new HttpStatusCodeResult(HttpStatusCode.NotFound);
                 }
 
-                string initSolverId;
-                switch( parentProject.ActiveWorkflow.AutoTicketAssignBehavior ) {
-                    case ProjectWorkflow.AutoTicketAssignBehaviorType.LeaveUnassigned:
-                        initSolverId = null;
-                        break;
-
-                    case ProjectWorkflow.AutoTicketAssignBehaviorType.AutoAssignToUser:
-                        if( parentProject.ActiveWorkflow.AutoTicketAssignUserId != null && parentProject.Members.Any(u => u.Id == parentProject.ActiveWorkflow.AutoTicketAssignUserId) ) {
-                            initSolverId = db.Users.ToList().FirstOrDefault(u => u.Id == parentProject.ActiveWorkflow.AutoTicketAssignUserId).Id;
-                        } else {
-                            initSolverId = null;
-                        }
-                        break;
-
-                    case ProjectWorkflow.AutoTicketAssignBehaviorType.RoundRobin:
-                    case ProjectWorkflow.AutoTicketAssignBehaviorType.EvenSteven:
-                    case ProjectWorkflow.AutoTicketAssignBehaviorType.WorkloadBasedAvailability:
-                    default:
-                        initSolverId = null;
-                        break;
-                }
-
+                string initSolverId = parentProject.GetNextSolverIdFromWorkflow(db);
 
                 var newTicket = new Ticket() {
                     Title = model.Title
@@ -163,25 +142,12 @@ namespace Semplicita.Controllers
                 db.Tickets.Add(newTicket);
                 db.SaveChanges();
 
-                var createdEntry = newTicket.GetCreatedHistoryEntry(User, db);
-                db.TicketHistoryEntries.Add(createdEntry);
-                db.SaveChanges();
-
+                newTicket.SaveTicketCreatedHistoryEntry(User, db);
                 if( model.InitialAttachments != null ) {
-                    var attachments = new List<TicketAttachment>();
-                    foreach( HttpPostedFileBase file in model.InitialAttachments ) {
-                        try {
-                            attachments.Add(TicketAttachment.CreateNewAttachmentEntry(file, newTicket, User, db, Server));
-                        } catch( Exception ex ) {
-                            System.Threading.Thread.Sleep(50);
-                        }
-                    }
-                    db.TicketAttachments.AddRange(attachments);
-                    db.SaveChanges();
+                    newTicket.AddAttachments(model.InitialAttachments, User, db, Server);
                 }
 
-
-                return RedirectToAction("Index");
+                return RedirectToAction("Details", "Tickets", new { TicketIdentifier = newTicket.GetTicketIdentifier() } );
             }
             return View();
         }
