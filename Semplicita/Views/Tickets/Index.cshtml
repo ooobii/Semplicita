@@ -1,93 +1,107 @@
-﻿@model IEnumerable<Semplicita.Models.Ticket>
+﻿@using Semplicita.Models
+@using Semplicita.Helpers
+
+@model TicketsIndexViewModel
 
 @{
     ViewBag.Title = "Index";
+    var rolesHelper = new UserRolesHelper();
 }
 
 <h2>Index</h2>
 
 <p>
-    @Html.ActionLink("Create New", "Create")
+    <div class="dropdown">
+        <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Report New Issue
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            @foreach( Project p in Model.Projects ) {
+
+                if( rolesHelper.CanCreateTicket(User, p.Id) ) {
+                    <a class="dropdown-item" href="@Url.Action("Create", "Tickets", new { p.TicketTag })">@p.Name</a>
+                }
+            }
+        </div>
+    </div>
 </p>
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.AssignedSolver.FirstName)
+            Title
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.ParentProject.Name)
+            Project
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Reporter.FirstName)
+            Solver
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.TicketPriorityLevel.Name)
+            Reporter
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.TicketStatus.Name)
+            Priority
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.TicketType.Name)
+            Status
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Title)
+            Type
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Description)
+            Created
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.CreatedAt)
+            Last Interaction
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.LastInteractionAt)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.ResolvedAt)
+            Resolved
         </th>
         <th></th>
     </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.AssignedSolver.FirstName)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.ParentProject.Name)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Reporter.FirstName)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.TicketPriorityLevel.Name)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.TicketStatus.Name)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.TicketType.Name)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Title)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Description)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.CreatedAt)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.LastInteractionAt)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.ResolvedAt)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { TicketIdentifier = item.GetTicketIdentifier() }) |
-            @Html.ActionLink("Details", "Details", new { TicketIdentifier = item.GetTicketIdentifier() }) |
-            @Html.ActionLink("Delete", "Delete", new { TicketIdentifier = item.GetTicketIdentifier() })
-        </td>
-    </tr>
-}
+    @foreach( var item in Model.Tickets ) {
+        if( rolesHelper.CanViewTicket(User, item.Id) ) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ParentProject.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AssignedSolver.FullNameStandard)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Reporter.FullNameStandard)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TicketPriorityLevel.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TicketStatus.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TicketType.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedAt)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LastInteractionAt)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ResolvedAt)
+                </td>
+                <td>
+                    @if (rolesHelper.CanViewTicket(User, item.Id) ) {@Html.ActionLink("View", "Show", new { TicketIdentifier = item.GetTicketIdentifier() }) Html.Raw(" | ");  }
+
+                    @if( rolesHelper.CanEditTicket(User, item.Id) ) {@Html.ActionLink("Edit", "Edit", new { TicketIdentifier = item.GetTicketIdentifier() }) Html.Raw(" | "); }
+
+                    @if( rolesHelper.CanArchiveTicket(User, item.Id) ) {@Html.ActionLink("Delete", "Delete", new { TicketIdentifier = item.GetTicketIdentifier() })}
+                </td>
+            </tr>
+        }
+    }
 
 </table>

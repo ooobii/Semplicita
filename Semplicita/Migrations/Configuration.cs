@@ -431,10 +431,13 @@ namespace Semplicita.Migrations
                         AutoTicketAssignBehavior = ProjectWorkflow.AutoTicketAssignBehaviorType.WorkloadBasedAvailability,
 
                         InitialTicketStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "New-Unassigned").Id,
+                        TicketUnassignedStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "New-Unassigned").Id,
                         TicketAssignedStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "New-Assigned").Id,
                         ReporterInteractionStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "ReporterWaiting").Id,
                         SolverInteractionStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Investigation").Id,
                         SuperSolverInteractionStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Investigation").Id,
+                        ProjMgrInteractionStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Investigation").Id,
+                        ServerAdminInteractionStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Investigation").Id,
 
                         CanStaffSetStatusOnInteract = true,
                         CanTicketOwnerSetStatusOnInteract = false

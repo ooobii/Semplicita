@@ -32,6 +32,8 @@ namespace Semplicita.Models
         //event-based status change IDs for each role interaction with the ticket
         public int? InitialTicketStatusId { get; set; }
         public int? TicketAssignedStatusId { get; set; }
+        public int? TicketReassignedStatusId { get; set; }
+        public int? TicketUnassignedStatusId { get; set; }
         public int? ReporterInteractionStatusId { get; set; }
         public int? SolverInteractionStatusId { get; set; }
         public int? SuperSolverInteractionStatusId { get; set; }

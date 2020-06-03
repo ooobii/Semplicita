@@ -6,6 +6,12 @@ using System.Web;
 
 namespace Semplicita.Models
 {
+    public class TicketsIndexViewModel
+    {
+        public ICollection<Ticket> Tickets { get; set; }
+
+        public ICollection<Project> Projects { get; set; }
+    }
 
     public class CreateTicketViewModel
     {
@@ -37,8 +43,18 @@ namespace Semplicita.Models
         public Ticket CurrentTicket { get; set; }
         public ICollection<ApplicationUser> AvailableSolvers { get; set; }
     }
-    public class EditTicketModel : NewTicketModel
+    public class EditTicketModel
     {
+        public string Title { get; set; }
+        public string Description { get; set; }
+
+        public int ParentProjectId { get; set; }
+        public int TicketTypeId { get; set; }
+        public int TicketPriorityId { get; set; }
+        public int? TicketStatusId { get; set; }
+
+        public ICollection<HttpPostedFileBase> Attachments { get; set; }
+
         public int CurrentTicketId { get; set; }
         public string SolverId { get; set; }
     }

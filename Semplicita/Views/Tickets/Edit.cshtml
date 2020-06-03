@@ -14,7 +14,7 @@
 
 <div class="container">
 
-    @using( Html.BeginForm("EditTicket", "Tickets", FormMethod.Post) ) {
+    @using( Html.BeginForm("EditTicket", "Tickets", FormMethod.Post, new { enctype = "multipart/form-data" }) ) {
         @Html.AntiForgeryToken()
         @Html.Hidden("ParentProjectId", Model.CurrentTicket.ParentProjectId)
         @Html.Hidden("TicketStatusId", Model.CurrentTicket.TicketStatusId)
@@ -74,14 +74,14 @@
                         <div class="col">
                             <div class="card">
                                 <div class="card-header bg-gradient-h-green">
-                                    <h5>Assigned Solver</h5>
+                                    <h5>Assign Solver</h5>
                                 </div>
 
                                 <div class="card-body">
                                     <div class="select2-purple">
-                                        <select class="select2" data-placeholder="Select Ticket Priority" hidden="hidden" data-dropdown-css-class="select2-purple" style="width: 100%;" id="SolverId" name="SolverId">
+                                        <select class="select2-solver" hidden="hidden" data-dropdown-css-class="select2-purple" style="width: 100%;" id="SolverId" name="SolverId">
                                             @foreach( ApplicationUser u in Model.AvailableSolvers ) {
-                                                <option value="@u.Id">@u.FullNameStandard</option>
+                                                <option value="@u.Id" @(Model.CurrentTicket.AssignedSolverId == u.Id ? "selected" : "")>@u.FullNameStandard</option>
                                             }
                                         </select>
                                     </div>
@@ -141,6 +141,14 @@
         $(document).ready(function () {
             //Initialize Select2 Elements
             $('.select2').select2()
+
+            $('.select2-solver').select2({
+                allowClear: true,
+                placeholder: {
+                    id: '', // the value of the option
+                    text: 'Not Assigned'
+                }
+            })
 
             //Initialize Select2 Elements
             $('.select2bs4').select2({

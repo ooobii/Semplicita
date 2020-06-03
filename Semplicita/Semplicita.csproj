@@ -317,6 +317,8 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <Content Include="Images\logos\simp_logo_sm.png" />
+    <Content Include="img\upload.png" />
+    <Content Include="img\user.jpeg" />
     <Content Include="Scripts\adminlte\adminlte.js" />
     <Content Include="Scripts\adminlte\adminlte.min.js" />
     <Content Include="Scripts\adminlte\demo.js" />
@@ -491,7 +493,7 @@
     <Content Include="Views\Account\DemoLogin.cshtml" />
     <Content Include="Views\Tickets\Create.cshtml" />
     <Content Include="Views\Tickets\Delete.cshtml" />
-    <Content Include="Views\Tickets\Details.cshtml" />
+    <Content Include="Views\Tickets\Show.cshtml" />
     <Content Include="Views\Tickets\Edit.cshtml" />
     <Content Include="Views\Tickets\Index.cshtml" />
   </ItemGroup>

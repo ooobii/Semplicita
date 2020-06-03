@@ -22,6 +22,9 @@ namespace Semplicita.Models
         [NotMapped]
         public string FullNameStandard { get { return $"{FirstName} {LastName}"; } }
 
+        [NotMapped]
+        public string ShortName { get { return $"{FirstName} {LastName.Substring(0, 1)}."; } }
+
         public virtual ICollection<Project> Projects { get; set; }
         public virtual ICollection<TicketComment> CommentsWritten { get; set; }
         public virtual ICollection<TicketAttachment> UploadedAttachments { get; set; }

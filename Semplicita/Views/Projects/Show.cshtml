@@ -58,11 +58,11 @@
                         <a class="dropdown-item">
                             <h6>@u.FullNameStandard</h6>
                             @foreach( string role in rolesHelper.ListUserRoles(u.Id) ) {
-                                if( role == "ServerAdmin" ) {<small class="badge badge-dark">Server Admin</small> }
-                                if( role == "ProjectAdmin" ) { <small class="badge badge-blue">Project Mgr</small> }
-                                if( role == "SuperSolver" ) { <small class="badge badge-secondary">Super Solver</small>}
-                                if( role == "Solver" ) { <small class="badge badge-success">Solver</small>}
-                                if( role == "Reporter" ) { <small class="badge badge-info">Reporter</small>}
+                                if( role == "ServerAdmin" ) {<small class="badge badge-dark align-top">Server Admin</small> }
+                                if( role == "ProjectAdmin" ) { <small class="badge badge-blue align-top">Project Mgr</small> }
+                                if( role == "SuperSolver" ) { <small class="badge badge-secondary align-top">Super Solver</small>}
+                                if( role == "Solver" ) { <small class="badge badge-success align-top">Solver</small>}
+                                if( role == "Reporter" ) { <small class="badge badge-info align-top">Reporter</small>}
                             }
                         </a>
                     }
@@ -167,7 +167,7 @@
                             <h5>
                                 @solver.FullNameStandard
                                 @if( rolesHelper.IsInRole(solver.Id, "SuperSolver") ){
-                                    <small class="text-sm badge badge-sm badge-secondary" >Super Solver</small>
+                                    <small class="text-sm badge badge-sm badge-secondary align-top" >Super Solver</small>
                                 }
                             </h5>
                             <small>@solver.Email</small>
@@ -191,6 +191,13 @@
                 </div>
 
                 <div class="card-body">
+
+                    <div class="row">
+                        <div class="col">
+                            <a href="@Url.Action("Create", "Tickets", new { Model.TicketTag })"><div class="btn btn-sm btn-outline-warning mb-3 float-right" title="Report New Issue">+</div></a>
+                        </div>
+                    </div>
+
                     @if( Model.ChildTickets.Count > 0 ) {
                         <ul class="todo-list ui-sortable" data-widget="todo-list">
 
@@ -231,32 +238,42 @@
                 </div>
 
                 <div class="card-body">
-                    @if( Model.ChildTickets.Count > 0 ) {
-                        <ul class="todo-list ui-sortable" data-widget="todo-list">
+                    <div class="row">
+                        <div class="col">
+                            <div class="btn btn-primary">Wee!</div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            @if( Model.ChildTickets.Count > 0 ) {
+                                <ul class="todo-list ui-sortable" data-widget="todo-list">
 
-                            @foreach( Ticket t in Model.ChildTickets.Where(ticket => ticket.ReporterId == User.Identity.GetUserId() || ticket.AssignedSolverId == User.Identity.GetUserId()).ToList()) {
-                                <li class="" style="">
-                                    <!-- drag handle -->
-                                    <span class="handle ui-sortable-handle">
-                                        <i class="fas fa-ellipsis-v"></i>
-                                        <i class="fas fa-ellipsis-v"></i>
-                                    </span>
-                                    <!-- todo text -->
-                                    <span class="text">@t.Title</span>
-                                    <!-- Emphasis label -->
-                                    <small class="badge badge-danger"><i class="far fa-clock"></i> 2 mins</small>
-                                    <!-- General tools such as edit or delete-->
-                                    <div class="tools">
-                                        <i class="fas fa-edit"></i>
-                                        <i class="fas fa-trash"></i>
-                                    </div>
-                                </li>
+                                    @foreach( Ticket t in Model.ChildTickets.Where(ticket => ticket.ReporterId == User.Identity.GetUserId() || ticket.AssignedSolverId == User.Identity.GetUserId()).ToList() ) {
+                                        <li class="" style="">
+                                            <!-- drag handle -->
+                                            <span class="handle ui-sortable-handle">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </span>
+                                            <!-- todo text -->
+                                            <span class="text">@t.Title</span>
+                                            <!-- Emphasis label -->
+                                            <small class="badge badge-danger"><i class="far fa-clock"></i> 2 mins</small>
+                                            <!-- General tools such as edit or delete-->
+                                            <div class="tools">
+                                                <i class="fas fa-edit"></i>
+                                                <i class="fas fa-trash"></i>
+                                            </div>
+                                        </li>
+                                    }
+
+                                </ul>
+                            } else {
+                                <h5 class="text-center">No tickets yet! 😎</h5>
                             }
-
-                        </ul>
-                    } else {
-                        <h5 class="text-center">No tickets yet! 😎</h5>
-                    }
+                        </div>
+                    </div>
+                    
                 </div>
             </div>
         }

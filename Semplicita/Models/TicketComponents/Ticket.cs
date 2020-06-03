@@ -67,14 +67,16 @@ namespace Semplicita.Models
         }
 
         public void SaveTicketCreatedHistoryEntry(IPrincipal User, ApplicationDbContext context) {
-            var createdEntry = this.GetCreatedHistoryEntry(User, context);
+            var createdEntry = this.MakeCreatedHistoryEntry(User, context);
 
-            context.TicketHistoryEntries.Add(createdEntry);
-            context.SaveChanges();
+            if( createdEntry != null ) {
+                context.TicketHistoryEntries.Add(createdEntry);
+                context.SaveChanges();
+            }
         }
-        private TicketHistoryEntry GetCreatedHistoryEntry(IPrincipal User, ApplicationDbContext context) {
+        private TicketHistoryEntry MakeCreatedHistoryEntry(IPrincipal User, ApplicationDbContext context) {
             var history = context.TicketHistoryEntries.FirstOrDefault(the => the.EntryType == TicketHistoryEntry.TicketHistoryEntryType.Created
-                                                                          && the.ParentTicketId == this.Id);
+                                                                           & the.ParentTicketId == this.Id);
             if( history == null ) {
                 //does not exist in db for this ticket yet, create a new one to be added.
                 return new TicketHistoryEntry() {
@@ -82,19 +84,22 @@ namespace Semplicita.Models
                     ParentTicketId = this.Id,
                     EntryType = TicketHistoryEntry.TicketHistoryEntryType.Created,
                     OldData = null,
-                    NewData = this.Title
+                    NewData = this.Title,
+                    OccuredAt = this.CreatedAt
                 };
 
             } else {
                 //already exists
-                return history;
+                return null;
 
             }
         }
 
-
         public ICollection<TicketHistoryEntry> UpdateTicket(Ticket newTicket, IPrincipal User, ApplicationDbContext context) {
             var output = new List<TicketHistoryEntry>();
+
+            //Check status change (before workflow potentially modifies it)
+            if( this.TicketStatusId != newTicket.TicketStatusId ) { output.Add(UpdateStatus(newTicket.TicketStatusId, User, context)); }
 
             //Check field changes
             if( this.Title != newTicket.Title ) { output.Add(UpdateTitle(newTicket.Title, User, context)); }
@@ -102,13 +107,15 @@ namespace Semplicita.Models
             if( this.TicketPriorityLevelId != newTicket.TicketPriorityLevelId ) { output.Add(UpdatePriority(newTicket.TicketPriorityLevelId, User, context)); }
             if( this.TicketTypeId != newTicket.TicketTypeId ) { output.Add(UpdateTicketType(newTicket.TicketTypeId, User, context)); }
 
-            //Check ticket assignments
-            if( this.AssignedSolverId == null & newTicket.AssignedSolverId != null ) { output.Add(UpdateSolverAssignment(newTicket.AssignedSolverId, User, context)); }
-            if( this.AssignedSolverId != null & this.AssignedSolverId != newTicket.AssignedSolverId ) { output.Add(UpdateSolverReassigned(newTicket.AssignedSolverId, User, context)); }
-            if( this.AssignedSolverId != null & newTicket.AssignedSolverId == null ) { output.Add(UpdateUnassigned(User, context)); }
+            //Check ticket assignments, but only check once.
+            if( string.IsNullOrWhiteSpace(this.AssignedSolverId) & newTicket.AssignedSolverId != null ) {
+                output.AddRange(UpdateSolverAssignment(newTicket.AssignedSolverId, User, context));
+            } else if( !string.IsNullOrWhiteSpace(this.AssignedSolverId) & newTicket.AssignedSolverId == null ) {
+                output.AddRange(UpdateUnassigned(User, context));
+            } else if( !string.IsNullOrWhiteSpace(this.AssignedSolverId) & this.AssignedSolverId != newTicket.AssignedSolverId ) {
+                output.AddRange(UpdateSolverReassigned(newTicket.AssignedSolverId, User, context));
+            }
 
-            //Check status
-            if( this.TicketStatusId != newTicket.TicketStatusId ) { output.Add(UpdateStatus(newTicket.TicketStatusId, User, context)); }
 
 
             return output;
@@ -119,7 +126,8 @@ namespace Semplicita.Models
                 ParentTicketId = this.Id,
                 EntryType = TicketHistoryEntry.TicketHistoryEntryType.TitleModified,
                 OldData = this.Title,
-                NewData = newValue
+                NewData = newValue,
+                OccuredAt = DateTime.Now
             };
 
             var ticket = context.Tickets.Find(this.Id);
@@ -135,7 +143,8 @@ namespace Semplicita.Models
                 ParentTicketId = this.Id,
                 EntryType = TicketHistoryEntry.TicketHistoryEntryType.DescriptionModified,
                 OldData = this.Description,
-                NewData = newValue
+                NewData = newValue,
+                OccuredAt = DateTime.Now
             };
 
             var ticket = context.Tickets.Find(this.Id);
@@ -152,8 +161,9 @@ namespace Semplicita.Models
                 UserId = User.Identity.GetUserId(),
                 ParentTicketId = this.Id,
                 EntryType = TicketHistoryEntry.TicketHistoryEntryType.PriorityChanged,
-                OldData = this.TicketPriorityLevel.Name + "(" + this.TicketPriorityLevel.Rank + ")",
-                NewData = newPriority.Name + "(" + newPriority.Rank + ")"
+                OldData = this.TicketPriorityLevel.Id.ToString(),
+                NewData = newPriority.Id.ToString(),
+                OccuredAt = DateTime.Now
             };
 
             var ticket = context.Tickets.Find(this.Id);
@@ -170,8 +180,9 @@ namespace Semplicita.Models
                 UserId = User.Identity.GetUserId(),
                 ParentTicketId = this.Id,
                 EntryType = TicketHistoryEntry.TicketHistoryEntryType.TicketTypeModified,
-                OldData = this.TicketType.Name + "(" + this.TicketType.Description + ")",
-                NewData = newType.Name + "(" + newType.Description + ")"
+                OldData = this.TicketType.Id.ToString(),
+                NewData = newType.Id.ToString(),
+                OccuredAt = DateTime.Now
             };
 
             var ticket = context.Tickets.Find(this.Id);
@@ -182,7 +193,8 @@ namespace Semplicita.Models
 
             return history;
         }
-        private TicketHistoryEntry UpdateSolverAssignment(string newId, IPrincipal User, ApplicationDbContext context) {
+        private ICollection<TicketHistoryEntry> UpdateSolverAssignment(string newId, IPrincipal User, ApplicationDbContext context) {
+            var output = new List<TicketHistoryEntry>();
             var newSolver = context.Users.Find(newId);
 
             var history = new TicketHistoryEntry() {
@@ -190,17 +202,25 @@ namespace Semplicita.Models
                 ParentTicketId = this.Id,
                 EntryType = TicketHistoryEntry.TicketHistoryEntryType.AssignedToSolver,
                 OldData = null,
-                NewData = newSolver.Id
+                NewData = newSolver.Id,
+                OccuredAt = DateTime.Now
             };
+            output.Add(history);
 
             var ticket = context.Tickets.Find(this.Id);
             ticket.LastInteractionAt = DateTime.Now;
             ticket.AssignedSolverId = newSolver.Id;
+            if( ticket.ParentProject.ActiveWorkflow.TicketAssignedStatusId != null ) {
+                output.Add(UpdateStatus(int.Parse(ticket.ParentProject.ActiveWorkflow.TicketAssignedStatusId.ToString()), User, context, false));
+                //ticket.TicketStatusId = int.Parse(ticket.ParentProject.ActiveWorkflow.TicketAssignedStatusId.ToString());
+                //this.TicketStatusId = int.Parse(ticket.ParentProject.ActiveWorkflow.TicketAssignedStatusId.ToString());
+            }
             context.SaveChanges();
 
-            return history;
+            return output;
         }
-        private TicketHistoryEntry UpdateSolverReassigned(string newId, IPrincipal User, ApplicationDbContext context) {
+        private ICollection<TicketHistoryEntry> UpdateSolverReassigned(string newId, IPrincipal User, ApplicationDbContext context) {
+            var output = new List<TicketHistoryEntry>();
             var newSolver = context.Users.Find(newId);
 
             var history = new TicketHistoryEntry() {
@@ -208,47 +228,63 @@ namespace Semplicita.Models
                 ParentTicketId = this.Id,
                 EntryType = TicketHistoryEntry.TicketHistoryEntryType.AssignedToNewSolver,
                 OldData = this.AssignedSolverId,
-                NewData = newSolver.Id
+                NewData = newSolver.Id,
+                OccuredAt = DateTime.Now
             };
+            output.Add(history);
 
             var ticket = context.Tickets.Find(this.Id);
             ticket.LastInteractionAt = DateTime.Now;
             ticket.AssignedSolverId = newSolver.Id;
+            if( ticket.ParentProject.ActiveWorkflow.TicketReassignedStatusId != null ) {
+                output.Add(UpdateStatus(int.Parse(ticket.ParentProject.ActiveWorkflow.TicketReassignedStatusId.ToString()), User, context, false));
+
+                //ticket.TicketStatusId = int.Parse(ticket.ParentProject.ActiveWorkflow.TicketReassignedStatusId.ToString());
+                //this.TicketStatusId = int.Parse(ticket.ParentProject.ActiveWorkflow.TicketReassignedStatusId.ToString());
+            }
             context.SaveChanges();
 
-            return history;
+            return output;
         }
-        private TicketHistoryEntry UpdateUnassigned(IPrincipal User, ApplicationDbContext context) {
+        private ICollection<TicketHistoryEntry> UpdateUnassigned(IPrincipal User, ApplicationDbContext context) {
+            var output = new List<TicketHistoryEntry>();
             var history = new TicketHistoryEntry() {
                 UserId = User.Identity.GetUserId(),
                 ParentTicketId = this.Id,
                 EntryType = TicketHistoryEntry.TicketHistoryEntryType.UnassignedFromSolver,
                 OldData = this.AssignedSolverId,
-                NewData = null
+                NewData = null,
+                OccuredAt = DateTime.Now
             };
+            output.Add(history);
 
             var ticket = context.Tickets.Find(this.Id);
             ticket.LastInteractionAt = DateTime.Now;
             ticket.AssignedSolverId = null;
+            if( ticket.ParentProject.ActiveWorkflow.TicketReassignedStatusId != null ) {
+                output.Add(UpdateStatus(int.Parse(ticket.ParentProject.ActiveWorkflow.TicketReassignedStatusId.ToString()), User, context, false));
+            }
             context.SaveChanges();
 
-            return history;
+            return output;
         }
-        private TicketHistoryEntry UpdateStatus(int newId, IPrincipal User, ApplicationDbContext context) {
+        private TicketHistoryEntry UpdateStatus(int newId, IPrincipal User, ApplicationDbContext context, bool save = true) {
             var newStatus = context.TicketStatuses.Find(newId);
 
             var history = new TicketHistoryEntry() {
                 UserId = User.Identity.GetUserId(),
                 ParentTicketId = this.Id,
-                EntryType = TicketHistoryEntry.TicketHistoryEntryType.StatusChanged,
-                OldData = this.TicketStatus.Display,
-                NewData = newStatus.Display
+                EntryType = TicketHistoryEntry.TicketHistoryEntryType.StatusChangedByWorkflow,
+                OldData = this.TicketStatus.Id.ToString(),
+                NewData = newStatus.Id.ToString(),
+                OccuredAt = DateTime.Now
             };
 
             var ticket = context.Tickets.Find(this.Id);
             ticket.LastInteractionAt = DateTime.Now;
             ticket.TicketStatusId = newStatus.Id;
-            context.SaveChanges();
+
+            if( save ) { context.SaveChanges(); }
 
             return history;
         }
@@ -256,27 +292,51 @@ namespace Semplicita.Models
 
         public TicketAttachment AddAttachment(HttpPostedFileBase file, IPrincipal User, ApplicationDbContext context, HttpServerUtilityBase Server) {
             var output = TicketAttachment.ProcessUpload(file, Server, this, User, context);
-            
+
             context.TicketAttachments.Add(output);
+            context.SaveChanges();
+
+            context.TicketHistoryEntries.Add(GetAddedAttachmentHistory(output, User, context));
             context.SaveChanges();
 
             return output;
         }
         public ICollection<TicketAttachment> AddAttachments(ICollection<HttpPostedFileBase> files, IPrincipal User, ApplicationDbContext context, HttpServerUtilityBase Server) {
+            //Upload and add attachment models
             var output = new List<TicketAttachment>();
             foreach( HttpPostedFileBase file in files ) {
                 try {
                     output.Add(TicketAttachment.ProcessUpload(file, Server, this, User, context));
                 } catch { }
             }
-
             context.TicketAttachments.AddRange(output);
             context.SaveChanges();
 
+            //Generate and add history entries for uploaded histories
+            var histories = new List<TicketHistoryEntry>();
+            foreach( TicketAttachment attach in output ) {
+                try {
+                    histories.Add(GetAddedAttachmentHistory(attach, User, context));
+                } catch { }
+            }
+            context.TicketHistoryEntries.AddRange(histories);
+            context.SaveChanges();
+
+
             return output;
         }
+        private TicketHistoryEntry GetAddedAttachmentHistory(TicketAttachment attach, IPrincipal User, ApplicationDbContext context) {
+            var history = new TicketHistoryEntry() {
+                UserId = User.Identity.GetUserId(),
+                ParentTicketId = this.Id,
+                EntryType = TicketHistoryEntry.TicketHistoryEntryType.AttachmentAdded,
+                OldData = null,
+                NewData = attach.Id.ToString(),
+                OccuredAt = attach.UploadedAt
+            };
 
-
+            return history;
+        }
 
     }
 }

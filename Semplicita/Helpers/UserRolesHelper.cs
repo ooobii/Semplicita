@@ -106,6 +106,17 @@ namespace Semplicita.Helpers
         }
 
 
+        public bool IsUserStaff(IPrincipal User) {
+            if( User.IsInRole("ServerAdmin") ||
+                 User.IsInRole("ProjectAdmin") ||
+                 User.IsInRole("SuperSolver") ||
+                 User.IsInRole("Solver") ) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
         public bool CanCreateProject(IPrincipal User) {
             //Server Admins can OR
             //Project Admins can
@@ -159,7 +170,115 @@ namespace Semplicita.Helpers
                 return false;
             }
         }
+        public ICollection<Project> GetViewableProjects(IPrincipal User) {
+            var output = new List<Project>();
 
+            foreach (Project p in db.Projects.ToList()) {
+                if(CanViewProject(User, p.Id)) {
+                    output.Add(p);
+                }
+            }
+
+            return output;
+        }
+        public ICollection<Project> GetEditableProjects(IPrincipal User) {
+            var output = new List<Project>();
+
+            foreach( Project p in db.Projects.ToList() ) {
+                if( CanEditProject(User, p.Id) ) {
+                    output.Add(p);
+                }
+            }
+
+            return output;
+        }
+
+        public bool CanCreateTicket(IPrincipal User, int projectId) {
+            //Reporters Only
+
+            var userId = User.Identity.GetUserId();
+
+            if( User.IsInRole("Reporter") && db.Projects.Find(projectId).Members.Select(u => u.Id).Contains(userId) ) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        public bool CanViewTicket(IPrincipal User, int TicketId) {
+            //ServerAdmin can OR
+            //ProjectAdmin can IF assigned as parent project manager OR
+            //SuperSolver or Solver can IF member of parent project
+            //Reporter can IF owner of ticket
+            var Ticket = db.Tickets.Find(TicketId);
+            var userId = User.Identity.GetUserId();
+
+            if( User.IsInRole("ServerAdmin") ||
+                ( User.IsInRole("ProjAdmin") && Ticket.ParentProject.ProjectManagerId == userId ) ||
+                ( ( User.IsInRole("SuperSolver") || User.IsInRole("Solver") ) && Ticket.ParentProject.Members.Select(u => u.Id).Contains(userId) ) ||
+                ( User.IsInRole("Reporter") && Ticket.ReporterId == userId ) ) 
+            {
+                return true;
+
+            } else {
+                return false;
+            }
+        }
+        public bool CanEditTicket(IPrincipal User, int TicketId) {
+            //ServerAdmin can OR
+            //ProjectAdmin can IF assigned as project manager
+            //SuperSolver can IF member of parent project
+            //Solver can IF assigned as solver
+            //Reporter can IF ticket owner
+
+            var Ticket = db.Tickets.Find(TicketId);
+            var userId = User.Identity.GetUserId();
+
+            if( User.IsInRole("ServerAdmin") ||
+               ( User.IsInRole("ProjectAdmin") & Ticket.ParentProject.ProjectManagerId == userId ) ||
+               ( User.IsInRole("SuperSolver") & Ticket.ParentProject.Members.Select(u => u.Id).Contains(userId) ) ||
+               ( User.IsInRole("Solver") & Ticket.AssignedSolverId == userId ) ||
+               ( User.IsInRole("Reporter") & Ticket.ReporterId == userId ) ) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        public bool CanArchiveTicket(IPrincipal User, int TicketId) {
+            //Server Admins can OR
+            //ProjectAdmins can IF assigned as project manager.
+
+            var Ticket = db.Tickets.Find(TicketId);
+            var userId = User.Identity.GetUserId();
+
+            if( User.IsInRole("ServerAdmin") ||
+               ( User.IsInRole("ProjectAdmin") && Ticket.ParentProject.ProjectManagerId == userId ) ) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        public ICollection<Ticket> GetViewableTickets(IPrincipal User) {
+            var output = new List<Ticket>();
+
+            foreach( Ticket p in db.Tickets.ToList() ) {
+                if( CanViewTicket(User, p.Id) ) {
+                    output.Add(p);
+                }
+            }
+
+            return output;
+        }
+        public ICollection<Ticket> GetEditableTickets(IPrincipal User) {
+            var output = new List<Ticket>();
+
+            foreach( Ticket p in db.Tickets.ToList() ) {
+                if( CanEditTicket(User, p.Id) ) {
+                    output.Add(p);
+                }
+            }
+
+            return output;
+        }
 
     }
 

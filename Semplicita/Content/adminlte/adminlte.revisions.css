@@ -114,6 +114,19 @@
 .callout {
     background-color: rgba(255, 255, 255, 0.85);
 }
+.full-width {
+    width: 100% !important;
+}
+.timeline > div > .timeline-item > .timeline-body {
+    background-color: rgba(210, 218, 218, 0.18);
+}
+.timeline > div > .timeline-item {
+    box-shadow: 2px 2px 5px rgba(60, 45, 88, 0.45);
+    margin-bottom: 12px;
+}
+.timeline > .time-label {
+    margin-top:20px;
+}
 
 .card-header-icon {
     margin-right: 10px;
@@ -123,14 +136,21 @@
     border-bottom: 1.5px solid #dee2e6 !important;
 }
 
+/* Ticket Stuff */
+.no-solver-warning {
+    color: rgb(234, 134, 3);
+    text-shadow: 1px 1px 3px rgba(130, 130, 130, 0.20) !important;
+    text-decoration: underline;
+}
+.ticket-title {
+    padding-top: .3rem;
+}
 
 /* ReadMore Buttons */
-
-
 .badge {
-    font-weight:normal;
-    margin-left:3px;
-    margin:3.5px;
+    font-weight: normal;
+    margin-left: 3px;
+    margin: 3.5px;
 }
 .badge-blue {
     background-color: #3a40a8;
