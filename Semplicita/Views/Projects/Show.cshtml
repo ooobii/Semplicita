@@ -10,13 +10,14 @@
     var ProjectManageruser = projectHelper.GetManagerUserOfProject(Model.Id);
 
     var memberUsers = Model.Members.Where(u => u.IsDemoUser == false).ToList();
-    var solverUsers = Model.Members.Where(u => (rolesHelper.IsInRole(u.Id, "SuperSolver") || rolesHelper.IsInRole(u.Id, "Solver")) && u.IsDemoUser == false).OrderBy(u => u.FullName).ToList();
+    var reporterUsers = rolesHelper.PullReportersFromUserList(memberUsers).Where(u => u.IsDemoUser == false).ToList();
+    var solverUsers = Model.Members.Where(u => ( rolesHelper.IsInRole(u.Id, "SuperSolver") || rolesHelper.IsInRole(u.Id, "Solver") ) && u.IsDemoUser == false).OrderBy(u => u.FullName).ToList();
 
-    var openTickets = Model.ChildTickets.Where(t => t.TicketStatus.IsClosed == false).ToList();
+    var openTickets = Model.ChildTickets.Where(t => t.TicketStatus.IsClosed == false).OrderByDescending(t => t.CreatedAt).ToList();
     var resolvedTickets = Model.ChildTickets.Where(t => t.TicketStatus.IsResolved == true).ToList();
 }
 
-<div class="jumbotron bg-gradient-purple mb-3" style="padding-bottom:25px;padding-top:45px;">
+<div class="jumbotron bg-gradient-purple mb-2" style="padding-bottom:25px;padding-top:45px;">
     <h1>@Model.Name</h1>
     <p class="lead">@Model.Description</p>
 
@@ -34,50 +35,78 @@
     </div>
 </div>
 
-<div class="row pt-2 pb-4">
-    <div class="col-4">
+<div class="row pt-1 pb-3">
+    <div class="col-3">
         <!-- small box -->
-        <div class="small-box bg-cyan">
+        <div class="small-box bg-gradient-navy">
             <div class="inner">
-                <h3>@Model.Members.Where(u => u.IsDemoUser == false).Count()</h3>
+                <h3>@reporterUsers.Count</h3>
 
-                <p>Total Members</p>
+                <p>Reporters</p>
             </div>
             <div class="icon">
                 <i class="ion ion-ios-people"></i>
             </div>
 
 
-            @if( Model.Members.Count > 0 ) {
+            @if( reporterUsers.Count > 0 ) {
                 <a class="small-box-footer dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Members
+                    Reporters
                 </a>
 
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                    @foreach( ApplicationUser u in memberUsers) {
+                    @foreach( ApplicationUser u in reporterUsers ) {
                         <a class="dropdown-item">
                             <h6>@u.FullNameStandard</h6>
-                            @foreach( string role in rolesHelper.ListUserRoles(u.Id) ) {
-                                if( role == "ServerAdmin" ) {<small class="badge badge-dark align-top">Server Admin</small> }
-                                if( role == "ProjectAdmin" ) { <small class="badge badge-blue align-top">Project Mgr</small> }
-                                if( role == "SuperSolver" ) { <small class="badge badge-secondary align-top">Super Solver</small>}
-                                if( role == "Solver" ) { <small class="badge badge-success align-top">Solver</small>}
-                                if( role == "Reporter" ) { <small class="badge badge-info align-top">Reporter</small>}
-                            }
+                            @u.GetRoleBadges(rolesHelper.ListUserRoles(u.Id))
                         </a>
                     }
                 </div>
             } else {
                 <a class="small-box-footer">
-                    No Members Assigned! 😮
+                    No Reporters Assigned! 😞
                 </a>
             }
 
         </div>
     </div>
-    <div class="col-4">
+    <div class="col-3">
         <!-- small box -->
-        <div class="small-box bg-warning">
+        <div class="small-box bg-cyan">
+            <div class="inner">
+                <h3>@solverUsers.Count</h3>
+
+                <p>Solvers</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-ios-people"></i>
+            </div>
+
+
+            @if( solverUsers.Count > 0 ) {
+                <a class="small-box-footer dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Solvers
+                </a>
+
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    @foreach( ApplicationUser u in solverUsers ) {
+                        <a class="dropdown-item">
+                            <h6>@u.FullNameStandard</h6>
+                            @u.GetRoleBadges(rolesHelper.ListUserRoles(u.Id))
+                        </a>
+                    }
+                </div>
+            } else {
+                <a class="small-box-footer">
+                    No Solvers Assigned! 😮
+                </a>
+            }
+
+        </div>
+    </div>
+    <div class="col-3">
+        <!-- small box -->
+        <div class="small-box bg-gradient-green">
             <div class="inner">
                 <h3>@openTickets.Count</h3>
 
@@ -94,21 +123,29 @@
 
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                     @foreach( Ticket t in openTickets ) {
-                        <a class="dropdown-item">
-                            @t.Title
-                        </a>
+                        if( rolesHelper.CanViewTicket(User, t.Id) ) {
+
+                            <a class="dropdown-item" href="@Url.Action("Show", "Tickets", new { TicketIdentifier = t.GetTicketIdentifier() })">
+                                @t.Title
+                            </a>
+                        } else {
+
+                            <a class="dropdown-item">
+                                @t.Title
+                            </a>
+                        }
                     }
                 </div>
             } else {
                 <a class="small-box-footer">
-                    No open tickets! 🎉
+                    No open tickets 🎉
                 </a>
             }
         </div>
     </div>
-    <div class="col-4">
+    <div class="col-3">
         <!-- small box -->
-        <div class="small-box bg-success">
+        <div class="small-box bg-gradient-darkgreen">
             <div class="inner">
                 <h3>@resolvedTickets.Count</h3>
 
@@ -142,7 +179,7 @@
 
 <div class="row">
 
-    <div class="col-4">
+    <div class="col-lg-4">
         <div class="row">
             <div class="col">
                 <div class="card card-blue">
@@ -160,155 +197,153 @@
             <div class="col">
                 <div class="card card-blue">
                     <div class="card-header bg-gradient-h-green">
-                        <h5><i class="card-header-icon fas fa-user-astronaut"></i>Solvers</h5>
+                        <h5><i class="card-header-icon fas fa-directions"></i>Actions</h5>
                     </div>
                     <div class="card-body">
-                        @foreach( ApplicationUser solver in solverUsers ) {
-                            <h5>
-                                @solver.FullNameStandard
-                                @if( rolesHelper.IsInRole(solver.Id, "SuperSolver") ){
-                                    <small class="text-sm badge badge-sm badge-secondary align-top" >Super Solver</small>
+                        <div class="row mb-3">
+                            <div class="col">
+                                @if( rolesHelper.CanCreateTicket(User, Model.Id) ) {
+                                    <a href="@Url.Action("Create", "Tickets", new { Model.TicketTag })">
+                                        <div class="btn btn-block btn-success" title="Report New Issue">Report New Issue <i class="fas fa-plus pl-1"></i></div>
+                                    </a>
                                 }
-                            </h5>
-                            <small>@solver.Email</small>
-
-                            if( solverUsers.IndexOf(solver) != solverUsers.Count - 1 ) { <hr />}
-                        }
+                            </div>
+                        </div>
+                        <div class="row p-2">
+                            <div class="col">
+                                @if( rolesHelper.CanEditProject(User, Model.Id) ) {
+                                    <a href="@Url.Action("Edit", "Projects", new { Model.TicketTag })">
+                                        <div class="btn btn-block btn-info">Back to Projects</div>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                        <div class="row p-2">
+                            <div class="col">
+                                @if( rolesHelper.CanEditProject(User, Model.Id) ) {
+                                    <a href="@Url.Action("Edit", "Projects", new { Model.TicketTag })">
+                                        <div class="btn btn-block btn-warning">Edit Project</div>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                        <div class="row p-2">
+                            <div class="col">
+                                @if( rolesHelper.CanArchiveProject(User, Model.Id) ) {
+                                    <a href="@Url.Action("Archive", "Projects", new { Model.TicketTag })">
+                                        <div class="btn btn-block btn-danger">Deactive Project</div>
+                                    </a>
+                                }
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="col">
-        @if( User.Identity.GetUserId() == Model.ProjectManagerId || User.IsInRole("ServerAdmin") || User.IsInRole("SuperSolver") ) {
-            <div class="card card-default">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-ticket-alt" style="margin-right:10px; width: 18px;"></i><b>All Tickets</b></h3>
+        <div class="card card-default">
+            <div class="card-header">
+                <h3 class="card-title pt-1">
+                    <i class="fas fa-ticket-alt" style="margin-right:10px; width: 18px;"></i><b>
+                        @if( rolesHelper.CanViewAllTicketsInProject(User, Model.Id) ) {
+                            <text>All Tickets</text>
+                        } else {
+                            <text>Your Tickets</text>
+                        }
+                    </b>
+                </h3>
 
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                    </div>
+                <div class="card-tools">
+                    @if( rolesHelper.CanCreateTicket(User, Model.Id) ) {
+                        <a href="@Url.Action("Create", "Tickets", new { Model.TicketTag })">
+                            <div class="btn btn-sm btn-warning" title="Report New Issue">Report Issue <i class="fas fa-plus pl-2"></i></div>
+                        </a>
+                    }
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                 </div>
+            </div>
 
-                <div class="card-body">
+            <div class="card-body pt-2">
 
-                    <div class="row">
-                        <div class="col">
-                            <a href="@Url.Action("Create", "Tickets", new { Model.TicketTag })"><div class="btn btn-sm btn-outline-warning mb-3 float-right" title="Report New Issue">+</div></a>
-                        </div>
-                    </div>
+                @if( Model.ChildTickets.Count > 0 ) {
+                    <ul class="todo-list ui-sortable" data-widget="todo-list">
 
-                    @if( Model.ChildTickets.Count > 0 ) {
-                        <ul class="todo-list ui-sortable" data-widget="todo-list">
-
-                            @foreach( Ticket t in openTickets ) {
-                                <li class="" style="">
-                                    <!-- drag handle -->
-                                    <span class="handle ui-sortable-handle">
+                        @foreach( Ticket t in openTickets ) {
+                            <li class="" style="padding:15px; margin-bottom:10px;">
+                                <div class="row">
+                                    <span class="handle ui-sortable-handle align-items-sm-center">
                                         <i class="fas fa-ellipsis-v"></i>
                                         <i class="fas fa-ellipsis-v"></i>
                                     </span>
-                                    <!-- todo text -->
-                                    <span class="text">@t.Title</span>
-                                    <!-- Emphasis label -->
-                                    <small class="badge badge-danger"><i class="far fa-clock"></i> 2 mins</small>
-                                    <!-- General tools such as edit or delete-->
-                                    <div class="tools">
-                                        <i class="fas fa-edit"></i>
-                                        <i class="fas fa-trash"></i>
-                                    </div>
-                                </li>
-                            }
+                                    <div class="col">
+                                        <div class="row border-bottom">
+                                            <div class="col-8 ml-2 mb-1">
+                                                @if( rolesHelper.CanViewTicket(User, t.Id) ) {
+                                                    <a href="@Url.Action("Show", "Tickets", new { TicketIdentifier = t.GetTicketIdentifier() })"><span class="text">@t.Title</span></a> @t.TicketStatus.GetStatusBadgeHtml()
+                                                } else {
+                                                    <span class="text mt-1">@t.Title</span> @t.TicketStatus.GetStatusBadgeHtml()
+                                                }
+                                                <div class="tools">
+                                                    @if( rolesHelper.CanEditTicket(User, t.Id) ) {
+                                                        <a href="@Url.Action("Edit", "Tickets", new { TicketIdentifier = t.GetTicketIdentifier() })"><i class="fas fa-edit"></i></a>
 
+                                                    }
+                                                    @if( rolesHelper.CanArchiveTicket(User, t.Id) ) {
 
-                        </ul>
-                    } else {
-                        <h5 class="text-center">No tickets yet! 😎</h5>
-                    }
-                </div>
-            </div>
-        } else {
-            <div class="card card-default">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-ticket-alt" style="margin-right:10px; width: 18px;"></i><b>Your Tickets</b></h3>
-
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                    </div>
-                </div>
-
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col">
-                            <div class="btn btn-primary">Wee!</div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            @if( Model.ChildTickets.Count > 0 ) {
-                                <ul class="todo-list ui-sortable" data-widget="todo-list">
-
-                                    @foreach( Ticket t in Model.ChildTickets.Where(ticket => ticket.ReporterId == User.Identity.GetUserId() || ticket.AssignedSolverId == User.Identity.GetUserId()).ToList() ) {
-                                        <li class="" style="">
-                                            <!-- drag handle -->
-                                            <span class="handle ui-sortable-handle">
-                                                <i class="fas fa-ellipsis-v"></i>
-                                                <i class="fas fa-ellipsis-v"></i>
-                                            </span>
-                                            <!-- todo text -->
-                                            <span class="text">@t.Title</span>
-                                            <!-- Emphasis label -->
-                                            <small class="badge badge-danger"><i class="far fa-clock"></i> 2 mins</small>
-                                            <!-- General tools such as edit or delete-->
-                                            <div class="tools">
-                                                <i class="fas fa-edit"></i>
-                                                <i class="fas fa-trash"></i>
+                                                        <a href="@Url.Action("Delete", "Tickets", new { TicketIdentifier = t.GetTicketIdentifier() })"><i class="fas fa-trash"></i></a>
+                                                    }
+                                                </div>
                                             </div>
-                                        </li>
-                                    }
+                                            <div class="col">
+                                                <div class="d-none d-xl-block float-right ml-3 text-sm text-secondary text-right">
+                                                    Created: @t.CreatedAt.ToString("M/d/yyyy h:mm tt")
+                                                    @if( t.ResolvedAt.HasValue ) {
+                                                        <br />
+                                                        <text>Resolved: @t.ResolvedAt.Value.ToString("M/d/yyyy h:mm tt")</text>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row pt-2">
+                                            <div class="row">
+                                                <div class="col pl-3">
+                                                    @t.GetAssignmentBadgeHtml()
+                                                    @t.GetLastInteractBadgeHtml()
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                </ul>
-                            } else {
-                                <h5 class="text-center">No tickets yet! 😎</h5>
-                            }
-                        </div>
-                    </div>
-                    
-                </div>
+                            </li>
+                        }
+
+
+                    </ul>
+                } else {
+                    <h5 class="text-center">No tickets yet! 😎</h5>
+                }
             </div>
-        }
-
+        </div>
     </div>
 </div>
 
-
-
-<hr class="mt-5" />
-<div class="row pb-5">
-    <div class="col-lg pr-4 pl-4 pb-2">
-        @if( rolesHelper.CanEditProject(User, Model.Id) ) {
-            <a href="@Url.Action("Edit", "Projects", new { Model.TicketTag })">
-                <div class="btn btn-block btn-warning">Edit Project</div>
-            </a>
-        }
-    </div>
-    <div class="col-lg pr-4 pl-4 pb-2">
-        @if( rolesHelper.CanArchiveProject(User, Model.Id) ) {
-            <a href="@Url.Action("Archive", "Projects", new { Model.TicketTag })">
-                <div class="btn btn-block btn-danger">Deactive Project</div>
-            </a>
-        }
-    </div>
-    <div class="col-lg pr-4 pl-4">
-        <a href="@Url.Action("Edit", "Projects", new { Model.TicketTag })">
-            <div class="btn btn-block btn-info">Back to Projects</div>
-        </a>
-    </div>
-</div>
 
 
 
 @section Scripts {
+
+
+    @*navbar selection update*@
+    <script>
+        $("#navProjectsFolder").addClass("menu-open");
+
+        $("#navProjects").addClass("active");
+        $("#navProjectsFolder").addClass("active");
+        $("#navProjects_Project@(Model.Id)").addClass("active");
+    </script>
+
 
     @* init todo list *@
     <script>

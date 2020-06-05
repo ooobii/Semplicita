@@ -8,7 +8,7 @@
     UserRolesHelper rolesHelper = new UserRolesHelper();
 }
 
-<div class="jumbotron jumbotron-skinny bg-gradient-darkorange">
+<div class="jumbotron bg-gradient-dkpurple">
     <h1>Ticket: '@Model.CurrentTicket.GetTicketIdentifier()'</h1>
     <p class="lead">@Model.CurrentTicket.Title</p>
 </div>
@@ -28,7 +28,7 @@
 
             <div class="row border-bottom">
 
-                <div class="col pb-3">
+                <div class="col pb-2">
                     <div class="input-group pt-3">
                         <label class="pr-4 pt-1">Issue type:</label>
                         <div class="card p-3 full-width">
@@ -36,23 +36,18 @@
                             <p class="text-sm">@Model.CurrentTicket.TicketType.Description</p>
                         </div>
                     </div>
-                </div>
-
-            </div>
-
-            <div class="row border-bottom">
-
-                <div class="col pt-3">
-                    <label for="TicketDescription">Description:</label>
-                    <div class="card p-3 full-width">
-                        <p>@Model.CurrentTicket.Description</p>
+                    <div class="input-group pt-2">
+                        <label for="TicketDescription">Description:</label>
+                        <div class="card p-3 full-width">
+                            <p>@Model.CurrentTicket.Description</p>
+                        </div>
                     </div>
                 </div>
 
             </div>
 
-            <div class="row border-bottom">
-                <div class="col pt-3 mt-3">
+            <div class="row">
+                <div class="col pt-2 mt-2">
                     <div class="card direct-chat direct-chat-purple full-width">
 
                         <div class="card-header">
@@ -215,8 +210,8 @@
             <div class="row pt-4 pt-xl-0">
                 <div class="col">
                     <div class="card">
-                        <div class="card-header bg-gradient-h-green">
-                            <h5>Assigned Solver</h5>
+                        <div class="card-header bg-gradient-navy">
+                            <h5><i class="fas fa-user-astronaut card-header-icon"></i>Assigned Solver</h5>
                         </div>
 
                         <div class="card-body">
@@ -238,13 +233,11 @@
                 </div>
             </div>
 
-
-
             <div class="row pt-4 pt-xl-0">
                 <div class="col">
                     <div class="card">
                         <div class="card-header bg-gradient-navy">
-                            <h5>Issue Priority <span class="text-danger">*</span></h5>
+                            <h5><i class="fas fa-exclamation-circle card-header-icon"></i>Issue Priority</h5>
                         </div>
 
                         <div class="card-body">
@@ -259,8 +252,8 @@
             <div class="row pt-4 pt-xl-0">
                 <div class="col">
                     <div class="card">
-                        <div class="card-header bg-gradient-yellow">
-                            <h5>Current Status <span class="text-danger">*</span></h5>
+                        <div class="card-header bg-gradient-navy">
+                            <h5><i class="fas fa-tasks card-header-icon"></i>Current Status</h5>
                         </div>
 
                         <div class="card-body">
@@ -314,9 +307,51 @@
                     </div>
                 </div>
             </div>
+
+
+            <div class="row pt-4 pt-xl-0">
+                <div class="col">
+                    <div class="card collapsed-card">
+                        <div class="card-header">
+                            <h5 class="card-title"><b>Actions</b></h5>
+
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body p-3">
+
+                            @if( rolesHelper.CanEditTicket(User, Model.CurrentTicket.Id) ) {
+                                <div class="row p-1">
+                                    <div class="col">
+                                        <a href="@Url.Action("Edit", "Tickets", new { TicketIdentifier = Model.CurrentTicket.GetTicketIdentifier() })">
+                                            <div class="btn btn-block btn-warning" title="Report New Issue">Edit Ticket</div>
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                            @if( rolesHelper.CanArchiveTicket(User, Model.CurrentTicket.Id) ) {
+                                <div class="row p-1">
+                                    <div class="col">
+                                        <a href="@Url.Action("Delete", "Tickets", new { TicketIdentifier = Model.CurrentTicket.GetTicketIdentifier() })">
+                                            <div class="btn btn-block btn-danger">Back to Projects</div>
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+    </div>
 
 
 @section Scripts {

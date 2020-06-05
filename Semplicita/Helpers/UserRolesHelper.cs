@@ -5,6 +5,7 @@ using Semplicita.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
 using System.Web;
 using System.Web.Security;
@@ -105,6 +106,15 @@ namespace Semplicita.Helpers
             return output;
         }
 
+        public ICollection<ApplicationUser> PullReportersFromUserList(ICollection<ApplicationUser> input) {
+            var output = new List<ApplicationUser>();
+
+            foreach (var u in input) {
+                if(IsInRole(u.Id, "Reporter")) { output.Add(u); }
+            }
+
+            return output;
+        }
 
         public bool IsUserStaff(IPrincipal User) {
             if( User.IsInRole("ServerAdmin") ||
@@ -223,7 +233,59 @@ namespace Semplicita.Helpers
                 return false;
             }
         }
+        public bool CanViewAllTicketsInProject(IPrincipal User, int projectId) {
+            //ServerAdmin can
+            //ProjectAdmin can IF is project's manager
+            //SuperSolver can IF they are member of the project
+            //Solver can IF they are member of the project
+            //Reporter CAN NOT
+
+            var project = db.Projects.Find(projectId);
+            var userId = User.Identity.GetUserId();
+
+            if( User.IsInRole("ServerAdmin") ||
+                ( User.IsInRole("ProjAdmin") && project.ProjectManagerId == userId ) ||
+                ( ( User.IsInRole("SuperSolver") || User.IsInRole("Solver") ) && project.Members.Select(u => u.Id).Contains(userId) ) ) {
+                return true;
+
+            } else {
+                return false;
+            }
+        }
+        public bool CanViewAllTickets(IPrincipal User) {
+            //ServerAdmin can
+            //Anyone else CAN NOT
+
+            var userId = User.Identity.GetUserId();
+
+            if( User.IsInRole("ServerAdmin") ) {
+                return true;
+
+            } else {
+                return false;
+            }
+        }
         public bool CanEditTicket(IPrincipal User, int TicketId) {
+            //ServerAdmin can OR
+            //ProjectAdmin can IF assigned as project manager
+            //SuperSolver can IF member of parent project
+            //Solver can IF assigned as solver
+            //Reporter can IF ticket owner
+
+            var Ticket = db.Tickets.Find(TicketId);
+            var userId = User.Identity.GetUserId();
+
+            if( User.IsInRole("ServerAdmin") ||
+               ( User.IsInRole("ProjectAdmin") & Ticket.ParentProject.ProjectManagerId == userId ) ||
+               ( User.IsInRole("SuperSolver") & Ticket.ParentProject.Members.Select(u => u.Id).Contains(userId) ) ||
+               ( User.IsInRole("Solver") & Ticket.AssignedSolverId == userId ) ||
+               ( User.IsInRole("Reporter") & Ticket.ReporterId == userId ) ) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        public bool CanCommentOnTicket(IPrincipal User, int TicketId) {
             //ServerAdmin can OR
             //ProjectAdmin can IF assigned as project manager
             //SuperSolver can IF member of parent project
@@ -252,6 +314,21 @@ namespace Semplicita.Helpers
 
             if( User.IsInRole("ServerAdmin") ||
                ( User.IsInRole("ProjectAdmin") && Ticket.ParentProject.ProjectManagerId == userId ) ) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        public bool IsEligibleTicketSolver(IPrincipal User, int TicketId) {
+            //SuperSolver can IF member of parent project
+            //Solver can IF assigned as solver
+            //Anyone else CAN NOT
+
+            var Ticket = db.Tickets.Find(TicketId);
+            var userId = User.Identity.GetUserId();
+
+            if( ( User.IsInRole("SuperSolver") & Ticket.ParentProject.Members.Select(u => u.Id).Contains(userId) ) ||
+               ( User.IsInRole("Solver") & Ticket.AssignedSolverId == userId ) ) {
                 return true;
             } else {
                 return false;

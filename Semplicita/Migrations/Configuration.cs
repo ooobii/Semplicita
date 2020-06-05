@@ -7,6 +7,7 @@ namespace Semplicita.Migrations
     using System.Collections.Generic;
     using System.Data.Entity.Migrations;
     using System.Data.Entity.Validation;
+    using System.Drawing;
     using System.Linq;
 
     internal sealed class Configuration : DbMigrationsConfiguration<Semplicita.Models.ApplicationDbContext>
@@ -205,6 +206,8 @@ namespace Semplicita.Migrations
                     var status = new TicketStatus() {
                         Name = "New-Unassigned",
                         Display = "New (Unassigned)",
+                        DisplayForeColor = "#000000",
+                        DisplayBackColor = "#EC860F",
                         Description = "The issue has just been created, and has not been assigned to a solver yet.",
                         IsStarted = false,
                         MustBeAssigned = false,
@@ -220,6 +223,8 @@ namespace Semplicita.Migrations
                     var status = new TicketStatus() {
                         Name = "New-Assigned",
                         Display = "New",
+                        DisplayForeColor = "#000000",
+                        DisplayBackColor = "#DDE31E",
                         Description = "The issue has been created, and has been assigned to a solver pending first contact.",
                         IsStarted = false,
                         MustBeAssigned = true,
@@ -236,22 +241,9 @@ namespace Semplicita.Migrations
                     var status = new TicketStatus() {
                         Name = "Investigation",
                         Display = "Investigation",
+                        DisplayForeColor = "#FFF",
+                        DisplayBackColor = "#509D8D",
                         Description = "The solver has started looking into potential solutions for the reporter's inquiry.",
-                        IsStarted = true,
-                        MustBeAssigned = true,
-                        IsInProgress = true,
-                        IsPausedPending = false,
-                        IsResolved = false,
-                        IsClosed = false,
-                        IsCanceled = false
-                    };
-                    context.TicketStatuses.Add(status);
-                }
-                if( !context.TicketStatuses.Any(tst => tst.Name == "InProgress") ) {
-                    var status = new TicketStatus() {
-                        Name = "InProgress",
-                        Display = "Solution In Progress",
-                        Description = "The solver is in the middle of implimenting a potential solution discovered.",
                         IsStarted = true,
                         MustBeAssigned = true,
                         IsInProgress = true,
@@ -266,6 +258,8 @@ namespace Semplicita.Migrations
                     var status = new TicketStatus() {
                         Name = "Reviewing",
                         Display = "Under Review",
+                        DisplayForeColor = "#FFF",
+                        DisplayBackColor = "#509D8D",
                         Description = "The solver needs time to review findings before working on implementing a solution.",
                         IsStarted = true,
                         MustBeAssigned = true,
@@ -277,16 +271,17 @@ namespace Semplicita.Migrations
                     };
                     context.TicketStatuses.Add(status);
                 }
-
-                if( !context.TicketStatuses.Any(tst => tst.Name == "NeedInfo") ) {
+                if( !context.TicketStatuses.Any(tst => tst.Name == "InProgress") ) {
                     var status = new TicketStatus() {
-                        Name = "NeedInfo",
-                        Display = "More Information Required",
-                        Description = "This issue cannot be worked on with the information redialy available. More information is required from the reporter before work can continue.",
+                        Name = "InProgress",
+                        Display = "Solution In Progress",
+                        DisplayForeColor = "#000",
+                        DisplayBackColor = "#32E89F",
+                        Description = "The solver is in the middle of implimenting a potential solution discovered.",
                         IsStarted = true,
                         MustBeAssigned = true,
-                        IsInProgress = false,
-                        IsPausedPending = true,
+                        IsInProgress = true,
+                        IsPausedPending = false,
                         IsResolved = false,
                         IsClosed = false,
                         IsCanceled = false
@@ -297,6 +292,8 @@ namespace Semplicita.Migrations
                     var status = new TicketStatus() {
                         Name = "ReporterWaiting",
                         Display = "Reporter Waiting",
+                        DisplayForeColor = "#FFF",
+                        DisplayBackColor = "#96389C",
                         Description = "The reporter has added additional information, and is waiting for confirmation from the solver.",
                         IsStarted = true,
                         MustBeAssigned = true,
@@ -313,6 +310,8 @@ namespace Semplicita.Migrations
                     var status = new TicketStatus() {
                         Name = "Solved",
                         Display = "Solved!",
+                        DisplayForeColor = "#FFF",
+                        DisplayBackColor = "#428A3B",
                         Description = "The reporter's issue has been resolved, and resulted in a resolution that alligns with the intended outcome of their inquiry.",
                         IsStarted = true,
                         MustBeAssigned = true,
@@ -325,10 +324,30 @@ namespace Semplicita.Migrations
                     context.TicketStatuses.Add(status);
                 }
 
+
+                if( !context.TicketStatuses.Any(tst => tst.Name == "NeedInfo") ) {
+                    var status = new TicketStatus() {
+                        Name = "NeedInfo",
+                        Display = "More Information Required",
+                        DisplayForeColor = "#000",
+                        DisplayBackColor = "#C8687B",
+                        Description = "This issue cannot be worked on with the information redialy available. More information is required from the reporter before work can continue.",
+                        IsStarted = true,
+                        MustBeAssigned = true,
+                        IsInProgress = false,
+                        IsPausedPending = true,
+                        IsResolved = false,
+                        IsClosed = false,
+                        IsCanceled = false
+                    };
+                    context.TicketStatuses.Add(status);
+                }
                 if( !context.TicketStatuses.Any(tst => tst.Name == "Pending") ) {
                     var status = new TicketStatus() {
                         Name = "Pending",
                         Display = "Pending/Blocked",
+                        DisplayForeColor = "#000",
+                        DisplayBackColor = "#4C60BB",
                         Description = "This issue cannot be worked on at the moment due to other pending issues, or because a potential solution has not yet been found.",
                         IsStarted = true,
                         MustBeAssigned = true,
@@ -344,6 +363,9 @@ namespace Semplicita.Migrations
                     var status = new TicketStatus() {
                         Name = "CantSolve",
                         Display = "Can't Solve",
+                        DisplayForeColor = "#FFF",
+                        DisplayBackColor = "#D74242",
+
                         Description = "The reporter's issue was not able to be solved due to a block or obstruction that would result from available potential solutions.",
                         IsStarted = true,
                         MustBeAssigned = true,
@@ -359,6 +381,8 @@ namespace Semplicita.Migrations
                     var status = new TicketStatus() {
                         Name = "WontSolve",
                         Display = "Refused/Won't Solve",
+                        DisplayForeColor = "#FFF",
+                        DisplayBackColor = "#933030",
                         Description = "The reporter's issue will not be solved, because the reporter is inquiring about intended functionality or a procedure that is actually working as intended.",
                         IsStarted = true,
                         MustBeAssigned = true,
@@ -375,6 +399,8 @@ namespace Semplicita.Migrations
                     var status = new TicketStatus() {
                         Name = "Closed",
                         Display = "Closed",
+                        DisplayForeColor = "#FFF",
+                        DisplayBackColor = "#7D7D7D",
                         Description = "The reporter's issue has been resolved and has been confirmed as satisfactory with the reporter.",
                         IsStarted = true,
                         MustBeAssigned = false,
@@ -390,6 +416,8 @@ namespace Semplicita.Migrations
                     var status = new TicketStatus() {
                         Name = "Disposed",
                         Display = "Disposed",
+                        DisplayForeColor = "#FFF",
+                        DisplayBackColor = "#4F4F4F",
                         Description = "The reporter's issue was cancled, and has been archived.",
                         IsStarted = true,
                         MustBeAssigned = false,

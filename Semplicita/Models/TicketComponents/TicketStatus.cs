@@ -1,5 +1,8 @@
 ﻿using System.Drawing;
 using System.EnterpriseServices.Internal;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Web;
 
 namespace Semplicita.Models
 {
@@ -8,6 +11,8 @@ namespace Semplicita.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public string Display { get; set; }
+        public string DisplayForeColor { get; set; }
+        public string DisplayBackColor { get; set; }
         public string Description { get; set; }
 
         //the issue has been started to be looked into by the assigned solver.
@@ -30,5 +35,14 @@ namespace Semplicita.Models
 
         //the issue was rejected by the assigned solver, and will not be looked into.
         public bool IsCanceled { get; set; }
+
+
+        public HtmlString GetStatusBadgeHtml() {
+            var style = $"style=\"color: {this.DisplayForeColor}; background-color: {this.DisplayBackColor}; font-size: 12px; font-weight:bold;\"";
+
+            return new HtmlString($"<span class=\"badge\" {style}>{this.Display}</span>");
+        }
+
+
     }
 }

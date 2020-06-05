@@ -61,6 +61,43 @@ namespace Semplicita.Models
             Notifications = new HashSet<TicketNotification>();
         }
 
+        #region HtmlHelpers
+
+        public HtmlString GetAssignmentBadgeHtml() {
+            var style = $"style=\"font-size: 12px; font-weight:normal;\"";
+
+            if(this.AssignedSolver != null) {
+                return new HtmlString($"<span class=\"badge badge-secondary\" {style}>Solver: {this.AssignedSolver.ShortName}</span>");
+            } else {
+                return new HtmlString("");
+            }
+
+        }
+        public HtmlString GetLastInteractBadgeHtml() {
+            var style = $"style=\"font-size: 12px; font-weight:normal;\"";
+
+            if( this.LastInteractionAt != null ) {
+                var dif = DateTime.Now - DateTime.Parse(LastInteractionAt.ToString());
+                var totalYears = dif.TotalDays !=0 ? int.Parse(( dif.TotalDays / 365 ).ToString("0")) : 0;
+                string timestring = "";
+                
+                if( totalYears != 0 ) { timestring = $"{totalYears}'yrs"; }
+                else if( dif.Days != 0 ) { timestring = dif.ToString(@"%d'd '%h'hr '%m'min '%s'sec'"); }
+                else if( dif.Hours != 0 ) { timestring = dif.ToString(@"%h'hr '%m'min '%s'sec'"); }
+                else if ( dif.Minutes != 0) { timestring = dif.ToString(@"%m'min '%s'sec'"); }
+                else if ( dif.Seconds != 0) { timestring = dif.ToString(@"%s'sec'"); }
+
+                return new HtmlString($"<span class=\"badge badge-info\" {style}><i class=\"far fa-clock\"></i> {timestring}</span>");
+            } else {
+                return new HtmlString("");
+            }
+
+            //<small class="badge badge-danger"><i class="far fa-clock"></i> 2 mins</small>
+
+        }
+
+        #endregion
+
 
         public string GetTicketIdentifier() {
             return ParentProject.TicketTag + this.Id;
@@ -212,8 +249,6 @@ namespace Semplicita.Models
             ticket.AssignedSolverId = newSolver.Id;
             if( ticket.ParentProject.ActiveWorkflow.TicketAssignedStatusId != null ) {
                 output.Add(UpdateStatus(int.Parse(ticket.ParentProject.ActiveWorkflow.TicketAssignedStatusId.ToString()), User, context, false));
-                //ticket.TicketStatusId = int.Parse(ticket.ParentProject.ActiveWorkflow.TicketAssignedStatusId.ToString());
-                //this.TicketStatusId = int.Parse(ticket.ParentProject.ActiveWorkflow.TicketAssignedStatusId.ToString());
             }
             context.SaveChanges();
 
@@ -238,9 +273,6 @@ namespace Semplicita.Models
             ticket.AssignedSolverId = newSolver.Id;
             if( ticket.ParentProject.ActiveWorkflow.TicketReassignedStatusId != null ) {
                 output.Add(UpdateStatus(int.Parse(ticket.ParentProject.ActiveWorkflow.TicketReassignedStatusId.ToString()), User, context, false));
-
-                //ticket.TicketStatusId = int.Parse(ticket.ParentProject.ActiveWorkflow.TicketReassignedStatusId.ToString());
-                //this.TicketStatusId = int.Parse(ticket.ParentProject.ActiveWorkflow.TicketReassignedStatusId.ToString());
             }
             context.SaveChanges();
 

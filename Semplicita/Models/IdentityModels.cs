@@ -3,8 +3,11 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
+using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Semplicita.Models
 {
@@ -47,6 +50,21 @@ namespace Semplicita.Models
             var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
             // Add custom user claims here
             return userIdentity;
+        }
+
+
+        public HtmlString GetRoleBadges(ICollection<string> roles) {
+            var output = new StringBuilder();
+
+            foreach( string role in roles ) {
+                if( role == "ServerAdmin" ) { output.Append("<small class=\"badge badge-dark align-top\">Server Admin</small>"); }
+                if( role == "ProjectAdmin" ) { output.Append("<small class=\"badge badge-blue align-top\">Project Mgr</small>"); }
+                if( role == "SuperSolver" ) { output.Append("<small class=\"badge badge-secondary align-top\">Super Solver</small>"); }
+                if( role == "Solver" ) { output.Append("<small class=\"badge badge-success align-top\">Solver</small>"); }
+                if( role == "Reporter" ) { output.Append("<small class=\"badge badge-info align-top\">Reporter</small>"); }
+            }
+
+            return new HtmlString(output.ToString());
         }
     }
 
