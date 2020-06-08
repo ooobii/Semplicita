@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNet.Identity;
+using Semplicita.Helpers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -63,11 +64,14 @@ namespace Semplicita.Models
 
         #region HtmlHelpers
 
-        public HtmlString GetAssignmentBadgeHtml() {
+        public HtmlString GetAssignmentBadgeHtml(bool fullName = false) {
             var style = $"style=\"font-size: 12px; font-weight:normal;\"";
+            if( this.AssignedSolver != null ) {
 
-            if(this.AssignedSolver != null) {
-                return new HtmlString($"<span class=\"badge badge-secondary\" {style}>Solver: {this.AssignedSolver.ShortName}</span>");
+                string name;
+                if( fullName ) { name = this.AssignedSolver.FullNameStandard; } else { name = $"Solver: {this.AssignedSolver.ShortName}"; }
+
+                return new HtmlString($"<span class=\"badge badge-secondary\" {style}>{name}</span>");
             } else {
                 return new HtmlString("");
             }
@@ -78,14 +82,10 @@ namespace Semplicita.Models
 
             if( this.LastInteractionAt != null ) {
                 var dif = DateTime.Now - DateTime.Parse(LastInteractionAt.ToString());
-                var totalYears = dif.TotalDays !=0 ? int.Parse(( dif.TotalDays / 365 ).ToString("0")) : 0;
+                var totalYears = dif.TotalDays != 0 ? int.Parse(( dif.TotalDays / 365 ).ToString("0")) : 0;
                 string timestring = "";
-                
-                if( totalYears != 0 ) { timestring = $"{totalYears}'yrs"; }
-                else if( dif.Days != 0 ) { timestring = dif.ToString(@"%d'd '%h'hr '%m'min '%s'sec'"); }
-                else if( dif.Hours != 0 ) { timestring = dif.ToString(@"%h'hr '%m'min '%s'sec'"); }
-                else if ( dif.Minutes != 0) { timestring = dif.ToString(@"%m'min '%s'sec'"); }
-                else if ( dif.Seconds != 0) { timestring = dif.ToString(@"%s'sec'"); }
+
+                if( totalYears != 0 ) { timestring = $"{totalYears}'yrs"; } else if( dif.Days != 0 ) { timestring = dif.ToString(@"%d'd '%h'hr '%m'min '%s'sec'"); } else if( dif.Hours != 0 ) { timestring = dif.ToString(@"%h'hr '%m'min '%s'sec'"); } else if( dif.Minutes != 0 ) { timestring = dif.ToString(@"%m'min '%s'sec'"); } else if( dif.Seconds != 0 ) { timestring = dif.ToString(@"%s'sec'"); }
 
                 return new HtmlString($"<span class=\"badge badge-info\" {style}><i class=\"far fa-clock\"></i> {timestring}</span>");
             } else {
@@ -134,9 +134,10 @@ namespace Semplicita.Models
 
         public ICollection<TicketHistoryEntry> UpdateTicket(Ticket newTicket, IPrincipal User, ApplicationDbContext context) {
             var output = new List<TicketHistoryEntry>();
+            bool useWorkflowStatus = true;
 
             //Check status change (before workflow potentially modifies it)
-            if( this.TicketStatusId != newTicket.TicketStatusId ) { output.Add(UpdateStatus(newTicket.TicketStatusId, User, context)); }
+            if( this.TicketStatusId != newTicket.TicketStatusId ) { output.Add(UpdateStatus(newTicket.TicketStatusId, User, context)); useWorkflowStatus = false; }
 
             //Check field changes
             if( this.Title != newTicket.Title ) { output.Add(UpdateTitle(newTicket.Title, User, context)); }
@@ -146,11 +147,11 @@ namespace Semplicita.Models
 
             //Check ticket assignments, but only check once.
             if( string.IsNullOrWhiteSpace(this.AssignedSolverId) & newTicket.AssignedSolverId != null ) {
-                output.AddRange(UpdateSolverAssignment(newTicket.AssignedSolverId, User, context));
+                output.AddRange(UpdateSolverAssignment(newTicket.AssignedSolverId, User, context, useWorkflowStatus));
             } else if( !string.IsNullOrWhiteSpace(this.AssignedSolverId) & newTicket.AssignedSolverId == null ) {
-                output.AddRange(UpdateUnassigned(User, context));
+                output.AddRange(UpdateUnassigned(User, context, useWorkflowStatus));
             } else if( !string.IsNullOrWhiteSpace(this.AssignedSolverId) & this.AssignedSolverId != newTicket.AssignedSolverId ) {
-                output.AddRange(UpdateSolverReassigned(newTicket.AssignedSolverId, User, context));
+                output.AddRange(UpdateSolverReassigned(newTicket.AssignedSolverId, User, context, useWorkflowStatus));
             }
 
 
@@ -230,7 +231,7 @@ namespace Semplicita.Models
 
             return history;
         }
-        private ICollection<TicketHistoryEntry> UpdateSolverAssignment(string newId, IPrincipal User, ApplicationDbContext context) {
+        private ICollection<TicketHistoryEntry> UpdateSolverAssignment(string newId, IPrincipal User, ApplicationDbContext context, bool statusByWorkflow = true) {
             var output = new List<TicketHistoryEntry>();
             var newSolver = context.Users.Find(newId);
 
@@ -247,14 +248,14 @@ namespace Semplicita.Models
             var ticket = context.Tickets.Find(this.Id);
             ticket.LastInteractionAt = DateTime.Now;
             ticket.AssignedSolverId = newSolver.Id;
-            if( ticket.ParentProject.ActiveWorkflow.TicketAssignedStatusId != null ) {
-                output.Add(UpdateStatus(int.Parse(ticket.ParentProject.ActiveWorkflow.TicketAssignedStatusId.ToString()), User, context, false));
+            if( statusByWorkflow && ticket.ParentProject.ActiveWorkflow.TicketAssignedStatusId != null ) {
+                output.Add(UpdateStatus(int.Parse(ticket.ParentProject.ActiveWorkflow.TicketAssignedStatusId.ToString()), User, context, false, true));
             }
             context.SaveChanges();
 
             return output;
         }
-        private ICollection<TicketHistoryEntry> UpdateSolverReassigned(string newId, IPrincipal User, ApplicationDbContext context) {
+        private ICollection<TicketHistoryEntry> UpdateSolverReassigned(string newId, IPrincipal User, ApplicationDbContext context, bool statusByWorkflow = true) {
             var output = new List<TicketHistoryEntry>();
             var newSolver = context.Users.Find(newId);
 
@@ -271,14 +272,14 @@ namespace Semplicita.Models
             var ticket = context.Tickets.Find(this.Id);
             ticket.LastInteractionAt = DateTime.Now;
             ticket.AssignedSolverId = newSolver.Id;
-            if( ticket.ParentProject.ActiveWorkflow.TicketReassignedStatusId != null ) {
-                output.Add(UpdateStatus(int.Parse(ticket.ParentProject.ActiveWorkflow.TicketReassignedStatusId.ToString()), User, context, false));
+            if( statusByWorkflow && ticket.ParentProject.ActiveWorkflow.TicketReassignedStatusId != null ) {
+                output.Add(UpdateStatus(int.Parse(ticket.ParentProject.ActiveWorkflow.TicketReassignedStatusId.ToString()), User, context, false, true));
             }
             context.SaveChanges();
 
             return output;
         }
-        private ICollection<TicketHistoryEntry> UpdateUnassigned(IPrincipal User, ApplicationDbContext context) {
+        private ICollection<TicketHistoryEntry> UpdateUnassigned(IPrincipal User, ApplicationDbContext context, bool statusByWorkflow = true) {
             var output = new List<TicketHistoryEntry>();
             var history = new TicketHistoryEntry() {
                 UserId = User.Identity.GetUserId(),
@@ -293,20 +294,21 @@ namespace Semplicita.Models
             var ticket = context.Tickets.Find(this.Id);
             ticket.LastInteractionAt = DateTime.Now;
             ticket.AssignedSolverId = null;
-            if( ticket.ParentProject.ActiveWorkflow.TicketReassignedStatusId != null ) {
-                output.Add(UpdateStatus(int.Parse(ticket.ParentProject.ActiveWorkflow.TicketReassignedStatusId.ToString()), User, context, false));
+            if( statusByWorkflow && ticket.ParentProject.ActiveWorkflow.TicketReassignedStatusId != null ) {
+                output.Add(UpdateStatus(int.Parse(ticket.ParentProject.ActiveWorkflow.TicketReassignedStatusId.ToString()), User, context, false, true));
             }
             context.SaveChanges();
 
             return output;
         }
-        private TicketHistoryEntry UpdateStatus(int newId, IPrincipal User, ApplicationDbContext context, bool save = true) {
+        private TicketHistoryEntry UpdateStatus(int newId, IPrincipal User, ApplicationDbContext context, bool save = true, bool workflow = false) {
+            if( newId == this.TicketStatusId ) { return null; }
+            
             var newStatus = context.TicketStatuses.Find(newId);
-
             var history = new TicketHistoryEntry() {
                 UserId = User.Identity.GetUserId(),
                 ParentTicketId = this.Id,
-                EntryType = TicketHistoryEntry.TicketHistoryEntryType.StatusChangedByWorkflow,
+                EntryType = workflow ? TicketHistoryEntry.TicketHistoryEntryType.StatusChangedByWorkflow : TicketHistoryEntry.TicketHistoryEntryType.StatusChanged,
                 OldData = this.TicketStatus.Id.ToString(),
                 NewData = newStatus.Id.ToString(),
                 OccuredAt = DateTime.Now
@@ -323,7 +325,7 @@ namespace Semplicita.Models
 
 
         public TicketAttachment AddAttachment(HttpPostedFileBase file, IPrincipal User, ApplicationDbContext context, HttpServerUtilityBase Server) {
-            var output = TicketAttachment.ProcessUpload(file, Server, this, User, context);
+            var output = TicketAttachment.ProcessNewUpload(file, Server, this, User, context);
 
             context.TicketAttachments.Add(output);
             context.SaveChanges();
@@ -338,7 +340,7 @@ namespace Semplicita.Models
             var output = new List<TicketAttachment>();
             foreach( HttpPostedFileBase file in files ) {
                 try {
-                    output.Add(TicketAttachment.ProcessUpload(file, Server, this, User, context));
+                    output.Add(TicketAttachment.ProcessNewUpload(file, Server, this, User, context));
                 } catch { }
             }
             context.TicketAttachments.AddRange(output);
@@ -365,6 +367,111 @@ namespace Semplicita.Models
                 OldData = null,
                 NewData = attach.Id.ToString(),
                 OccuredAt = attach.UploadedAt
+            };
+
+            return history;
+        }
+
+        public ICollection<TicketComment> AddComments(ICollection<TicketComment> comments, IPrincipal User, ApplicationDbContext context, bool statusByWorkflow = true) {
+            context.TicketComments.AddRange(comments);
+            context.SaveChanges();
+
+            var histories = new List<TicketHistoryEntry>();
+            foreach( TicketComment c in comments ) {
+                try {
+                    histories.Add(GetAddedCommentHistory(c, User, context));
+
+                    if( statusByWorkflow ) {
+                        var rolesHelper = new UserRolesHelper(context);
+                        var project = context.Tickets.Find(c.ParentTicketId).ParentProject;
+                        var workflow = project.ActiveWorkflow;
+                        switch( rolesHelper.GetUserMaxRole(User) ) {
+                            case "ServerAdmin":
+                                if( workflow.ServerAdminInteractionStatusId.HasValue ) { histories.Add(UpdateStatus(workflow.ServerAdminInteractionStatusId.Value, User, context, true, true)); }
+                                break;
+
+                            case "ProjectAdmin":
+                                if( workflow.ProjMgrInteractionStatusId.HasValue && rolesHelper.IsProjectManager(User, project.Id) ) { histories.Add(UpdateStatus(workflow.ProjMgrInteractionStatusId.Value, User, context, true, true)); }
+                                break;
+
+                            case "SuperSolver":
+                                if( workflow.SuperSolverInteractionStatusId.HasValue && rolesHelper.IsEligibleTicketSolver(User, c.ParentTicketId) ) { histories.Add(UpdateStatus(workflow.SuperSolverInteractionStatusId.Value, User, context, true, true)); }
+                                break;
+
+                            case "Solver":
+                                if( workflow.SolverInteractionStatusId.HasValue && rolesHelper.IsEligibleTicketSolver(User, c.ParentTicketId) ) { histories.Add(UpdateStatus(workflow.SolverInteractionStatusId.Value, User, context, true, true)); }
+                                break;
+
+                            case "Reporter":
+                                if( workflow.ReporterInteractionStatusId.HasValue && rolesHelper.IsTicketOwner(User, c.ParentTicketId) ) { histories.Add(UpdateStatus(workflow.ReporterInteractionStatusId.Value, User, context, true, true)); }
+                                break;
+
+
+                            default:
+                                break;
+                        }
+
+                    }
+
+                } catch { }
+            }
+            context.TicketHistoryEntries.AddRange(histories);
+            context.SaveChanges();
+
+
+
+
+            return comments;
+        }
+        public TicketComment AddComment(TicketComment comment, IPrincipal User, ApplicationDbContext context, bool save = true, bool statusByWorkflow = true) {
+            context.TicketComments.Add(comment);
+            context.SaveChanges();
+
+            context.TicketHistoryEntries.Add(GetAddedCommentHistory(comment, User, context));
+            if( statusByWorkflow ) {
+                var rolesHelper = new UserRolesHelper(context);
+                var project = context.Tickets.Find(comment.ParentTicketId).ParentProject;
+                var workflow = project.ActiveWorkflow;
+                switch( rolesHelper.GetUserMaxRole(User) ) {
+                    case "ServerAdmin":
+                        if( workflow.ServerAdminInteractionStatusId.HasValue ) { context.TicketHistoryEntries.Add(UpdateStatus(workflow.ServerAdminInteractionStatusId.Value, User, context, true, true)); }
+                        break;
+
+                    case "ProjectAdmin":
+                        if( workflow.ProjMgrInteractionStatusId.HasValue && rolesHelper.IsProjectManager(User, project.Id) ) { context.TicketHistoryEntries.Add(UpdateStatus(workflow.ProjMgrInteractionStatusId.Value, User, context, true, true)); }
+                        break;
+
+                    case "SuperSolver":
+                        if( workflow.SuperSolverInteractionStatusId.HasValue && rolesHelper.IsEligibleTicketSolver(User, comment.ParentTicketId) ) { context.TicketHistoryEntries.Add(UpdateStatus(workflow.SuperSolverInteractionStatusId.Value, User, context, true, true)); }
+                        break;
+
+                    case "Solver":
+                        if( workflow.SolverInteractionStatusId.HasValue && rolesHelper.IsEligibleTicketSolver(User, comment.ParentTicketId) ) { context.TicketHistoryEntries.Add(UpdateStatus(workflow.SolverInteractionStatusId.Value, User, context, true, true)); }
+                        break;
+
+                    case "Reporter":
+                        if( workflow.ReporterInteractionStatusId.HasValue && rolesHelper.IsTicketOwner(User, comment.ParentTicketId) ) { context.TicketHistoryEntries.Add(UpdateStatus(workflow.ReporterInteractionStatusId.Value, User, context, true, true)); }
+                        break;
+
+
+                    default:
+                        break;
+                }
+
+            }
+            context.SaveChanges();
+
+
+            return comment;
+        }
+        private TicketHistoryEntry GetAddedCommentHistory(TicketComment comment, IPrincipal User, ApplicationDbContext context) {
+            var history = new TicketHistoryEntry() {
+                UserId = User.Identity.GetUserId(),
+                ParentTicketId = this.Id,
+                EntryType = TicketHistoryEntry.TicketHistoryEntryType.CommentAdded,
+                OldData = null,
+                NewData = comment.Id.ToString(),
+                OccuredAt = comment.CreatedAt
             };
 
             return history;

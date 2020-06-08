@@ -1,5 +1,6 @@
 ﻿@using Semplicita.Models
 @using Semplicita.Helpers
+@using Microsoft.AspNet.Identity
 
 @model EditTicketViewModel
 
@@ -8,29 +9,30 @@
     UserRolesHelper rolesHelper = new UserRolesHelper();
 }
 
-<div class="jumbotron bg-gradient-dkpurple">
+<div class="jumbotron jumbotron-skinny bg-gradient-dkpurple">
     <h1>Ticket: '@Model.CurrentTicket.GetTicketIdentifier()'</h1>
     <p class="lead">@Model.CurrentTicket.Title</p>
 </div>
 
 
 <div class="container">
+    <div class="row border-bottom">
 
-    <div class="row">
+        <div class="col pb-4">
+            <h2 class="ticket-title">@Model.CurrentTicket.Title</h2>
+            <p class="mb-0 text-sm">Created at @Model.CurrentTicket.CreatedAt.ToString("M/d/yyyy h:mm tt") by <b>@Model.CurrentTicket.Reporter.FullNameStandard</b></p>
+        </div>
+
+    </div>
+
+    <div class="row pt-4">
         <div class="col-xl-8 pr-xl-5 pb-3">
-            <div class="row border-bottom">
-
-                <div class="col pb-2">
-                    <h2 class="ticket-title">@Model.CurrentTicket.Title</h2>
-                </div>
-
-            </div>
 
             <div class="row border-bottom">
 
-                <div class="col pb-2">
-                    <div class="input-group pt-3">
-                        <label class="pr-4 pt-1">Issue type:</label>
+                <div class="col pb-3">
+                    <div class="input-group">
+                        <label class="pr-4">Issue type:</label>
                         <div class="card p-3 full-width">
                             <h5>@Model.CurrentTicket.TicketType.Name</h5>
                             <p class="text-sm">@Model.CurrentTicket.TicketType.Description</p>
@@ -64,87 +66,110 @@
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body">
-                            <!-- Conversations are loaded here -->
+                            <!-- Conversation -->
                             <div class="direct-chat-messages">
-                                <!-- Message. Default to the left -->
-                                <div class="direct-chat-msg">
-                                    <div class="direct-chat-infos clearfix">
-                                        <span class="direct-chat-name float-left">Alexander Pierce</span>
-                                        <span class="direct-chat-timestamp float-right">23 Jan 2:00 pm</span>
-                                    </div>
-                                    <img class="direct-chat-img" src="dist/img/user1-128x128.jpg">
-                                    <div class="direct-chat-text">
-                                        Is this template really for free? That's unbelievable!
-                                    </div>
-                                    <!-- /.direct-chat-text -->
-                                </div>
-                                <!-- /.direct-chat-msg -->
-                                <!-- Message to the right -->
-                                <div class="direct-chat-msg right">
-                                    <div class="direct-chat-infos clearfix">
-                                        <span class="direct-chat-name float-right">Sarah Bullock</span>
-                                        <span class="direct-chat-timestamp float-left">23 Jan 2:05 pm</span>
-                                    </div>
-                                    <!-- /.direct-chat-infos -->
-                                    <img class="direct-chat-img" src="dist/img/user3-128x128.jpg">
-                                    <!-- /.direct-chat-img -->
-                                    <div class="direct-chat-text">
-                                        You better believe it!
-                                    </div>
-                                    <!-- /.direct-chat-text -->
-                                </div>
+                                @if( Model.CurrentTicket.Comments.Count > 0 ) {
+                                    foreach( TicketComment comment in Model.CurrentTicket.Comments.OrderBy(c => c.CreatedAt).ToList() ) {
+                                        if( comment.AuthorId == User.Identity.GetUserId() ) {
+                                            //this user created the comment; show on right
+
+                                            <!-- Message to the right -->
+                                            <div class="direct-chat-msg right pt-1">
+                                                <div class="direct-chat-infos clearfix">
+                                                    <span class="direct-chat-name float-left">@comment.Author.FullNameStandard @comment.Author.GetRoleBadges(rolesHelper.ListUserRoles(comment.AuthorId))</span>
+                                                    <span class="direct-chat-timestamp float-right">@comment.CreatedAt.ToString("d MMM h:mm:ss tt")</span>
+                                                </div>
+                                                <!-- /.direct-chat-infos -->
+                                                <img class="direct-chat-img" src="@comment.Author.AvatarImagePath">
+                                                <!-- /.direct-chat-img -->
+                                                <div class="direct-chat-text">
+                                                    @comment.Body
+                                                </div>
+                                                <!-- /.direct-chat-text -->
+                                            </div>
+
+
+                                        } else {
+                                            //another user created the comment; show on left
+
+                                            <!-- Message. Default to the left -->
+                                            <div class="direct-chat-msg">
+                                                <div class="direct-chat-infos clearfix">
+                                                    <span class="direct-chat-name float-left">
+                                                        @comment.Author.FullNameStandard
+                                                        @if( Model.CurrentTicket.AssignedSolverId == comment.AuthorId ) {
+                                                            <small class="badge badge-primary align-top">Assigned Solver</small>
+                                                        }
+                                                        @if( Model.ParentProject.ProjectManagerId == comment.AuthorId ) {
+                                                            <small class="badge bg-gradient-navy white align-top">'@Model.ParentProject.TicketTag' Project Mgr</small>
+                                                        } @comment.Author.GetRoleBadges(rolesHelper.ListUserRoles(comment.AuthorId))
+                                                    </span>
+                                                    <span class="direct-chat-timestamp float-right">@comment.CreatedAt.ToString("d MMM h:mm:ss tt")</span>
+                                                </div>
+                                                <img class="direct-chat-img" src="@comment.Author.AvatarImagePath">
+                                                <div class="direct-chat-text">
+                                                    @comment.Body
+                                                </div>
+                                                <!-- /.direct-chat-text -->
+                                            </div>
+
+                                        }
+                                    }
+                                } else {
+                                    <h6 class="mt-5 mb-5 text-center">No Comments Yet! 📝</h6>
+                                }
                             </div>
-                            <!--/.direct-chat-messages-->
-                            <!-- Contacts are loaded here -->
+
+                            <!-- Authors -->
                             <div class="direct-chat-contacts">
                                 <ul class="contacts-list">
-                                    <li>
-                                        <a href="#">
-                                            <img class="contacts-list-img" src="dist/img/user1-128x128.jpg">
+                                    @if( Model.CurrentTicket.Comments.Count > 0 ) {
+                                        foreach( ApplicationUser user in Model.CurrentTicket.Comments.Select(c => c.Author).Distinct().ToList() ) {
+                                            <li>
+                                                <a>
+                                                    <img class="contacts-list-img mr-3" src="@user.AvatarImagePath">
 
-                                            <div class="contacts-list-info">
-                                                <span class="contacts-list-name">
-                                                    Count Dracula
-                                                    <small class="contacts-list-date float-right">2/28/2015</small>
-                                                </span>
-                                                <span class="contacts-list-msg">How have you been? I was...</span>
-                                            </div>
-                                            <!-- /.contacts-list-info -->
-                                        </a>
-                                    </li>
-                                    <!-- End Contact Item -->
-                                    <li>
-                                        <a href="#">
-                                            <img class="contacts-list-img" src="dist/img/user1-128x128.jpg">
+                                                    <div class="contacts-list-info">
+                                                        <span class="contacts-list-name">
+                                                            @user.FullNameStandard
+                                                            <small class="contacts-list-date float-right">@Model.CurrentTicket.Comments.Where(c => c.AuthorId == user.Id).Select(c => c.CreatedAt).Min().ToString("M/d/yyyy h:mm:ss tt")</small>
+                                                        </span>
+                                                        <span class="contacts-list-msg">@user.GetRoleBadges(rolesHelper.ListUserRoles(user.Id))</span>
+                                                    </div>
+                                                    <!-- /.contacts-list-info -->
+                                                </a>
+                                            </li>
+                                        }
+                                    } else {
+                                        <li>
+                                            <h6 class="mt-5 mb-5 text-center">No Authors Yet! 📝</h6>
+                                        </li>
+                                    }
 
-                                            <div class="contacts-list-info">
-                                                <span class="contacts-list-name">
-                                                    Sarah Doe
-                                                    <small class="contacts-list-date float-right">2/23/2015</small>
-                                                </span>
-                                                <span class="contacts-list-msg">I will be waiting for...</span>
-                                            </div>
-                                            <!-- /.contacts-list-info -->
-                                        </a>
-                                    </li>
                                     <!-- End Contact Item -->
                                 </ul>
                                 <!-- /.contacts-list -->
                             </div>
-                            <!-- /.direct-chat-pane -->
+
                         </div>
-                        <!-- /.card-body -->
-                        <div class="card-footer">
-                            <form action="#" method="post">
-                                <div class="input-group">
-                                    <input type="text" name="message" placeholder="Type Message ..." class="form-control">
-                                    <span class="input-group-append">
-                                        <button type="button" class="btn btn-success">Send</button>
-                                    </span>
-                                </div>
-                            </form>
-                        </div>
-                        <!-- /.card-footer-->
+
+                        @if( rolesHelper.CanCommentOnTicket(User, Model.CurrentTicket.Id) ) {
+                            <div class="card-footer">
+                                @using (Html.BeginForm("AddComment", "Tickets", FormMethod.Post)) {
+                                    @Html.AntiForgeryToken()
+                                    @Html.Hidden("TicketId", Model.CurrentTicket.Id)
+
+                                    <div class="input-group">
+                                        <input type="text" name="Body" placeholder="Type Message ..." class="form-control">
+                                        <span class="input-group-append">
+                                            <button type="submit" class="btn btn-success">Add Comment</button>
+                                        </span>
+                                    </div>
+
+                                }
+                            </div>
+
+                        }
                     </div>
                 </div>
 
@@ -209,6 +234,46 @@
         <div class="col-xl-4">
             <div class="row pt-4 pt-xl-0">
                 <div class="col">
+                    <div class="card collapsed-card">
+                        <div class="card-header">
+                            <h5 class="card-title"><b>Actions</b></h5>
+
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body p-3">
+
+                            @if( rolesHelper.CanEditTicket(User, Model.CurrentTicket.Id) ) {
+                                <div class="row p-1">
+                                    <div class="col">
+                                        <a href="@Url.Action("Edit", "Tickets", new { TicketIdentifier = Model.CurrentTicket.GetTicketIdentifier() })">
+                                            <div class="btn btn-block btn-warning" title="Report New Issue">Edit Ticket</div>
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                            @if( rolesHelper.CanArchiveTicket(User, Model.CurrentTicket.Id) ) {
+                                <div class="row p-1">
+                                    <div class="col">
+                                        <a href="@Url.Action("Delete", "Tickets", new { TicketIdentifier = Model.CurrentTicket.GetTicketIdentifier() })">
+                                            <div class="btn btn-block btn-danger">Archive Ticket</div>
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row pt-4 pt-xl-0">
+                <div class="col">
                     <div class="card">
                         <div class="card-header bg-gradient-navy">
                             <h5><i class="fas fa-user-astronaut card-header-icon"></i>Assigned Solver</h5>
@@ -257,7 +322,8 @@
                         </div>
 
                         <div class="card-body">
-                            <h6>@Model.CurrentTicket.TicketStatus.Display</h6>
+                            <h6>@Model.CurrentTicket.TicketStatus.GetStatusBadgeHtml(14)</h6>
+                            <p class="text-sm">@Model.CurrentTicket.TicketStatus.Description</p>
                         </div>
                     </div>
                 </div>
@@ -307,51 +373,9 @@
                     </div>
                 </div>
             </div>
-
-
-            <div class="row pt-4 pt-xl-0">
-                <div class="col">
-                    <div class="card collapsed-card">
-                        <div class="card-header">
-                            <h5 class="card-title"><b>Actions</b></h5>
-
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <!-- /.card-header -->
-                        <div class="card-body p-3">
-
-                            @if( rolesHelper.CanEditTicket(User, Model.CurrentTicket.Id) ) {
-                                <div class="row p-1">
-                                    <div class="col">
-                                        <a href="@Url.Action("Edit", "Tickets", new { TicketIdentifier = Model.CurrentTicket.GetTicketIdentifier() })">
-                                            <div class="btn btn-block btn-warning" title="Report New Issue">Edit Ticket</div>
-                                        </a>
-                                    </div>
-                                </div>
-                            }
-                            @if( rolesHelper.CanArchiveTicket(User, Model.CurrentTicket.Id) ) {
-                                <div class="row p-1">
-                                    <div class="col">
-                                        <a href="@Url.Action("Delete", "Tickets", new { TicketIdentifier = Model.CurrentTicket.GetTicketIdentifier() })">
-                                            <div class="btn btn-block btn-danger">Back to Projects</div>
-                                        </a>
-                                    </div>
-                                </div>
-                            }
-
-                        </div>
-
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>
-    </div>
 
 
 @section Scripts {

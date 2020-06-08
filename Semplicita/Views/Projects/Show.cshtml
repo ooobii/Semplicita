@@ -195,48 +195,49 @@
         </div>
         <div class="row">
             <div class="col">
-                <div class="card card-blue">
-                    <div class="card-header bg-gradient-h-green">
-                        <h5><i class="card-header-icon fas fa-directions"></i>Actions</h5>
+                <div class="card card-green collapsed-card">
+                    <div class="card-header bg-gradient-green">
+                        <h5 class="card-title"><i class="card-header-icon fas fa-directions"></i>Actions</h5>
+
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="row mb-3">
-                            <div class="col">
-                                @if( rolesHelper.CanCreateTicket(User, Model.Id) ) {
+                    <!-- /.card-header -->
+                    <div class="card-body p-3">
+
+                        @if( rolesHelper.CanCreateTicket(User, Model.Id) ) {
+                            <div class="row mb-2 pb-3 border-bottom">
+                                <div class="col">
                                     <a href="@Url.Action("Create", "Tickets", new { Model.TicketTag })">
                                         <div class="btn btn-block btn-success" title="Report New Issue">Report New Issue <i class="fas fa-plus pl-1"></i></div>
                                     </a>
-                                }
+                                </div>
                             </div>
-                        </div>
-                        <div class="row p-2">
-                            <div class="col">
-                                @if( rolesHelper.CanEditProject(User, Model.Id) ) {
-                                    <a href="@Url.Action("Edit", "Projects", new { Model.TicketTag })">
-                                        <div class="btn btn-block btn-info">Back to Projects</div>
-                                    </a>
-                                }
-                            </div>
-                        </div>
-                        <div class="row p-2">
-                            <div class="col">
-                                @if( rolesHelper.CanEditProject(User, Model.Id) ) {
+                        }
+                        @if( rolesHelper.CanEditProject(User, Model.Id) ) {
+                            <div class="row p-2">
+                                <div class="col">
                                     <a href="@Url.Action("Edit", "Projects", new { Model.TicketTag })">
                                         <div class="btn btn-block btn-warning">Edit Project</div>
                                     </a>
-                                }
+                                </div>
                             </div>
-                        </div>
-                        <div class="row p-2">
-                            <div class="col">
-                                @if( rolesHelper.CanArchiveProject(User, Model.Id) ) {
+                        }
+                        @if( rolesHelper.CanArchiveProject(User, Model.Id) ) {
+                            <div class="row p-2">
+                                <div class="col">
                                     <a href="@Url.Action("Archive", "Projects", new { Model.TicketTag })">
                                         <div class="btn btn-block btn-danger">Deactive Project</div>
                                     </a>
-                                }
+                                </div>
                             </div>
+                        }
+
                         </div>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -266,7 +267,7 @@
 
             <div class="card-body pt-2">
 
-                @if( Model.ChildTickets.Count > 0 ) {
+                @if( openTickets.Count > 0 ) {
                     <ul class="todo-list ui-sortable" data-widget="todo-list">
 
                         @foreach( Ticket t in openTickets ) {
@@ -319,10 +320,9 @@
                             </li>
                         }
 
-
                     </ul>
                 } else {
-                    <h5 class="text-center">No tickets yet! 😎</h5>
+                    <h5 class="text-center">No open tickets! 😎</h5>
                 }
             </div>
         </div>

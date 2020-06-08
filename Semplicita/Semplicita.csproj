@@ -318,6 +318,7 @@
     <Content Include="img\avatars\andrew.png" />
     <Content Include="img\avatars\jason.png" />
     <Content Include="img\avatars\matthew.png" />
+    <Content Include="img\avatars\shelby.png" />
     <Content Include="img\upload.png" />
     <Content Include="img\avatars\user.jpeg" />
     <Content Include="Scripts\adminlte\adminlte.js" />

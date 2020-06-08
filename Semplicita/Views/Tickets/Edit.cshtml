@@ -6,7 +6,7 @@
     ViewBag.Title = $"Edit Ticket: {Model.CurrentTicket.GetTicketIdentifier()}";
 }
 
-<div class="jumbotron jumbotron-skinny bg-gradient-darkorange">
+<div class="jumbotron bg-gradient-darkorange">
     <h1>Edit Ticket: '@Model.CurrentTicket.GetTicketIdentifier()'</h1>
     <p class="lead">Here you can update the title, description, or priority of an existing ticket.</p>
 </div>
@@ -17,22 +17,22 @@
     @using( Html.BeginForm("EditTicket", "Tickets", FormMethod.Post, new { enctype = "multipart/form-data" }) ) {
         @Html.AntiForgeryToken()
         @Html.Hidden("ParentProjectId", Model.CurrentTicket.ParentProjectId)
-        @Html.Hidden("TicketStatusId", Model.CurrentTicket.TicketStatusId)
         @Html.Hidden("CurrentTicketId", Model.CurrentTicket.Id)
-        <div class="row">
+
+        <div class="row border-bottom">
+
+            <div class="col pb-4">
+                <input class="form-control form-control-xl" type="text" placeholder="Ticket Title..." id="Title" Name="Title" value="@Model.CurrentTicket.Title">
+            </div>
+
+        </div>
+
+        <div class="row pt-4">
             <div class="col-xl-8 pr-xl-5 pb-3">
                 <div class="row border-bottom">
 
                     <div class="col pb-3">
-                        <input class="form-control form-control-xl" type="text" placeholder="Ticket Title..." id="Title" Name="Title" value="@Model.CurrentTicket.Title">
-                    </div>
-
-                </div>
-
-                <div class="row border-bottom">
-
-                    <div class="col pb-3">
-                        <div class="input-group pt-3">
+                        <div class="input-group">
                             <label for="TicketTypeId" class="pr-4 pt-1">Issue type: <span class="text-danger">*</span></label>
                             <select class="form-control" id="TicketTypeId" name="TicketTypeId">
                                 @foreach( TicketType tt in Model.AvailableTicketTypes ) {
@@ -115,6 +115,28 @@
                         </div>
                     </div>
                 </div>
+
+                @if( Model.AvailableStatuses != null ) {
+                    <div class="row pt-4 pt-xl-0">
+                        <div class="col">
+                            <div class="card">
+                                <div class="card-header bg-gradient-blue">
+                                    <h5>Status <span class="text-danger">*</span></h5>
+                                </div>
+
+                                <div class="card-body">
+                                    <div class="select2-purple">
+                                        <select class="select2" data-placeholder="Select Status" hidden="hidden" data-dropdown-css-class="select2-purple" style="width: 100%;" id="TicketStatusId" name="TicketStatusId">
+                                            @foreach( KeyValuePair<string, int> s in Model.AvailableStatuses ) {
+                                                <option value="@s.Value" @(s.Value == Model.CurrentTicket.TicketStatusId ? "selected" : "")>@s.Key</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
         <br />
@@ -145,10 +167,14 @@
             $('.select2-solver').select2({
                 allowClear: true,
                 placeholder: {
-                    id: '', // the value of the option
+                    id: '0', // the value of the option
                     text: 'Not Assigned'
                 }
-            })
+            });
+            var solverId = "@Model.CurrentTicket.AssignedSolverId";
+            if (solverId === "") {
+                $(".select2-solver").val(null).trigger('change');
+            }
 
             //Initialize Select2 Elements
             $('.select2bs4').select2({

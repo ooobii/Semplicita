@@ -25,7 +25,7 @@ namespace Semplicita.Models
         public virtual ApplicationUser Author { get; set; }
 
 
-        public static TicketAttachment ProcessUpload(HttpPostedFileBase postedFile, HttpServerUtilityBase Server, Ticket parent, IPrincipal User, ApplicationDbContext context) {
+        public static TicketAttachment ProcessNewUpload(HttpPostedFileBase postedFile, HttpServerUtilityBase Server, Ticket parent, IPrincipal User, ApplicationDbContext context) {
             if( postedFile.ContentLength > 31457280 ) { //30MB in binary bytes
                 throw new Exception("File is too big!");
             } else {

@@ -145,7 +145,15 @@
 .product-list-in-card > .item {
     background-color: rgba(0, 0, 0, 0);
 }
-
+.direct-chat-contacts {
+    background-color: #ebebeb;
+}
+.contacts-list-name, .contacts-list-date {
+    color: black;
+}
+.contacts-list-msg {
+    margin-left: -3px;
+}
 /* ReadMore Buttons */
 .badge {
     font-weight: normal;

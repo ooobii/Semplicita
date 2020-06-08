@@ -98,13 +98,14 @@ namespace Semplicita.Models
 
                 case TicketHistoryEntryType.StatusChanged:
                 case TicketHistoryEntryType.StatusChangedByWorkflow:
-                    return new HtmlString($"Status: <del class=\"text-secondary\">{db.TicketStatuses.Find(int.Parse(this.OldData)).Display}</del> <i class=\"fas fa-arrow-right\"></i> {db.TicketStatuses.Find(int.Parse(this.NewData)).Display}");
+                    return new HtmlString($"Status: {db.TicketStatuses.Find(int.Parse(this.OldData)).GetStatusBadgeHtml().ToHtmlString()} <i class=\"fas fa-arrow-right\"></i> {db.TicketStatuses.Find(int.Parse(this.NewData)).GetStatusBadgeHtml().ToHtmlString()}");
 
                 case TicketHistoryEntryType.AttachmentAdded:
                     return db.TicketAttachments.Find(int.Parse(NewData)).GetDisplayHtml();
 
                 case TicketHistoryEntryType.CommentAdded:
-                    return new HtmlString($"<p>{this.NewData}</p>");
+                    var comment = db.TicketComments.Find(int.Parse(NewData));
+                    return new HtmlString($"<h6 class=\"border-bottom\">{comment.Author.FullNameStandard}said:</h6><p class=\"text-sm\">{comment.Body}</p>");
 
                 case TicketHistoryEntryType.TicketTypeModified:
                     return new HtmlString($"Issue type: <del class=\"text-secondary\">{db.TicketTypes.Find(int.Parse(this.OldData)).Name}</del> <i class=\"fas fa-arrow-right\"></i> {db.TicketTypes.Find(this.NewData).Name}");

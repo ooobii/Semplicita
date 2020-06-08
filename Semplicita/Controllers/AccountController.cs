@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
+using Semplicita.Helpers;
 using Semplicita.Models;
 using System;
 using System.Diagnostics;
@@ -494,6 +495,17 @@ namespace Semplicita.Controllers
             var userid = User.Identity.GetUserId();
             var user = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>().FindById(userid);
             return Content(user.FullNameStandard);
+        }
+        public ActionResult GetAvatarUrl() {
+            var userid = User.Identity.GetUserId();
+            var user = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>().FindById(userid);
+            return Content(user.AvatarImagePath);
+        }
+        public ActionResult GetRoleBadges() {
+            var userid = User.Identity.GetUserId();
+            var user = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>().FindById(userid);
+            var rolesHelper = new UserRolesHelper();
+            return Content(user.GetRoleBadges(rolesHelper.ListUserRoles(userid)).ToHtmlString());
         }
 
         #endregion info fetching

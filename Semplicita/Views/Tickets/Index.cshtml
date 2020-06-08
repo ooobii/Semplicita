@@ -4,104 +4,116 @@
 @model TicketsIndexViewModel
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Your Tickets";
     var rolesHelper = new UserRolesHelper();
+    var projHelper = new ProjectHelper();
 }
 
-<h2>Index</h2>
+<div class="jumbotron">
+    @if( rolesHelper.CanViewAllTickets(User) ) {<h1>All Tickets</h1> } else { <h1>Available Tickets</h1>}
+</div>
 
-<p>
-    <div class="dropdown">
-        <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Report New Issue
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            @foreach( Project p in Model.Projects ) {
+@if( rolesHelper.CanCreateTicket(User) ) {
+    <div class="row">
+        <p>
+            <div class="dropdown">
+                <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Report New Issue
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    @if( Model.Projects.Count > 0 ) {
+                        foreach( Project p in Model.Projects ) {
 
-                if( rolesHelper.CanCreateTicket(User, p.Id) ) {
-                    <a class="dropdown-item" href="@Url.Action("Create", "Tickets", new { p.TicketTag })">@p.Name</a>
-                }
-            }
+                            if( rolesHelper.CanCreateTicket(User, p.Id) ) {
+                                <a class="dropdown-item" href="@Url.Action("Create", "Tickets", new { p.TicketTag })">@p.Name</a>
+                            }
+                        }
+                    } else {
+                        <div class="dropdown-item"><h6 class="text-secondary">You are not a member of a project.</h6></div>}
+                    }
+
+                </div>
+            </div>
+        </p>
+    </div>
+}
+
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+
+            </div>
+
+            <div class="card-body">
+                <table id="ticketsTable" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Identifier</th>
+                            <th>Title</th>
+                            <th>Reporter</th>
+                            <th>Solver</th>
+                            <th>Status</th>
+                            <th>Last Interaction</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach( Ticket t in Model.Tickets ) {
+                            <tr>
+                                <td>@t.GetTicketIdentifier()</td>
+                                <td>@t.Title</td>
+                                <td>@t.Reporter.FullNameStandard</td>
+                                <td>@t.GetAssignmentBadgeHtml(true)</td>
+                                <td>@t.TicketStatus.GetStatusBadgeHtml()</td>
+                                <td>@t.GetLastInteractBadgeHtml()</td>
+
+                                <td class="text-center">
+                                    <div class="row">
+                                        @if( rolesHelper.CanViewTicket(User, t.Id) ) {
+                                            <div class="col pl-1 pr-1">
+                                                <a href="@Url.Action("Show", "Tickets", new { TicketIdentifier = t.GetTicketIdentifier() } )">
+                                                    <div class="btn btn-sm btn-block btn-success">Open</div>
+                                                </a>
+                                            </div>
+                                        }
+
+                                        @if( rolesHelper.CanEditTicket(User, t.Id) ) {
+                                            <div class="col pl-1 pr-1">
+                                                <a href="@Url.Action("Edit", "Tickets", new { TicketIdentifier = t.GetTicketIdentifier() } )">
+                                                    <div class="btn btn-sm btn-block btn-warning">Edit</div>
+                                                </a>
+                                            </div>
+                                        }
+
+                                        @if( rolesHelper.CanArchiveTicket(User, t.Id) ) {
+                                            <div class="col pl-1 pr-1">
+                                                <a href="@Url.Action("Delete", "Tickets", new { TicketIdentifier = t.GetTicketIdentifier() } )">
+                                                    <div class="btn btn-sm btn-block btn-danger">Archive</div>
+                                                </a>
+                                            </div>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
         </div>
     </div>
-</p>
-<table class="table">
-    <tr>
-        <th>
-            Title
-        </th>
-        <th>
-            Project
-        </th>
-        <th>
-            Solver
-        </th>
-        <th>
-            Reporter
-        </th>
-        <th>
-            Priority
-        </th>
-        <th>
-            Status
-        </th>
-        <th>
-            Type
-        </th>
-        <th>
-            Created
-        </th>
-        <th>
-            Last Interaction
-        </th>
-        <th>
-            Resolved
-        </th>
-        <th></th>
-    </tr>
 
-    @foreach( var item in Model.Tickets ) {
-        if( rolesHelper.CanViewTicket(User, item.Id) ) {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Title)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ParentProject.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.AssignedSolver.FullNameStandard)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Reporter.FullNameStandard)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TicketPriorityLevel.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TicketStatus.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TicketType.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CreatedAt)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.LastInteractionAt)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ResolvedAt)
-                </td>
-                <td>
-                    @if (rolesHelper.CanViewTicket(User, item.Id) ) {@Html.ActionLink("View", "Show", new { TicketIdentifier = item.GetTicketIdentifier() }) Html.Raw(" | ");  }
 
-                    @if( rolesHelper.CanEditTicket(User, item.Id) ) {@Html.ActionLink("Edit", "Edit", new { TicketIdentifier = item.GetTicketIdentifier() }) Html.Raw(" | "); }
 
-                    @if( rolesHelper.CanArchiveTicket(User, item.Id) ) {@Html.ActionLink("Delete", "Delete", new { TicketIdentifier = item.GetTicketIdentifier() })}
-                </td>
-            </tr>
-        }
-    }
 
-</table>
+</div>
+
+@section Scripts {
+
+    @*DataTable Init*@
+    <script>
+        $("#ticketsTable").DataTable();
+    </script>
+
+}

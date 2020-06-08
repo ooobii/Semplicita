@@ -53,7 +53,8 @@ namespace Semplicita.Migrations
                         UserName = "matt_wendel@hotmail.com",
                         Email = "matt_wendel@hotmail.com",
                         FirstName = "Matthew",
-                        LastName = "Wendel"
+                        LastName = "Wendel",
+                        AvatarImagePath = "/img/avatars/matthew.png"
                     };
                     userManager.Create(user, "Abcd3FG#");
                     userManager.AddToRole(user.Id, "ServerAdmin");
@@ -65,7 +66,8 @@ namespace Semplicita.Migrations
                         UserName = "JasonTwichell@coderfoundry.com",
                         Email = "JasonTwichell@coderfoundry.com",
                         FirstName = "Jason",
-                        LastName = "Twichell"
+                        LastName = "Twichell",
+                        AvatarImagePath = "/img/avatars/jason.png"
                     };
                     userManager.Create(user, "Abc&123!");
                     userManager.AddToRole(user.Id, "ProjectAdmin");
@@ -77,73 +79,91 @@ namespace Semplicita.Migrations
                         UserName = "arussell@coderfoundry.com",
                         Email = "arussell@coderfoundry.com",
                         FirstName = "Andrew",
-                        LastName = "Russell"
+                        LastName = "Russell",
+                        AvatarImagePath = "/img/avatars/andrew.png"
                     };
                     userManager.Create(user, "Abc&123!");
                     userManager.AddToRole(user.Id, "SuperSolver");
                 }
 
-                //Demo Users
-                if( !context.Users.Any(u => u.Email == "demo_admin@matthewwendel.info") ) {
+
+                //Shelby (Reporter)
+                if( !context.Users.Any(u => u.Email == "shelby_99@rocketmail.com") ) {
                     var user = new ApplicationUser {
-                        UserName = "demo_admin@matthewwendel.info",
-                        Email = "demo_admin@matthewwendel.info",
-                        FirstName = "Demo:",
-                        LastName = "Server Admin",
-                        EmailConfirmed = true,
-                        IsDemoUser = true
+                        UserName = "shelby_99@rocketmail.com",
+                        Email = "shelby_99@rocketmail.com",
+                        FirstName = "Shelby",
+                        LastName = "Holtzclaw",
+                        AvatarImagePath = "/img/avatars/shelby.png"
                     };
-                    userManager.Create(user, Util.GetSetting("demo:Password"));
-                    userManager.AddToRole(user.Id, "ServerAdmin");
-                }
-                if( !context.Users.Any(u => u.Email == "demo_projadmin@matthewwendel.info") ) {
-                    var user = new ApplicationUser {
-                        UserName = "demo_projadmin@matthewwendel.info",
-                        Email = "demo_projadmin@matthewwendel.info",
-                        FirstName = "Demo:",
-                        LastName = "Project Admin",
-                        EmailConfirmed = true,
-                        IsDemoUser = true
-                    };
-                    userManager.Create(user, Util.GetSetting("demo:Password"));
-                    userManager.AddToRole(user.Id, "ProjectAdmin");
-                }
-                if( !context.Users.Any(u => u.Email == "demo_ssolver@matthewwendel.info") ) {
-                    var user = new ApplicationUser {
-                        UserName = "demo_ssolver@matthewwendel.info",
-                        Email = "demo_ssolver@matthewwendel.info",
-                        FirstName = "Demo:",
-                        LastName = "Super Solver",
-                        EmailConfirmed = true,
-                        IsDemoUser = true
-                    };
-                    userManager.Create(user, Util.GetSetting("demo:Password"));
-                    userManager.AddToRole(user.Id, "SuperSolver");
-                }
-                if( !context.Users.Any(u => u.Email == "demo_solver@matthewwendel.info") ) {
-                    var user = new ApplicationUser {
-                        UserName = "demo_solver@matthewwendel.info",
-                        Email = "demo_solver@matthewwendel.info",
-                        FirstName = "Demo:",
-                        LastName = "Solver",
-                        EmailConfirmed = true,
-                        IsDemoUser = true
-                    };
-                    userManager.Create(user, Util.GetSetting("demo:Password"));
-                    userManager.AddToRole(user.Id, "Solver");
-                }
-                if( !context.Users.Any(u => u.Email == "demo@matthewwendel.info") ) {
-                    var user = new ApplicationUser {
-                        UserName = "demo@matthewwendel.info",
-                        Email = "demo@matthewwendel.info",
-                        FirstName = "Demo:",
-                        LastName = "Reporter",
-                        EmailConfirmed = true,
-                        IsDemoUser = true
-                    };
-                    userManager.Create(user, Util.GetSetting("demo:Password"));
+                    userManager.Create(user, "ShelbyH!");
                     userManager.AddToRole(user.Id, "Reporter");
                 }
+
+
+                //Demo Users
+                #region demousers
+                //if( !context.Users.Any(u => u.Email == "demo_admin@matthewwendel.info") ) {
+                //    var user = new ApplicationUser {
+                //        UserName = "demo_admin@matthewwendel.info",
+                //        Email = "demo_admin@matthewwendel.info",
+                //        FirstName = "Demo:",
+                //        LastName = "Server Admin",
+                //        EmailConfirmed = true,
+                //        IsDemoUser = true
+                //    };
+                //    userManager.Create(user, Util.GetSetting("demo:Password"));
+                //    userManager.AddToRole(user.Id, "ServerAdmin");
+                //}
+                //if( !context.Users.Any(u => u.Email == "demo_projadmin@matthewwendel.info") ) {
+                //    var user = new ApplicationUser {
+                //        UserName = "demo_projadmin@matthewwendel.info",
+                //        Email = "demo_projadmin@matthewwendel.info",
+                //        FirstName = "Demo:",
+                //        LastName = "Project Admin",
+                //        EmailConfirmed = true,
+                //        IsDemoUser = true
+                //    };
+                //    userManager.Create(user, Util.GetSetting("demo:Password"));
+                //    userManager.AddToRole(user.Id, "ProjectAdmin");
+                //}
+                //if( !context.Users.Any(u => u.Email == "demo_ssolver@matthewwendel.info") ) {
+                //    var user = new ApplicationUser {
+                //        UserName = "demo_ssolver@matthewwendel.info",
+                //        Email = "demo_ssolver@matthewwendel.info",
+                //        FirstName = "Demo:",
+                //        LastName = "Super Solver",
+                //        EmailConfirmed = true,
+                //        IsDemoUser = true
+                //    };
+                //    userManager.Create(user, Util.GetSetting("demo:Password"));
+                //    userManager.AddToRole(user.Id, "SuperSolver");
+                //}
+                //if( !context.Users.Any(u => u.Email == "demo_solver@matthewwendel.info") ) {
+                //    var user = new ApplicationUser {
+                //        UserName = "demo_solver@matthewwendel.info",
+                //        Email = "demo_solver@matthewwendel.info",
+                //        FirstName = "Demo:",
+                //        LastName = "Solver",
+                //        EmailConfirmed = true,
+                //        IsDemoUser = true
+                //    };
+                //    userManager.Create(user, Util.GetSetting("demo:Password"));
+                //    userManager.AddToRole(user.Id, "Solver");
+                //}
+                //if( !context.Users.Any(u => u.Email == "demo@matthewwendel.info") ) {
+                //    var user = new ApplicationUser {
+                //        UserName = "demo@matthewwendel.info",
+                //        Email = "demo@matthewwendel.info",
+                //        FirstName = "Demo:",
+                //        LastName = "Reporter",
+                //        EmailConfirmed = true,
+                //        IsDemoUser = true
+                //    };
+                //    userManager.Create(user, Util.GetSetting("demo:Password"));
+                //    userManager.AddToRole(user.Id, "Reporter");
+                //}
+                #endregion
 
                 #endregion User Creation
 
@@ -215,7 +235,9 @@ namespace Semplicita.Migrations
                         IsPausedPending = false,
                         IsResolved = false,
                         IsClosed = false,
-                        IsCanceled = false
+                        IsCanceled = false,
+                        IsForReporter = true,
+                        IsForStaff = true
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -232,7 +254,9 @@ namespace Semplicita.Migrations
                         IsPausedPending = false,
                         IsResolved = false,
                         IsClosed = false,
-                        IsCanceled = false
+                        IsCanceled = false,
+                        IsForReporter = false,
+                        IsForStaff = false
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -250,7 +274,9 @@ namespace Semplicita.Migrations
                         IsPausedPending = false,
                         IsResolved = false,
                         IsClosed = false,
-                        IsCanceled = false
+                        IsCanceled = false,
+                        IsForReporter = false,
+                        IsForStaff = true
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -267,7 +293,9 @@ namespace Semplicita.Migrations
                         IsPausedPending = true,
                         IsResolved = false,
                         IsClosed = false,
-                        IsCanceled = false
+                        IsCanceled = false,
+                        IsForReporter = false,
+                        IsForStaff = true
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -284,7 +312,9 @@ namespace Semplicita.Migrations
                         IsPausedPending = false,
                         IsResolved = false,
                         IsClosed = false,
-                        IsCanceled = false
+                        IsCanceled = false,
+                        IsForReporter = false,
+                        IsForStaff = true
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -301,7 +331,9 @@ namespace Semplicita.Migrations
                         IsPausedPending = false,
                         IsResolved = false,
                         IsClosed = false,
-                        IsCanceled = false
+                        IsCanceled = false,
+                        IsForReporter = true,
+                        IsForStaff = false
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -319,7 +351,9 @@ namespace Semplicita.Migrations
                         IsPausedPending = false,
                         IsResolved = true,
                         IsClosed = false,
-                        IsCanceled = false
+                        IsCanceled = false,
+                        IsForReporter = false,
+                        IsForStaff = true
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -338,7 +372,9 @@ namespace Semplicita.Migrations
                         IsPausedPending = true,
                         IsResolved = false,
                         IsClosed = false,
-                        IsCanceled = false
+                        IsCanceled = false,
+                        IsForReporter = false,
+                        IsForStaff = true
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -355,7 +391,9 @@ namespace Semplicita.Migrations
                         IsPausedPending = true,
                         IsResolved = false,
                         IsClosed = false,
-                        IsCanceled = false
+                        IsCanceled = false,
+                        IsForReporter = false,
+                        IsForStaff = true
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -371,9 +409,11 @@ namespace Semplicita.Migrations
                         MustBeAssigned = true,
                         IsInProgress = false,
                         IsPausedPending = false,
-                        IsResolved = true,
+                        IsResolved = false,
                         IsClosed = false,
-                        IsCanceled = true
+                        IsCanceled = true,
+                        IsForReporter = false,
+                        IsForStaff = true
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -385,12 +425,14 @@ namespace Semplicita.Migrations
                         DisplayBackColor = "#933030",
                         Description = "The reporter's issue will not be solved, because the reporter is inquiring about intended functionality or a procedure that is actually working as intended.",
                         IsStarted = true,
-                        MustBeAssigned = true,
+                        MustBeAssigned = false,
                         IsInProgress = false,
                         IsPausedPending = false,
-                        IsResolved = true,
+                        IsResolved = false,
                         IsClosed = false,
-                        IsCanceled = true
+                        IsCanceled = true,
+                        IsForReporter = false,
+                        IsForStaff = true
                     };
                     context.TicketStatuses.Add(status);
                 }

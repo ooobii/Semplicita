@@ -180,13 +180,17 @@ namespace Semplicita.Helpers
                 return false;
             }
         }
+        public bool IsProjectManager(IPrincipal User, int projectId) {
+            var mgrId = db.Projects.Find(projectId).ProjectManagerId;
+            var isProjManager = User.IsInRole("ProjectAdmin");
+
+            return (User.Identity.GetUserId() == mgrId) && isProjManager;
+        }
         public ICollection<Project> GetViewableProjects(IPrincipal User) {
             var output = new List<Project>();
 
-            foreach (Project p in db.Projects.ToList()) {
-                if(CanViewProject(User, p.Id)) {
-                    output.Add(p);
-                }
+            foreach (Project p in db.Projects.ToList().Where(p => CanViewProject(User, p.Id)) ) {
+                output.Add(p);
             }
 
             return output;
@@ -194,10 +198,8 @@ namespace Semplicita.Helpers
         public ICollection<Project> GetEditableProjects(IPrincipal User) {
             var output = new List<Project>();
 
-            foreach( Project p in db.Projects.ToList() ) {
-                if( CanEditProject(User, p.Id) ) {
-                    output.Add(p);
-                }
+            foreach( Project p in db.Projects.ToList().Where(p => CanEditProject(User, p.Id)) ) {
+                output.Add(p);
             }
 
             return output;
@@ -214,6 +216,17 @@ namespace Semplicita.Helpers
                 return false;
             }
         }
+        public bool CanCreateTicket(IPrincipal User) {
+            //Reporters Only
+
+            var userId = User.Identity.GetUserId();
+
+            if( User.IsInRole("Reporter")) {
+                return true;
+            } else {
+                return false;
+            }
+        }
         public bool CanViewTicket(IPrincipal User, int TicketId) {
             //ServerAdmin can OR
             //ProjectAdmin can IF assigned as parent project manager OR
@@ -223,7 +236,7 @@ namespace Semplicita.Helpers
             var userId = User.Identity.GetUserId();
 
             if( User.IsInRole("ServerAdmin") ||
-                ( User.IsInRole("ProjAdmin") && Ticket.ParentProject.ProjectManagerId == userId ) ||
+                IsProjectManager(User, Ticket.ParentProjectId) ||
                 ( ( User.IsInRole("SuperSolver") || User.IsInRole("Solver") ) && Ticket.ParentProject.Members.Select(u => u.Id).Contains(userId) ) ||
                 ( User.IsInRole("Reporter") && Ticket.ReporterId == userId ) ) 
             {
@@ -244,7 +257,7 @@ namespace Semplicita.Helpers
             var userId = User.Identity.GetUserId();
 
             if( User.IsInRole("ServerAdmin") ||
-                ( User.IsInRole("ProjAdmin") && project.ProjectManagerId == userId ) ||
+                IsProjectManager(User, projectId) ||
                 ( ( User.IsInRole("SuperSolver") || User.IsInRole("Solver") ) && project.Members.Select(u => u.Id).Contains(userId) ) ) {
                 return true;
 
@@ -276,9 +289,8 @@ namespace Semplicita.Helpers
             var userId = User.Identity.GetUserId();
 
             if( User.IsInRole("ServerAdmin") ||
-               ( User.IsInRole("ProjectAdmin") & Ticket.ParentProject.ProjectManagerId == userId ) ||
-               ( User.IsInRole("SuperSolver") & Ticket.ParentProject.Members.Select(u => u.Id).Contains(userId) ) ||
-               ( User.IsInRole("Solver") & Ticket.AssignedSolverId == userId ) ||
+               IsProjectManager(User, Ticket.ParentProjectId) ||
+               IsEligibleTicketSolver(User, TicketId) ||
                ( User.IsInRole("Reporter") & Ticket.ReporterId == userId ) ) {
                 return true;
             } else {
@@ -296,10 +308,17 @@ namespace Semplicita.Helpers
             var userId = User.Identity.GetUserId();
 
             if( User.IsInRole("ServerAdmin") ||
-               ( User.IsInRole("ProjectAdmin") & Ticket.ParentProject.ProjectManagerId == userId ) ||
-               ( User.IsInRole("SuperSolver") & Ticket.ParentProject.Members.Select(u => u.Id).Contains(userId) ) ||
-               ( User.IsInRole("Solver") & Ticket.AssignedSolverId == userId ) ||
+               IsProjectManager(User, Ticket.ParentProjectId) ||
+               IsEligibleTicketSolver(User, TicketId) ||
                ( User.IsInRole("Reporter") & Ticket.ReporterId == userId ) ) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        public bool CanUpdateTicketStatus(IPrincipal User, int TicketId) {
+            var ticket = db.Tickets.Find(TicketId);
+            if (IsEligibleTicketSolver(User, TicketId) || IsProjectManager(User, ticket.ParentProject.Id) ){
                 return true;
             } else {
                 return false;
@@ -313,7 +332,7 @@ namespace Semplicita.Helpers
             var userId = User.Identity.GetUserId();
 
             if( User.IsInRole("ServerAdmin") ||
-               ( User.IsInRole("ProjectAdmin") && Ticket.ParentProject.ProjectManagerId == userId ) ) {
+               IsProjectManager(User, Ticket.ParentProjectId) ) {
                 return true;
             } else {
                 return false;
@@ -334,13 +353,14 @@ namespace Semplicita.Helpers
                 return false;
             }
         }
+        internal bool IsTicketOwner(IPrincipal User, int TicketId) {
+            return User.Identity.GetUserId() == db.Tickets.Find(TicketId).ReporterId;
+        }
         public ICollection<Ticket> GetViewableTickets(IPrincipal User) {
             var output = new List<Ticket>();
 
-            foreach( Ticket p in db.Tickets.ToList() ) {
-                if( CanViewTicket(User, p.Id) ) {
-                    output.Add(p);
-                }
+            foreach( Ticket t in db.Tickets.ToList().Where(t => CanViewTicket(User, t.Id)) ) {
+                output.Add(t);
             }
 
             return output;
@@ -348,15 +368,19 @@ namespace Semplicita.Helpers
         public ICollection<Ticket> GetEditableTickets(IPrincipal User) {
             var output = new List<Ticket>();
 
-            foreach( Ticket p in db.Tickets.ToList() ) {
-                if( CanEditTicket(User, p.Id) ) {
-                    output.Add(p);
+            foreach( Ticket t in db.Tickets.ToList() ) {
+                if( CanEditTicket(User, t.Id) ) {
+                    output.Add(t);
                 }
             }
 
             return output;
         }
 
+        public string GetUserMaxRole(IPrincipal User) {
+            var roles = ListUserRoles(User.Identity.GetUserId());
+            return roles.Count > 0 ? roles.ToList()[ 0 ] : "";
+        }
     }
 
 }

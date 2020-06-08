@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using Antlr.Runtime.Tree;
+using System.Drawing;
 using System.EnterpriseServices.Internal;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -37,8 +38,23 @@ namespace Semplicita.Models
         public bool IsCanceled { get; set; }
 
 
+
+        //this status can only be set by the reporter of the ticket.
+        public bool IsForReporter { get; set; }
+
+        //this status can only be set by a staff member
+        public bool IsForStaff { get; set; }
+
+
+
+
         public HtmlString GetStatusBadgeHtml() {
-            var style = $"style=\"color: {this.DisplayForeColor}; background-color: {this.DisplayBackColor}; font-size: 12px; font-weight:bold;\"";
+            var style = $"style=\"color: {this.DisplayForeColor}; background-color: {this.DisplayBackColor}; font-size: 12px; font-weight:500;\"";
+
+            return new HtmlString($"<span class=\"badge\" {style}>{this.Display}</span>");
+        }
+        public HtmlString GetStatusBadgeHtml(int fontSize_px) {
+            var style = $"style=\"color: {this.DisplayForeColor}; background-color: {this.DisplayBackColor}; font-size: {fontSize_px}px; font-weight:bold;\"";
 
             return new HtmlString($"<span class=\"badge\" {style}>{this.Display}</span>");
         }

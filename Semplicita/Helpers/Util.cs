@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using Microsoft.Ajax.Utilities;
+using System.Collections.Generic;
+using System.Text;
 
 public static class Util
 {        
@@ -104,4 +106,14 @@ public static class Util
             return "";
         }
     }
+    
+
+    public static List<string> CloneStringList(List<string> input) {
+        var output = new List<string>();
+        foreach (var i in input) {
+            output.Add(i);
+        }
+        return output;
+    }
+
 }

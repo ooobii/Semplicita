@@ -64,12 +64,12 @@ namespace Semplicita.Controllers
         [Route("tickets/{TicketIdentifier}/attachments/{attachmentId}")]
         public ActionResult GetTicketAttachment(string TicketIdentifier, int attachmentId) {
             var ticket = db.Tickets.ToList().FirstOrDefault(t => t.GetTicketIdentifier() == TicketIdentifier);
-            if (ticket == null) {
+            if( ticket == null ) {
                 return new HttpStatusCodeResult(HttpStatusCode.NotFound);
             }
 
             var attachment = ticket.Attachments.FirstOrDefault(a => a.Id == attachmentId);
-            if (attachment == null) {
+            if( attachment == null ) {
                 return new HttpStatusCodeResult(HttpStatusCode.NotFound);
             }
 
@@ -137,14 +137,14 @@ namespace Semplicita.Controllers
 
                 var newTicket = new Ticket() {
                     Title = model.Title
-                    ,Description = model.Description
-                    ,CreatedAt = now
-                    ,ParentProjectId = parentProject.Id
-                    ,TicketTypeId = model.TicketTypeId
-                    ,TicketStatusId = initStatus.Id
-                    ,TicketPriorityLevelId = priority.Id
-                    ,ReporterId = User.Identity.GetUserId()
-                    ,AssignedSolverId = initSolverId
+                    , Description = model.Description
+                    , CreatedAt = now
+                    , ParentProjectId = parentProject.Id
+                    , TicketTypeId = model.TicketTypeId
+                    , TicketStatusId = initStatus.Id
+                    , TicketPriorityLevelId = priority.Id
+                    , ReporterId = User.Identity.GetUserId()
+                    , AssignedSolverId = initSolverId
                 };
                 db.Tickets.Add(newTicket);
                 db.SaveChanges();
@@ -154,12 +154,10 @@ namespace Semplicita.Controllers
                     newTicket.AddAttachments(model.Attachments, User, db, Server);
                 }
 
-                return RedirectToAction("Show", "Tickets", new { TicketIdentifier = newTicket.GetTicketIdentifier() } );
+                return RedirectToAction("Show", "Tickets", new { TicketIdentifier = newTicket.GetTicketIdentifier() });
             }
             return View();
         }
-
-
 
 
         [Route("tickets/{TicketIdentifier}/edit")]
@@ -177,14 +175,15 @@ namespace Semplicita.Controllers
 
             ProjectWorkflow parentProjWorkflow = ticket.ParentProject.ActiveWorkflow;
             List<ApplicationUser> solvers = null;
-            if (User.Identity.GetUserId() == ticket.ParentProject.ProjectManagerId || User.IsInRole("ServerAdmin")) {
+            if( User.Identity.GetUserId() == ticket.ParentProject.ProjectManagerId || User.IsInRole("ServerAdmin") ) {
                 solvers = ticket.ParentProject.GetSolverMembers(db);
             }
 
             List<TicketStatus> availStatuses = null;
-            if(( parentProjWorkflow.CanStaffSetStatusOnInteract && roleHelper.IsUserStaff(User)) ||
-               ( parentProjWorkflow.CanTicketOwnerSetStatusOnInteract && ticket.ReporterId == User.Identity.GetUserId()) ) {
-
+            if ((roleHelper.IsUserStaff(User) && parentProjWorkflow.CanStaffSetStatusOnInteract) ||
+                (roleHelper.IsTicketOwner(User, ticket.Id) && parentProjWorkflow.CanTicketOwnerSetStatusOnInteract ) ||
+               !(false) ) {
+                availStatuses = parentProjWorkflow.GetAvailableStatuses(ticket.Id, User, db);
             }
 
             var viewModel = new EditTicketViewModel() {
@@ -192,6 +191,7 @@ namespace Semplicita.Controllers
                 Reporter = db.Users.Find(User.Identity.GetUserId()),
                 PrioritySelections = db.TicketPriorityTypes.ToDictionary(tp => tp.Name, tp => tp.Id),
                 AvailableTicketTypes = db.TicketTypes.ToList(),
+                AvailableStatuses = availStatuses.ToDictionary(s => s.Name, s => s.Id),
                 CurrentTicket = ticket,
                 AvailableSolvers = solvers
             };
@@ -200,7 +200,7 @@ namespace Semplicita.Controllers
             return View(viewModel);
         }
 
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Route("Tickets/EditTicket")]
@@ -274,6 +274,32 @@ namespace Semplicita.Controllers
             db.SaveChanges();
             return RedirectToAction("Index");
         }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("tickets/{TicketIdentifier}/add-comment")]
+        public ActionResult AddComment(AddTicketCommentModel model) {
+            if( ModelState.IsValid ) {
+                var oldTicket = db.Tickets.Find(model.TicketId);
+
+                var newComment = new TicketComment() {
+                    AuthorId = User.Identity.GetUserId(),
+                    CreatedAt = DateTime.Now,
+                    ParentTicketId = model.TicketId,
+                    Body = model.Body
+                };
+
+                oldTicket.AddComment(newComment, User, db, true, true);
+
+                return RedirectToAction("Show", "Tickets", new { TicketIdentifier = oldTicket.GetTicketIdentifier() });
+            }
+
+            var ticket = db.Tickets.Find(model.TicketId);
+            return RedirectToAction("Show", "Tickets", new { TicketIdentifier = ticket.GetTicketIdentifier() });
+        }
+
+
 
         protected override void Dispose(bool disposing) {
             if( disposing ) {

@@ -3,11 +3,18 @@
     <ul class="nav nav-pills nav-sidebar flex-column nav-sep-bottom" data-widget="treeview" role="menu" data-accordion="false">
         <li class="nav-item has-treeview" id="navAccFolder">
             <a class="nav-link" id="navAcc">
-                <i class="nav-icon fas fa-key"></i>
-                <p>
-                    @Html.Action("GetFullNameStandard", "Account")
-                </p>
-                <i class="right fas fa-angle-left"></i>
+                <div class="row">
+                    <div class="col">
+                        <img src="@Html.Action("GetAvatarUrl", "Account")" class="img-circle elevation-2 nav-icon" style="width:2.2rem;margin-top:-35px">
+                        <p>
+                            @Html.Action("GetFullNameStandard", "Account")<br />
+                            <span class="text-sm">@Html.Action("GetRoleBadges", "Account")</span>
+                        </p>
+                    </div>
+                    <div class="col-1">
+                        <i class="right fas fa-angle-left" style="margin-top:6px;"></i>
+                    </div>
+                </div>
             </a>
             <ul class="nav nav-treeview menu-open">
 

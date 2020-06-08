@@ -59,4 +59,10 @@ namespace Semplicita.Models
         public string SolverId { get; set; }
     }
 
+    public class AddTicketCommentModel
+    {
+        public int TicketId { get; set; }
+        public string Body { get; set; }
+    }
+
 }
