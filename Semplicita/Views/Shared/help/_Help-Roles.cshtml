@@ -1,0 +1,48 @@
+﻿<div class="card card-default collapsed-card">
+    <div class="card-header" style="background-color:#C8E7FF">
+        <h3 class="card-title"><i class="far fa-question-circle" style="margin-right:10px; width: 18px; color:#1B1075;"></i><b>Help: About Roles</b> - Restrictions and Abilities</h3>
+
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <p>
+            Roles are what define a user's level of authority over other users, and can grant/limit access to certain components or abilities. <br />
+            Here they are listed in order of precedence:
+            <ul>
+                <li>
+                    <b>Server Administrator:</b>
+                    <ul>
+                        <li>Allows full access to all user, project, ticket data, ticket types, statuses, and workflows.</li>
+                    </ul>
+                </li>
+                <li>
+                    <b>Project Administrator:</b>
+                    <ul>
+                        <li>Allowed to create new projects, or deactivate active projects.</li>
+                        <li>Allowed to manipulate user allocations, project settings, &amp; ticket data of projects to which they are assigned to by a Server Administrator.</li>
+                        <li>Not allowed to manipulate ticket types, ticket statuses, or workflows.</li>
+                    </ul>
+                </li>
+                <li>
+                    <b>Super Solver:</b>
+                    <ul>
+                        <li>Similar to a Solver, Super Solvers are also responsible for resolving tickets.</li>
+                        <li>They have the ability to work within <u><i>any</i></u> ticket in projects to which they are assigned.</li>
+                        <li>Additionally, they have the ability to re-assign tickets to other solvers regardless of who the ticket is originally assigned to.</li>
+                    </ul>
+                </li>
+                <li>
+                    <b>Solver:</b>
+                    <ul>
+                        <li>Solvers are responsible for resolving tickets that they are assigned.</li>
+                        <li>Solvers are allowed to view dashboard data about personal performance, but can only work within tickets they are assigned.</li>
+                    </ul>
+                </li>
+            </ul>
+        </p>
+    </div>
+
+</div>
