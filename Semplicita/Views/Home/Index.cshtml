@@ -1,44 +1,63 @@
 ﻿@{
     ViewBag.Title = "Home Page";
+    var db = new Semplicita.Models.ApplicationDbContext();
+    var rolesHelper = new Semplicita.Helpers.UserRolesHelper(db);
 }
 
 <div class="jumbotron">
     <h1>Orginize - Share - Solve.</h1><br />
     <p class="lead">Thank you for choosing Simplicita taking your bug / issue tracking to the next level.</p>
-    <p class="lead">To learn more, click here to access documentation.</p>
     <p>Please choose from the available actions below:</p>
 </div>
 
 <div class="row">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h4>Create New Ticket</h4>
-            </div>
-            <div class="card-body">
-                <p></p>
-            </div>
-            <div class="card-footer">
-                <a class="btn btn-primary btn-block" href="https://go.microsoft.com/fwlink/?LinkId=301865">Create Ticket &raquo;</a>
-            </div>
-        </div>
-    </div>
-
-    @if( User.IsInRole("ProjectAdmin") || User.IsInRole("ServerAdmin") ) {
+    @if( rolesHelper.CanCreateTicket(User) ) {
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header">
-                    <h4>Tickets & Projects</h4>
+                    <h4>View Tickets</h4>
                 </div>
                 <div class="card-body">
                     <p></p>
                 </div>
                 <div class="card-footer">
-                    <a class="btn btn-primary btn-block" href="@Url.Action("Index", "Projects")">Manage Projects &raquo;</a>
+                    <a class="btn btn-primary btn-block" href="@Url.Action("Index", "Tickets")">View Tickets &raquo;</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Create New Ticket</h4>
+                </div>
+                <div class="card-body">
+                    @foreach( Semplicita.Models.Project p in db.Projects.ToList() ) {
+                        if( rolesHelper.CanCreateTicket(User, p.Id) ) {
+                            <a class="btn btn-primary btn-block" href="@Url.Action("Create", "Ticket", new { p.TicketTag })">Create Ticket &raquo;</a>
+                        }
+                    }
                 </div>
             </div>
         </div>
     }
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Projects</h4>
+                </div>
+                <div class="card-body">
+                    @foreach (Semplicita.Models.Project p in db.Projects.ToList()) {
+                        if( rolesHelper.CanViewProject(User, p.Id) ) {
+                            <a class="btn btn-primary btn-block" href="@Url.Action("Project", "Projects", new { p.TicketTag })">Go to Project '@p.Name' &raquo;</a>
+                        }
+                    }
+                </div>
+                <div class="card-footer">
+                    <a class="btn btn-primary btn-block" href="@Url.Action("Index", "Projects")">View Projects &raquo;</a>
+                </div>
+            </div>
+        </div>
 
     @if( User.IsInRole("ServerAdmin") ) {
         <div class="col-md-4">
@@ -50,26 +69,14 @@
                     <p></p>
                 </div>
                 <div class="card-footer">
-                    <a class="btn btn-primary btn-block" href="https://go.microsoft.com/fwlink/?LinkId=301866">Tickets Dashboard &raquo;</a>
+                    <a class="btn btn-primary btn-block" href="@Url.Action("UserAllocation", "Admin")">User Roles &amp; Assignments &raquo;</a>
+                    <a class="btn btn-primary btn-block" href="@Url.Action("ProjectConfiguration", "Admin")">Project Workflow Managment &raquo;</a>
                 </div>
             </div>
         </div>
     }
 </div>
 <div class="row">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h4>View Tickets</h4>
-            </div>
-            <div class="card-body">
-                <p></p>
-            </div>
-            <div class="card-footer">
-                <a class="btn btn-primary btn-block" href="https://go.microsoft.com/fwlink/?LinkId=301865">View Tickets &raquo;</a>
-            </div>
-        </div>
-    </div>
 </div>
 
 @section Scripts {
