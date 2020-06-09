@@ -1,6 +1,7 @@
 ﻿using Semplicita.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Principal;
 using System.Web;
@@ -42,13 +43,17 @@ namespace Semplicita.Models
         public int? ProjMgrInteractionStatusId { get; set; }
         public int? ServerAdminInteractionStatusId { get; set; }
 
+        //statuses for when archive occurs
+        public int? ArchivedNotResolvedStatusId { get; set; }
+        public int? ArchivedResolvedStatusId { get; set; }
+
 
         //allow reporter or staff (solver and above) to manually set ticket statuses after interaction
         public bool CanStaffSetStatusOnInteract { get; set; }
         public bool CanTicketOwnerSetStatusOnInteract { get; set; }
 
         public List<TicketStatus> GetAvailableStatuses(int TicketId, IPrincipal User, ApplicationDbContext context) {
-            var rolesHelper = new UserRolesHelper(context);
+            var rolesHelper = new RolesHelper(context);
 
             var output = new List<TicketStatus>();
             output.AddRange(context.TicketStatuses.ToList());
@@ -57,9 +62,9 @@ namespace Semplicita.Models
             var currStatus = ticket.TicketStatus;
 
             foreach( var s in context.TicketStatuses.ToList() ) {
-
+                if (s.Name == "Pending") {Debugger.Break();}
                 //if the status is only available to staff, and the user is not staff, remove it.
-                if (s.IsForStaff && !rolesHelper.IsUserStaff(User)) {
+                if( s.IsForStaff && !rolesHelper.IsUserStaff(User) ) {
                     output.Remove(s);
                     continue;
                 }
@@ -87,7 +92,7 @@ namespace Semplicita.Models
 
                 if( ticket.AssignedSolverId == null ) {
                     //no solver is assigned, remove statuses that require the ticket to be assigned.
-                    if( s.MustBeAssigned == true) {
+                    if( s.MustBeAssigned == true ) {
                         output.Remove(s);
                         continue;
                     }
@@ -100,8 +105,8 @@ namespace Semplicita.Models
                 }
 
                 //if the ticket has been resolved, remove statuses that dont require it being solved.
-                if (currStatus.IsResolved) {
-                    if (s.IsResolved == false) {
+                if( currStatus.IsResolved ) {
+                    if( s.IsResolved == false ) {
                         output.Remove(s);
                         continue;
                     }
@@ -135,7 +140,7 @@ namespace Semplicita.Models
             }
 
             if( !output.Contains(currStatus) ) { output.Add(currStatus); }
-            
+
 
             return output;
         }

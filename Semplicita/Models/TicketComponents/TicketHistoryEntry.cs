@@ -13,13 +13,14 @@ namespace Semplicita.Models
             AssignedToNewSolver = 2,
             UnassignedFromSolver = 3,
             StatusChanged = 4,
-            StatusChangedByWorkflow = 11,
-            AttachmentAdded = 5,
-            CommentAdded = 6,
-            TicketTypeModified = 7,
-            TitleModified = 8,
-            DescriptionModified = 9,
-            PriorityChanged = 10
+            StatusChangedByWorkflow = 5,
+            AttachmentAdded = 6,
+            CommentAdded = 7,
+            TicketTypeModified = 8,
+            TitleModified = 9,
+            DescriptionModified = 10,
+            PriorityChanged = 11,
+            Archived = 12
         }
 
         public int Id { get; set; }
@@ -44,13 +45,13 @@ namespace Semplicita.Models
                     return new HtmlString($"<u>{User.ShortName}</u> created the ticket '{ParentTicket.GetTicketIdentifier()}'.");
 
                 case TicketHistoryEntryType.AssignedToSolver:
-                    return new HtmlString($"<u>{User.ShortName}</u> <b class=\"text-success\">assigned</b> ticket'{ParentTicket.GetTicketIdentifier()}'");
+                    return new HtmlString($"<u>{User.ShortName}</u> <b class=\"text-success\">assigned</b> ticket '{ParentTicket.GetTicketIdentifier()}'");
 
                 case TicketHistoryEntryType.AssignedToNewSolver:
-                    return new HtmlString($"<u>{User.ShortName}</u> <b class=\"text-warning\"><i>re</i>-assigned</b> ticket'{ParentTicket.GetTicketIdentifier()}'");
+                    return new HtmlString($"<u>{User.ShortName}</u> <b class=\"text-warning\"><i>re</i>-assigned</b> ticket '{ParentTicket.GetTicketIdentifier()}'");
 
                 case TicketHistoryEntryType.UnassignedFromSolver:
-                    return new HtmlString($"<u>{User.ShortName}</u> <b class=\"text-danger\">unassigned</b> ticket'{ParentTicket.GetTicketIdentifier()}'");
+                    return new HtmlString($"<u>{User.ShortName}</u> <b class=\"text-danger\">unassigned</b> ticket '{ParentTicket.GetTicketIdentifier()}'");
 
                 case TicketHistoryEntryType.StatusChanged:
                     return new HtmlString($"Ticket status was updated by <u>{User.ShortName}</u>.");
@@ -75,6 +76,9 @@ namespace Semplicita.Models
 
                 case TicketHistoryEntryType.PriorityChanged:
                     return new HtmlString($"The ticket's priority was updated by <u>{User.ShortName}</u>.");
+
+                case TicketHistoryEntryType.Archived:
+                    return new HtmlString($"This ticket has been archived by <u>{User.ShortName}</u>.");
 
                 default:
                     return new HtmlString("");

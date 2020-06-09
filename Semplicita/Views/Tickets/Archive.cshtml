@@ -1,0 +1,43 @@
+﻿@using Semplicita.Helpers
+@model Semplicita.Models.Ticket
+
+@{
+    ViewBag.Title = $"Archive Ticket '{Model.GetTicketIdentifier()}'";
+    var projHelper = new ProjectHelper();
+    var statusAfterArchive = projHelper.GetArchiveStatusId(Model.Id);
+}
+
+<div class="jumbotron jumbotron-skinny bg-gradient-danger">
+    <h1>Archive Issue '@Model.GetTicketIdentifier()'</h1>
+</div>
+
+<div class="row">
+    
+    <div class="col">
+        <div class="callout callout-warning">
+            <h5>Are you sure you want to archive issue <a href="@Url.Action("Show", "Tickets", new {ticketIdentifier = Model.GetTicketIdentifier()})">@Model.GetTicketIdentifier(): @Model.Title</a>?</h5>
+
+        </div>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col">
+
+    </div>
+    <div class="col">
+    </div>
+    <div class="col right">
+        @using( Html.BeginForm("ArchiveTicket", "Tickets", FormMethod.Post) ) {
+            @Html.AntiForgeryToken()
+            @Html.Hidden("Id", Model.Id)
+
+            <input type="submit" value="Yes, Archive" class="btn btn-warning float-right" />
+            <a class="btn btn-primary float-right mr-3" href="@Url.Action("Show", "Tickets", new {ticketIdentifier = Model.GetTicketIdentifier()})">Back to Ticket</a>
+        }
+    </div>
+</div>
+
+<div>
+    
+</div>

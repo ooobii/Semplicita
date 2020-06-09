@@ -37,6 +37,9 @@ namespace Semplicita.Models
         //the issue was rejected by the assigned solver, and will not be looked into.
         public bool IsCanceled { get; set; }
 
+        //the issue is archived and should not be displayed in general views
+        public bool IsArchived { get; set; }
+
 
 
         //this status can only be set by the reporter of the ticket.
