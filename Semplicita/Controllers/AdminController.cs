@@ -179,7 +179,7 @@ namespace Semplicita.Controllers
         [MultipleButton(Name = "userRoles", Argument = "Add")]
         [ValidateAntiForgeryToken]
         public ActionResult AddUsersToRoles(AddRemoveUsersRolesModel model) {
-            var roleHelper = new UserRolesHelper(db);
+            var roleHelper = new RolesHelper(db);
             var roleDisplays = new RoleDisplayDictionary();
             var errors = new List<string>();
             var successes = new List<string>();
@@ -240,7 +240,7 @@ namespace Semplicita.Controllers
         [MultipleButton(Name = "userRoles", Argument = "Remove")]
         [ValidateAntiForgeryToken]
         public ActionResult RemoveUsersFromRoles(AddRemoveUsersRolesModel model) {
-            var roleHelper = new UserRolesHelper(db);
+            var roleHelper = new RolesHelper(db);
             var roleDisplays = new RoleDisplayDictionary();
             var errors = new List<string>();
             var successes = new List<string>();

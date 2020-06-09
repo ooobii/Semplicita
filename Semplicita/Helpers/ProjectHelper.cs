@@ -68,14 +68,14 @@ namespace Semplicita.Helpers
                 return false;
             }
         }
-        
+
         public ApplicationUser GetManagerUserOfProject(int projectId) {
             var project = db.Projects.Find(projectId);
             return db.Users.Find(project.ProjectManagerId);
         }
         public bool IsUserManagerOfAnyProject(IPrincipal User) {
-            foreach (Project p in db.Projects.ToList()) {
-                if (p.ProjectManagerId == User.Identity.GetUserId()) { return true; }
+            foreach( Project p in db.Projects.ToList() ) {
+                if( p.ProjectManagerId == User.Identity.GetUserId() ) { return true; }
             }
 
             return false;
@@ -116,6 +116,18 @@ namespace Semplicita.Helpers
                 return true;
             } catch {
                 return false;
+            }
+
+        }
+
+        public TicketStatus GetArchiveStatusId(int ticketId) {
+            var ticket = db.Tickets.Find(ticketId);
+            var workflow = ticket.ParentProject.ActiveWorkflow;
+
+            if( ticket.TicketStatus.IsResolved ) {
+                return db.TicketStatuses.Find(workflow.ArchivedResolvedStatusId);
+            } else {
+                return db.TicketStatuses.Find(workflow.ArchivedNotResolvedStatusId);
             }
 
         }

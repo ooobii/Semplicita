@@ -18,18 +18,17 @@ namespace Semplicita.Controllers
         public ApplicationDbContext db = new ApplicationDbContext();
         private ProjectHelper projHelper;
         private TicketsHelper ticketsHelper;
-        private UserRolesHelper rolesHelper;
+        private RolesHelper rolesHelper;
         public ProjectsController() {
             projHelper = new ProjectHelper(db);
             ticketsHelper = new TicketsHelper(db);
-            rolesHelper = new UserRolesHelper(db);
+            rolesHelper = new RolesHelper(db);
         }
 
 
         // GET: Projects
         [Route("projects")]
-        public ActionResult Index()
-        {
+        public ActionResult Index() {
             var projects = projHelper.GetProjectsAvailableToUser(User);
             var availTickets = ticketsHelper.GetTicketsAvailableToUser(User);
 
@@ -73,10 +72,8 @@ namespace Semplicita.Controllers
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult CreateNew(NewProjectModel project)
-        {
-            if (ModelState.IsValid)
-            {
+        public ActionResult CreateNew(NewProjectModel project) {
+            if( ModelState.IsValid ) {
                 var projectMembers = new List<ApplicationUser>();
                 projectMembers.AddRange(db.Users.Where(u => project.MemberIds.Contains(u.Id)));
 
@@ -119,16 +116,13 @@ namespace Semplicita.Controllers
 
         // GET: Projects/Edit/5
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        [Route("project/edit/{tickettag}")]
-        public ActionResult Edit(string TicketTag)
-        {
-            if ( TicketTag == null)
-            {
+        [Route("project/{tickettag}/edit")]
+        public ActionResult Edit(string TicketTag) {
+            if( TicketTag == null ) {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Project project = db.Projects.FirstOrDefault(p => p.TicketTag == TicketTag);
-            if (project == null)
-            {
+            if( project == null ) {
                 return HttpNotFound();
             }
 
@@ -158,10 +152,8 @@ namespace Semplicita.Controllers
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditProject(EditProjectModel model)
-        {
-            if (ModelState.IsValid)
-            {
+        public ActionResult EditProject(EditProjectModel model) {
+            if( ModelState.IsValid ) {
                 Project project = db.Projects.Find(model.ProjectId);
                 var projectMembers = new List<ApplicationUser>();
                 projectMembers.AddRange(db.Users.Where(u => model.MemberIds.Contains(u.Id)));
@@ -174,7 +166,7 @@ namespace Semplicita.Controllers
                 project.ProjectManagerId = model.ProjectManagerId;
                 project.ActiveWorkflowId = model.ActiveWorkflowId;
                 project.Members.Clear();
-                foreach (string uId in model.MemberIds) {
+                foreach( string uId in model.MemberIds ) {
                     project.Members.Add(db.Users.Find(uId));
                 }
 
@@ -206,11 +198,10 @@ namespace Semplicita.Controllers
 
 
 
-        // GET: Projects/Delete/5
+        // GET: Projects/Archive/5
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        [Route("project/archive/{tickettag}")]
-        public ActionResult Archive(string TicketTag)
-        {
+        [Route("project/{tickettag}/archive")]
+        public ActionResult Archive(string TicketTag) {
             if( TicketTag == null ) {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
@@ -221,12 +212,12 @@ namespace Semplicita.Controllers
             return View(project);
         }
 
-        // POST: Projects/Delete/5
+        // POST: Projects/Archive/5
         [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
+        [Route("Projects/ArchiveProject")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ArchiveProject(string TicketTag)
-        {
+        public ActionResult ArchiveProject(string TicketTag) {
             Project project = db.Projects.First(p => p.TicketTag == TicketTag);
             project.IsActiveProject = false;
             db.SaveChanges();
@@ -236,10 +227,8 @@ namespace Semplicita.Controllers
 
 
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
+        protected override void Dispose(bool disposing) {
+            if( disposing ) {
                 db.Dispose();
             }
             base.Dispose(disposing);

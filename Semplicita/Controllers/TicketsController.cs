@@ -21,7 +21,7 @@ namespace Semplicita.Controllers
 
 
         public ActionResult Index() {
-            var rolesHelper = new UserRolesHelper(db);
+            var rolesHelper = new RolesHelper(db);
 
             var viewModel = new TicketsIndexViewModel() {
                 Tickets = rolesHelper.GetViewableTickets(User),
@@ -32,12 +32,12 @@ namespace Semplicita.Controllers
         }
 
 
-        [Route("tickets/{TicketIdentifier}")]
-        public ActionResult Show(string TicketIdentifier) {
-            if( string.IsNullOrWhiteSpace(TicketIdentifier) ) {
+        [Route("tickets/{ticketIdentifier}")]
+        public ActionResult Show(string ticketIdentifier) {
+            if( string.IsNullOrWhiteSpace(ticketIdentifier) ) {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Ticket ticket = db.Tickets.ToList().FirstOrDefault(t => t.GetTicketIdentifier() == TicketIdentifier);
+            Ticket ticket = db.Tickets.ToList().FirstOrDefault(t => t.GetTicketIdentifier() == ticketIdentifier);
             if( ticket == null ) {
                 return HttpNotFound();
             }
@@ -61,9 +61,9 @@ namespace Semplicita.Controllers
             return View(viewModel);
         }
 
-        [Route("tickets/{TicketIdentifier}/attachments/{attachmentId}")]
-        public ActionResult GetTicketAttachment(string TicketIdentifier, int attachmentId) {
-            var ticket = db.Tickets.ToList().FirstOrDefault(t => t.GetTicketIdentifier() == TicketIdentifier);
+        [Route("tickets/{ticketIdentifier}/attachments/{attachmentId}")]
+        public ActionResult GetTicketAttachment(string ticketIdentifier, int attachmentId) {
+            var ticket = db.Tickets.ToList().FirstOrDefault(t => t.GetTicketIdentifier() == ticketIdentifier);
             if( ticket == null ) {
                 return new HttpStatusCodeResult(HttpStatusCode.NotFound);
             }
@@ -77,13 +77,13 @@ namespace Semplicita.Controllers
         }
 
 
-        [Route("tickets/create-new/{TicketTag}")]
-        public ActionResult Create(string TicketTag) {
-            if( string.IsNullOrWhiteSpace(TicketTag) ) {
+        [Route("tickets/create-new/{ticketTag}")]
+        public ActionResult Create(string ticketTag) {
+            if( string.IsNullOrWhiteSpace(ticketTag) ) {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             } else {
                 Dictionary<string, int> availStatuses = null;
-                Project parentProj = db.Projects.First(p => p.TicketTag == TicketTag);
+                Project parentProj = db.Projects.First(p => p.TicketTag == ticketTag);
                 ProjectWorkflow parentProjWorkflow = parentProj.ActiveWorkflow;
 
                 if( parentProjWorkflow.InitialTicketStatusId == null ) {
@@ -160,14 +160,14 @@ namespace Semplicita.Controllers
         }
 
 
-        [Route("tickets/{TicketIdentifier}/edit")]
-        public ActionResult Edit(string TicketIdentifier) {
-            var roleHelper = new UserRolesHelper(db);
+        [Route("tickets/{ticketIdentifier}/edit")]
+        public ActionResult Edit(string ticketIdentifier) {
+            var roleHelper = new RolesHelper(db);
 
-            if( string.IsNullOrWhiteSpace(TicketIdentifier) ) {
+            if( string.IsNullOrWhiteSpace(ticketIdentifier) ) {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Ticket ticket = db.Tickets.ToList().FirstOrDefault(t => t.GetTicketIdentifier() == TicketIdentifier);
+            Ticket ticket = db.Tickets.ToList().FirstOrDefault(t => t.GetTicketIdentifier() == ticketIdentifier);
             if( ticket == null ) {
 
                 return HttpNotFound();
@@ -252,12 +252,12 @@ namespace Semplicita.Controllers
         }
 
 
-        [Route("tickets/{TicketIdentifier}/delete")]
-        public ActionResult Delete(string TicketIdentifier) {
-            if( string.IsNullOrWhiteSpace(TicketIdentifier) ) {
+        [Route("tickets/{ticketIdentifier}/archive")]
+        public ActionResult Archive(string ticketIdentifier) {
+            if( string.IsNullOrWhiteSpace(ticketIdentifier) ) {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Ticket ticket = db.Tickets.ToList().FirstOrDefault(t => t.GetTicketIdentifier() == TicketIdentifier);
+            Ticket ticket = db.Tickets.ToList().FirstOrDefault(t => t.GetTicketIdentifier() == ticketIdentifier);
             if( ticket == null ) {
                 return HttpNotFound();
             }
@@ -267,11 +267,14 @@ namespace Semplicita.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Route("Tickets/DeleteTicket")]
-        public ActionResult DeleteTicket(int id) {
-            Ticket ticket = db.Tickets.Find(id);
-            db.Tickets.Remove(ticket);
+        [Route("Tickets/ArchiveTicket")]
+        public ActionResult ArchiveTicket(int id) {
+            Ticket ticket = db.Tickets.First(t => t.Id == id);
+            
+            var historyEntry = ticket.ArchiveTicket(User, db);
+            db.TicketHistoryEntries.Add(historyEntry);
             db.SaveChanges();
+
             return RedirectToAction("Index");
         }
 

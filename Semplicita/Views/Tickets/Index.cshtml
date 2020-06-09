@@ -5,7 +5,7 @@
 
 @{
     ViewBag.Title = "Your Tickets";
-    var rolesHelper = new UserRolesHelper();
+    var rolesHelper = new RolesHelper();
     var projHelper = new ProjectHelper();
 }
 
@@ -88,7 +88,7 @@
 
                                         @if( rolesHelper.CanArchiveTicket(User, t.Id) ) {
                                             <div class="col pl-1 pr-1">
-                                                <a href="@Url.Action("Delete", "Tickets", new { TicketIdentifier = t.GetTicketIdentifier() } )">
+                                                <a href="@Url.Action("Archive", "Tickets", new { TicketIdentifier = t.GetTicketIdentifier() } )">
                                                     <div class="btn btn-sm btn-block btn-danger">Archive</div>
                                                 </a>
                                             </div>

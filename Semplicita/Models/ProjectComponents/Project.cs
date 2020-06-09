@@ -64,7 +64,7 @@ namespace Semplicita.Models
 
 
         public List<ApplicationUser> GetSolverMembers(ApplicationDbContext context) {
-            var roleHelper = new UserRolesHelper(context);
+            var roleHelper = new RolesHelper(context);
 
             var output = new List<ApplicationUser>();
 
@@ -76,7 +76,7 @@ namespace Semplicita.Models
             return output;
         }
         public List<ApplicationUser> GetReporterMembers(ApplicationDbContext context) {
-            var roleHelper = new UserRolesHelper(context);
+            var roleHelper = new RolesHelper(context);
 
             var output = new List<ApplicationUser>();
 

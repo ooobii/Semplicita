@@ -6,7 +6,7 @@
 
 @{
     ViewBag.Title = $"Ticket: {Model.CurrentTicket.GetTicketIdentifier()}";
-    UserRolesHelper rolesHelper = new UserRolesHelper();
+    RolesHelper rolesHelper = new RolesHelper();
 }
 
 <div class="jumbotron jumbotron-skinny bg-gradient-dkpurple">
@@ -259,7 +259,7 @@
                             @if( rolesHelper.CanArchiveTicket(User, Model.CurrentTicket.Id) ) {
                                 <div class="row p-1">
                                     <div class="col">
-                                        <a href="@Url.Action("Delete", "Tickets", new { TicketIdentifier = Model.CurrentTicket.GetTicketIdentifier() })">
+                                        <a href="@Url.Action("Archive", "Tickets", new { TicketIdentifier = Model.CurrentTicket.GetTicketIdentifier() })">
                                             <div class="btn btn-block btn-danger">Archive Ticket</div>
                                         </a>
                                     </div>
@@ -351,7 +351,7 @@
                                                     <img src="~/img/upload.png" alt="File" class="img-size-50">
                                                 </div>
                                                 <div class="product-info">
-                                                    <a target="_blank" href="@Url.Action("GetTicketAttachment", "Tickets", new { TicketIdentifier = Model.CurrentTicket.GetTicketIdentifier(), attachmentId = a.Id })" class="product-title">
+                                                    <a target="_blank" href="@Url.Action("GetTicketAttachment", "Tickets", new { ticketIdentifier = Model.CurrentTicket.GetTicketIdentifier(), attachmentId = a.Id })" class="product-title">
                                                         @a.Name
                                                     </a>
                                                     <span class="product-description text-sm">

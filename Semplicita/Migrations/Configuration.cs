@@ -450,7 +450,26 @@ namespace Semplicita.Migrations
                         IsPausedPending = false,
                         IsResolved = true,
                         IsClosed = true,
-                        IsCanceled = false
+                        IsCanceled = false,
+                        IsArchived = true
+                    };
+                    context.TicketStatuses.Add(status);
+                }
+                if( !context.TicketStatuses.Any(tst => tst.Name == "ApprovedAnswer") ) {
+                    var status = new TicketStatus() {
+                        Name = "ApprovedAnswer",
+                        Display = "ApprovedAnswer",
+                        DisplayForeColor = "#FFF",
+                        DisplayBackColor = "#7D7D7D",
+                        Description = "The answer to this question is sealed as a credible solution.",
+                        IsStarted = true,
+                        MustBeAssigned = false,
+                        IsInProgress = false,
+                        IsPausedPending = false,
+                        IsResolved = true,
+                        IsClosed = true,
+                        IsCanceled = false,
+                        IsArchived = true
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -467,7 +486,8 @@ namespace Semplicita.Migrations
                         IsPausedPending = false,
                         IsResolved = false,
                         IsClosed = true,
-                        IsCanceled = true
+                        IsCanceled = true,
+                        IsArchived = true
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -485,6 +505,11 @@ namespace Semplicita.Migrations
                         CreatedAt = DateTime.Now,
 
                         AutoTicketAssignBehavior = ProjectWorkflow.AutoTicketAssignBehaviorType.LeaveUnassigned,
+                        
+
+                        ArchivedNotResolvedStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Disposed").Id,
+                        ArchivedResolvedStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Closed").Id,
+
 
                         CanStaffSetStatusOnInteract = true,
                         CanTicketOwnerSetStatusOnInteract = true
@@ -508,6 +533,35 @@ namespace Semplicita.Migrations
                         SuperSolverInteractionStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Investigation").Id,
                         ProjMgrInteractionStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Investigation").Id,
                         ServerAdminInteractionStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Investigation").Id,
+
+                        ArchivedNotResolvedStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Disposed").Id,
+                        ArchivedResolvedStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Closed").Id,
+
+                        CanStaffSetStatusOnInteract = true,
+                        CanTicketOwnerSetStatusOnInteract = false
+                    };
+
+                    context.ProjectWorkflows.Add(workflow);
+                }
+                if( !context.ProjectWorkflows.Any(pwf => pwf.Name == "Q&A Workflow") ) {
+                    var workflow = new ProjectWorkflow() {
+                        Name = "Q&A Workflow",
+                        Description = "This workflow is used in projects where the reporter creates a ticket with an epic/question, and a response is provided by a staff member to reach resolution. If the answer is accepted by the reporter, the response is finalized.",
+                        CreatedAt = DateTime.Now,
+
+                        AutoTicketAssignBehavior = ProjectWorkflow.AutoTicketAssignBehaviorType.RoundRobin,
+
+                        InitialTicketStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "ReporterWaiting").Id,
+                        TicketUnassignedStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "ReporterWaiting").Id,
+                        TicketAssignedStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "ReporterWaiting").Id,
+                        ReporterInteractionStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "ReporterWaiting").Id,
+                        SolverInteractionStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Solved").Id,
+                        SuperSolverInteractionStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Solved").Id,
+                        ProjMgrInteractionStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Solved").Id,
+                        ServerAdminInteractionStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Solved").Id,
+
+                        ArchivedNotResolvedStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Disposed").Id,
+                        ArchivedResolvedStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Closed").Id,
 
                         CanStaffSetStatusOnInteract = true,
                         CanTicketOwnerSetStatusOnInteract = false

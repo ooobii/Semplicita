@@ -504,7 +504,7 @@ namespace Semplicita.Controllers
         public ActionResult GetRoleBadges() {
             var userid = User.Identity.GetUserId();
             var user = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>().FindById(userid);
-            var rolesHelper = new UserRolesHelper();
+            var rolesHelper = new RolesHelper();
             return Content(user.GetRoleBadges(rolesHelper.ListUserRoles(userid)).ToHtmlString());
         }
 
