@@ -341,21 +341,18 @@ healthchecksdb
 
 # block config files with private sub-extensions
 *.private.config
-Semplicita/AttachmentUploads/annotation-2020-05-18-193735-637265923750082485.png
-Semplicita/AttachmentUploads/annotation-2020-05-18-193802-637265923750102298.png
-Semplicita/AttachmentUploads/askinallthemquestions-637267139787194080.gif
-Semplicita/AttachmentUploads/annotation-2020-05-18-193735-637267054734246957.png
-Semplicita/AttachmentUploads/annotation-2020-05-18-193735-637267064098515767.png
-Semplicita/AttachmentUploads/annotation-2020-05-18-193735-637267064786067204.png
-Semplicita/AttachmentUploads/annotation-2020-05-18-193802-637267059234517564.png
-Semplicita/AttachmentUploads/screen-shot-2020-05-19-at-4-48-07-pm-637267208684263702.png
-Semplicita/AttachmentUploads/annotation-2020-05-18-193802-637268903050700385.png
-Semplicita/img/avatars/jason.png
-Semplicita/AttachmentUploads/spellerror-20200605-637269850244167600.png
-Semplicita/img/avatars/andrew.png
-Semplicita/img/avatars/jason.png
-Semplicita/img/avatars/shelby.png
-Semplicita/img/avatars/andrew.png
-Semplicita/img/avatars/jason.png
-Semplicita/img/avatars/jason.png
-Semplicita/img/avatars/andrew.png
+annotation-2020-05-18-193735-637265923750082485.png
+annotation-2020-05-18-193802-637265923750102298.png
+askinallthemquestions-637267139787194080.gif
+annotation-2020-05-18-193735-637267054734246957.png
+annotation-2020-05-18-193735-637267064098515767.png
+annotation-2020-05-18-193735-637267064786067204.png
+annotation-2020-05-18-193802-637267059234517564.png
+screen-shot-2020-05-19-at-4-48-07-pm-637267208684263702.png
+annotation-2020-05-18-193802-637268903050700385.png
+spellerror-20200605-637269850244167600.png
+jason.png
+andrew.png
+shelby.png
+Startup.Auth.cs
+Semplicita/App_Start/Startup.Auth.cs
