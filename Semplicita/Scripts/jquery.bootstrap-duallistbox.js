@@ -211,7 +211,6 @@
       return ($(a).data('original-index') > $(b).data('original-index')) ? 1 : -1;
     }).appendTo(select);
 
-    // workaround for chromium bug: https://bugs.chromium.org/p/chromium/issues/detail?id=1072475
     refreshSelects(dualListbox);
   }
 
