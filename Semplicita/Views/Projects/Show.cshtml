@@ -1,35 +1,26 @@
-﻿@using Semplicita.Models
+﻿@using System.Security.Permissions
+@using Semplicita.Models
 @using Semplicita.Helpers
 @using Microsoft.AspNet.Identity
 
-@model Project
+@model ShowProjectViewModel
 @{
-    ProjectHelper projectHelper = new ProjectHelper();
-    RolesHelper rolesHelper = new RolesHelper();
-
-    var ProjectManageruser = projectHelper.GetManagerUserOfProject(Model.Id);
-
-    var memberUsers = Model.Members.Where(u => u.IsDemoUser == false).ToList();
-    var reporterUsers = rolesHelper.PullReportersFromUserList(memberUsers).Where(u => u.IsDemoUser == false).ToList();
-    var solverUsers = Model.Members.Where(u => ( rolesHelper.IsInRole(u.Id, "SuperSolver") || rolesHelper.IsInRole(u.Id, "Solver") ) && u.IsDemoUser == false).OrderBy(u => u.FullName).ToList();
-
-    var openTickets = Model.ChildTickets.Where(t => t.TicketStatus.IsClosed == false).OrderByDescending(t => t.CreatedAt).ToList();
-    var resolvedTickets = Model.ChildTickets.Where(t => t.TicketStatus.IsResolved == true).ToList();
+    ViewBag.Title = $"Project: {Model.SelectedProject.Name}";
 }
 
 <div class="jumbotron bg-gradient-purple mb-2" style="padding-bottom:25px;padding-top:45px;">
-    <h1>@Model.Name</h1>
-    <p class="lead">@Model.Description</p>
+    <h1>@Model.SelectedProject.Name</h1>
+    <p class="lead">@Model.SelectedProject.Description</p>
 
     <hr />
 
     <div class="row pt-1">
         <div class="col text-left">
-            <b>Created At: </b>@Model.CreatedAt.ToString("MMM d, yyyy', at' h:mm tt")
+            <b>Created At: </b>@Model.SelectedProject.CreatedAt.ToString("MMM d, yyyy', at' h:mm tt")
         </div>
-        @if( Model.ModifiedAt != null ) {
+        @if( Model.SelectedProject.ModifiedAt != null ) {
             <div class="col text-right">
-                <b>Last Modified: </b>@(( (DateTime)Model.ModifiedAt ).ToString("MMM d, yyyy', at' h:mm tt"))
+                <b>Last Modified: </b>@(( (DateTime)Model.SelectedProject.ModifiedAt ).ToString("MMM d, yyyy', at' h:mm tt"))
             </div>
         }
     </div>
@@ -40,7 +31,7 @@
         <!-- small box -->
         <div class="small-box bg-gradient-navy">
             <div class="inner">
-                <h3>@reporterUsers.Count</h3>
+                <h3>@Model.SelectedProject.GetReporterMembers().Count</h3>
 
                 <p>Reporters</p>
             </div>
@@ -49,16 +40,16 @@
             </div>
 
 
-            @if( reporterUsers.Count > 0 ) {
+            @if( Model.Reporters.Count > 0 ) {
                 <a class="small-box-footer dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Reporters
                 </a>
 
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                    @foreach( ApplicationUser u in reporterUsers ) {
+                    @foreach( ApplicationUser u in Model.Reporters ) {
                         <a class="dropdown-item">
                             <h6>@u.FullNameStandard</h6>
-                            @u.GetRoleBadges(rolesHelper.ListUserRoles(u.Id))
+                            @u.GetRoleBadges()
                         </a>
                     }
                 </div>
@@ -74,7 +65,7 @@
         <!-- small box -->
         <div class="small-box bg-cyan">
             <div class="inner">
-                <h3>@solverUsers.Count</h3>
+                <h3>@Model.Solvers.Count</h3>
 
                 <p>Solvers</p>
             </div>
@@ -83,16 +74,16 @@
             </div>
 
 
-            @if( solverUsers.Count > 0 ) {
+            @if( Model.Solvers.Count > 0 ) {
                 <a class="small-box-footer dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Solvers
                 </a>
 
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                    @foreach( ApplicationUser u in solverUsers ) {
+                    @foreach( ApplicationUser u in Model.Solvers ) {
                         <a class="dropdown-item">
                             <h6>@u.FullNameStandard</h6>
-                            @u.GetRoleBadges(rolesHelper.ListUserRoles(u.Id))
+                            @u.GetRoleBadges()
                         </a>
                     }
                 </div>
@@ -108,7 +99,7 @@
         <!-- small box -->
         <div class="small-box bg-gradient-green">
             <div class="inner">
-                <h3>@openTickets.Count</h3>
+                <h3>@Model.Tickets.OpenTickets.Count</h3>
 
                 <p>Open Tickets</p>
             </div>
@@ -116,14 +107,14 @@
                 <i class="ion ion-ios-list"></i>
             </div>
 
-            @if( openTickets.Count > 0 ) {
+            @if( Model.Tickets.OpenTickets.Count > 0 ) {
                 <a class="small-box-footer dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     View
                 </a>
 
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                    @foreach( Ticket t in openTickets ) {
-                        if( rolesHelper.CanViewTicket(User, t.Id) ) {
+                    @foreach( Ticket t in Model.Tickets.OpenTickets ) {
+                        if( t.Permissions(User).CanViewTicket ) {
 
                             <a class="dropdown-item" href="@Url.Action("Show", "Tickets", new { TicketIdentifier = t.GetTicketIdentifier() })">
                                 @t.Title
@@ -147,7 +138,7 @@
         <!-- small box -->
         <div class="small-box bg-gradient-darkgreen">
             <div class="inner">
-                <h3>@resolvedTickets.Count</h3>
+                <h3>@Model.Tickets.ResolvedTickets.Count</h3>
 
                 <p>Resolved Tickets</p>
             </div>
@@ -155,16 +146,22 @@
                 <i class="ion ion-checkmark-round"></i>
             </div>
 
-            @if( resolvedTickets.Count > 0 ) {
+            @if( Model.Tickets.ResolvedTickets.Count > 0 ) {
                 <a class="small-box-footer dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     View
                 </a>
 
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                    @foreach( Ticket t in resolvedTickets ) {
-                        <a class="dropdown-item">
-                            @t.Title
-                        </a>
+                    @foreach( Ticket t in Model.Tickets.ResolvedTickets ) {
+                        if( t.Permissions(User).CanViewTicket ) {
+                            <a class="dropdown-item" href="@Url.Action("Show", "Tickets", new { TicketIdentifier = t.GetTicketIdentifier() })">
+                                @t.Title
+                            </a>
+                        } else {
+                            <a class="dropdown-item">
+                                @t.Title
+                            </a>
+                        }
                     }
                 </div>
             } else {
@@ -187,8 +184,9 @@
                         <h5><i class="card-header-icon fas fa-bezier-curve"></i>Project Manager</h5>
                     </div>
                     <div class="card-body">
-                        <h5>@ProjectManageruser.FullNameStandard</h5>
-                        <small>@ProjectManageruser.Email</small>
+                        <h5>@Model.pPerm.ProjectManager.FullNameStandard
+                            @Model.pPerm.ProjectManager.GetStaffBadge(11)</h5>
+                        <small>@Model.pPerm.ProjectManager.Email</small>
                     </div>
                 </div>
             </div>
@@ -208,35 +206,35 @@
                     <!-- /.card-header -->
                     <div class="card-body p-3">
 
-                        @if( rolesHelper.CanCreateTicket(User, Model.Id) ) {
+                        @if( Model.pPerm.CanCreateTicket ) {
                             <div class="row mb-2 pb-3 border-bottom">
                                 <div class="col">
-                                    <a href="@Url.Action("Create", "Tickets", new { Model.TicketTag })">
+                                    <a href="@Url.Action("Create", "Tickets", new { Model.SelectedProject.TicketTag })">
                                         <div class="btn btn-block btn-success" title="Report New Issue">Report New Issue <i class="fas fa-plus pl-1"></i></div>
                                     </a>
                                 </div>
                             </div>
                         }
-                        @if( rolesHelper.CanEditProject(User, Model.Id) ) {
+                        @if( Model.pPerm.CanEditProject ) {
                             <div class="row p-2">
                                 <div class="col">
-                                    <a href="@Url.Action("Edit", "Projects", new { Model.TicketTag })">
+                                    <a href="@Url.Action("Edit", "Projects", new { Model.SelectedProject.TicketTag })">
                                         <div class="btn btn-block btn-warning">Edit Project</div>
                                     </a>
                                 </div>
                             </div>
                         }
-                        @if( rolesHelper.CanArchiveProject(User, Model.Id) ) {
+                        @if( Model.pPerm.CanArchiveProject ) {
                             <div class="row p-2">
                                 <div class="col">
-                                    <a href="@Url.Action("Archive", "Projects", new { Model.TicketTag })">
+                                    <a href="@Url.Action("Archive", "Projects", new { Model.SelectedProject.TicketTag })">
                                         <div class="btn btn-block btn-danger">Deactive Project</div>
                                     </a>
                                 </div>
                             </div>
                         }
 
-                        </div>
+                    </div>
 
                 </div>
             </div>
@@ -247,7 +245,7 @@
             <div class="card-header">
                 <h3 class="card-title pt-1">
                     <i class="fas fa-ticket-alt" style="margin-right:10px; width: 18px;"></i><b>
-                        @if( rolesHelper.CanViewAllTicketsInProject(User, Model.Id) ) {
+                        @if( Model.pPerm.CanViewAllTicketsInProject ) {
                             <text>All Tickets</text>
                         } else {
                             <text>Your Tickets</text>
@@ -256,8 +254,8 @@
                 </h3>
 
                 <div class="card-tools">
-                    @if( rolesHelper.CanCreateTicket(User, Model.Id) ) {
-                        <a href="@Url.Action("Create", "Tickets", new { Model.TicketTag })">
+                    @if( Model.pPerm.CanCreateTicket ) {
+                        <a href="@Url.Action("Create", "Tickets", new { Model.SelectedProject.TicketTag })">
                             <div class="btn btn-sm btn-warning" title="Report New Issue">Report Issue <i class="fas fa-plus pl-2"></i></div>
                         </a>
                     }
@@ -267,10 +265,10 @@
 
             <div class="card-body pt-2">
 
-                @if( openTickets.Count > 0 ) {
+                @if( Model.Tickets.OpenTickets.Count > 0 ) {
                     <ul class="todo-list ui-sortable" data-widget="todo-list">
 
-                        @foreach( Ticket t in openTickets ) {
+                        @foreach( Ticket t in Model.Tickets.OpenTickets ) {
                             <li class="" style="padding:15px; margin-bottom:10px;">
                                 <div class="row">
                                     <span class="handle ui-sortable-handle align-items-sm-center">
@@ -280,17 +278,17 @@
                                     <div class="col">
                                         <div class="row border-bottom">
                                             <div class="col-8 ml-2 mb-1">
-                                                @if( rolesHelper.CanViewTicket(User, t.Id) ) {
+                                                @if( t.Permissions(User).CanViewTicket ) {
                                                     <a href="@Url.Action("Show", "Tickets", new { TicketIdentifier = t.GetTicketIdentifier() })"><span class="text">@t.Title</span></a> @t.TicketStatus.GetStatusBadgeHtml()
                                                 } else {
                                                     <span class="text mt-1">@t.Title</span> @t.TicketStatus.GetStatusBadgeHtml()
                                                 }
                                                 <div class="tools">
-                                                    @if( rolesHelper.CanEditTicket(User, t.Id) ) {
+                                                    @if( t.Permissions(User).CanEditTicket ) {
                                                         <a href="@Url.Action("Edit", "Tickets", new { TicketIdentifier = t.GetTicketIdentifier() })"><i class="fas fa-edit"></i></a>
 
                                                     }
-                                                    @if( rolesHelper.CanArchiveTicket(User, t.Id) ) {
+                                                    @if( t.Permissions(User).CanArchiveTicket ) {
 
                                                         <a href="@Url.Action("Archive", "Tickets", new { TicketIdentifier = t.GetTicketIdentifier() })"><i class="fas fa-trash"></i></a>
                                                     }
@@ -341,7 +339,7 @@
 
         $("#navProjects").addClass("active");
         $("#navProjectsFolder").addClass("active");
-        $("#navProjects_Project@(Model.Id)").addClass("active");
+        $("#navProjects_Project@(Model.SelectedProject.Id)").addClass("active");
     </script>
 
 

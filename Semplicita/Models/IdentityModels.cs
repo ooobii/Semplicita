@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
@@ -41,9 +42,6 @@ namespace Semplicita.Models
             HistoryEntries = new HashSet<TicketHistoryEntry>();
         }
 
-        //public bool IsSolverUser() {
-        //    return Roles.Select(r => r.ToString()).ToList().Contains("Solver");
-        //}
 
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager) {
             // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
@@ -53,18 +51,33 @@ namespace Semplicita.Models
         }
 
 
-        public HtmlString GetRoleBadges(ICollection<string> roles) {
-            var output = new StringBuilder();
 
-            foreach( string role in roles ) {
-                if( role == "ServerAdmin" ) { output.Append("<small class=\"badge badge-dark align-top\">Server Admin</small>"); }
-                if( role == "ProjectAdmin" ) { output.Append("<small class=\"badge badge-blue align-top\">Project Mgr</small>"); }
-                if( role == "SuperSolver" ) { output.Append("<small class=\"badge badge-secondary align-top\">Super Solver</small>"); }
-                if( role == "Solver" ) { output.Append("<small class=\"badge badge-success align-top\">Solver</small>"); }
-                if( role == "Reporter" ) { output.Append("<small class=\"badge badge-info align-top\">Reporter</small>"); }
-            }
+        public HtmlString GetRoleBadges() {
+            var output = new StringBuilder();
+            var mgr = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext()));
+
+            if( mgr.IsInRole(this.Id, "ServerAdmin") ) { output.Append("<small class=\"badge badge-dark align-top\">Server Admin</small>"); }
+            if( mgr.IsInRole(this.Id, "ProjectAdmin") ) { output.Append("<small class=\"badge badge-blue align-top\">Project Mgr</small>"); }
+            if( mgr.IsInRole(this.Id, "SuperSolver") ) { output.Append("<small class=\"badge badge-secondary align-top\">Super Solver</small>"); }
+            if( mgr.IsInRole(this.Id, "Solver") ) { output.Append("<small class=\"badge badge-success align-top\">Solver</small>"); }
+            if( mgr.IsInRole(this.Id, "Reporter") ) { output.Append("<small class=\"badge badge-info align-top\">Reporter</small>"); }
 
             return new HtmlString(output.ToString());
+        }
+        public HtmlString GetStaffBadge(int fontSize = 12) {
+            var mgr = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext()));
+
+            if( mgr.IsInRole(this.Id, "ServerAdmin") ) { return new HtmlString($"<small class=\"badge badge-dark align-top\" style=\"font-size:{fontSize}px !important\">Server Admin</small>"); }
+            if( mgr.IsInRole(this.Id, "ProjectAdmin") ) { return new HtmlString($"<small class=\"badge badge-blue align-top\" style=\"font-size:{fontSize}px !important\">Project Mgr</small>"); }
+            if( mgr.IsInRole(this.Id, "SuperSolver") ) { return new HtmlString($"<small class=\"badge badge-secondary align-top\" style=\"font-size:{fontSize}px !important\">Super Solver</small>"); }
+            if( mgr.IsInRole(this.Id, "Solver") ) { return new HtmlString($"<small class=\"badge badge-success align-top\" style=\"font-size:{fontSize}px !important\">Solver</small>"); }
+
+            return new HtmlString("");
+        }
+
+        internal bool IsInRole(string role) {
+            var mgr = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext()));
+            return mgr.IsInRole(this.Id, role);
         }
     }
 

@@ -53,24 +53,24 @@ namespace Semplicita.Models
         public bool CanTicketOwnerSetStatusOnInteract { get; set; }
 
         public List<TicketStatus> GetAvailableStatuses(int TicketId, IPrincipal User, ApplicationDbContext context) {
-            var rolesHelper = new RolesHelper(context);
+            var ticket = context.Tickets.Find(TicketId);
+            var tPerm = new RolesHelper.TicketPermissionsContainer(new RolesHelper(context), User, TicketId);
+            var uPerm = new RolesHelper.PermissionsContainer(new RolesHelper(context), User, false);
+
+            var currStatus = ticket.TicketStatus;
 
             var output = new List<TicketStatus>();
             output.AddRange(context.TicketStatuses.ToList());
-
-            var ticket = context.Tickets.Find(TicketId);
-            var currStatus = ticket.TicketStatus;
-
             foreach( var s in context.TicketStatuses.ToList() ) {
                 if (s.Name == "Pending") {Debugger.Break();}
                 //if the status is only available to staff, and the user is not staff, remove it.
-                if( s.IsForStaff && !rolesHelper.IsUserStaff(User) ) {
+                if( s.IsForStaff && !uPerm.IsUserStaff ) {
                     output.Remove(s);
                     continue;
                 }
 
                 //if the status is only available to reporters, and the user is not the ticket's reporter, remove it.
-                if( s.IsForReporter && !rolesHelper.IsTicketOwner(User, TicketId) ) {
+                if( s.IsForReporter && !tPerm.IsTicketOwner ) {
                     output.Remove(s);
                     continue;
                 }
@@ -79,12 +79,6 @@ namespace Semplicita.Models
                 //the ticket has been started, only show statuses where the ticket was already started.
                 if( currStatus.IsStarted ) {
                     if( s.IsStarted == false ) {
-                        output.Remove(s);
-                        continue;
-                    }
-                }
-                if( currStatus.IsInProgress ) {
-                    if( s.IsInProgress == false ) {
                         output.Remove(s);
                         continue;
                     }

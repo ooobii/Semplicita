@@ -108,7 +108,17 @@ namespace Semplicita.Controllers
             if( project == null ) {
                 return HttpNotFound();
             }
-            return View("Show", project);
+
+            var viewModel = new ShowProjectViewModel() {
+                SelectedProject = project,
+                uPerm = new RolesHelper.PermissionsContainer(rolesHelper, User, false),
+                pPerm = new RolesHelper.ProjectPermissionsContainer(rolesHelper, User, project.Id),
+                Solvers = project.GetSolverMembers(),
+                Reporters = project.GetReporterMembers(),
+                Tickets = new Project.TicketsContainer(project)
+            };
+
+            return View("Show", viewModel);
         }
 
 

@@ -21,14 +21,7 @@ namespace Semplicita.Controllers
 
 
         public ActionResult Index() {
-            var rolesHelper = new RolesHelper(db);
-
-            var viewModel = new TicketsIndexViewModel() {
-                Tickets = rolesHelper.GetViewableTickets(User),
-                Projects = rolesHelper.GetViewableProjects(User),
-            };
-
-            return View(viewModel);
+            return View(new RolesHelper.PermissionsContainer(new RolesHelper(db), User));
         }
 
 
@@ -45,7 +38,7 @@ namespace Semplicita.Controllers
             ProjectWorkflow parentProjWorkflow = ticket.ParentProject.ActiveWorkflow;
             List<ApplicationUser> solvers = null;
             if( User.Identity.GetUserId() == ticket.ParentProject.ProjectManagerId || User.IsInRole("ServerAdmin") ) {
-                solvers = ticket.ParentProject.GetSolverMembers(db);
+                solvers = ticket.ParentProject.GetSolverMembers();
             }
 
             var viewModel = new EditTicketViewModel() {
@@ -133,7 +126,7 @@ namespace Semplicita.Controllers
                     return new HttpStatusCodeResult(HttpStatusCode.NotFound);
                 }
 
-                string initSolverId = parentProject.GetNextSolverIdFromWorkflow(db);
+                string initSolverId = parentProject.GetNextSolverIdFromWorkflow();
 
                 var newTicket = new Ticket() {
                     Title = model.Title
@@ -162,8 +155,6 @@ namespace Semplicita.Controllers
 
         [Route("tickets/{ticketIdentifier}/edit")]
         public ActionResult Edit(string ticketIdentifier) {
-            var roleHelper = new RolesHelper(db);
-
             if( string.IsNullOrWhiteSpace(ticketIdentifier) ) {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
@@ -173,16 +164,18 @@ namespace Semplicita.Controllers
                 return HttpNotFound();
             }
 
+            var uPerm = new RolesHelper.PermissionsContainer(new RolesHelper(db), User, false);
+            var tPerm = new RolesHelper.TicketPermissionsContainer(new RolesHelper(db), User, ticket.Id);
+
             ProjectWorkflow parentProjWorkflow = ticket.ParentProject.ActiveWorkflow;
             List<ApplicationUser> solvers = null;
             if( User.Identity.GetUserId() == ticket.ParentProject.ProjectManagerId || User.IsInRole("ServerAdmin") ) {
-                solvers = ticket.ParentProject.GetSolverMembers(db);
+                solvers = ticket.ParentProject.GetSolverMembers();
             }
 
             List<TicketStatus> availStatuses = null;
-            if ((roleHelper.IsUserStaff(User) && parentProjWorkflow.CanStaffSetStatusOnInteract) ||
-                (roleHelper.IsTicketOwner(User, ticket.Id) && parentProjWorkflow.CanTicketOwnerSetStatusOnInteract ) ||
-               !(false) ) {
+            if ((uPerm.IsUserStaff && parentProjWorkflow.CanStaffSetStatusOnInteract) ||
+                (tPerm.IsTicketOwner && parentProjWorkflow.CanTicketOwnerSetStatusOnInteract ) ) {
                 availStatuses = parentProjWorkflow.GetAvailableStatuses(ticket.Id, User, db);
             }
 

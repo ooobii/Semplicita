@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.ComponentModel.DataAnnotations;
+using Semplicita.Helpers;
 
 namespace Semplicita.Models
 {
@@ -12,6 +13,17 @@ namespace Semplicita.Models
         public ICollection<ApplicationUser> Users { get; set; }
 
         public ICollection<Ticket> AvailableTickets { get; set; }
+    }
+
+    public class ShowProjectViewModel {
+        public Project SelectedProject { get; set; }
+        public RolesHelper.PermissionsContainer uPerm { get; set; }
+        public RolesHelper.ProjectPermissionsContainer pPerm { get; set; }
+
+        public ICollection<ApplicationUser> Solvers { get; set; }
+        public ICollection<ApplicationUser> Reporters { get; set; }
+
+        public Project.TicketsContainer Tickets { get; set; }
     }
 
     public class CreateProjectViewModel

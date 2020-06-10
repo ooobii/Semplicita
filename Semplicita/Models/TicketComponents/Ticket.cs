@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Security.Principal;
 using System.Web;
+using System.Web.WebSockets;
 
 namespace Semplicita.Models
 {
@@ -98,6 +99,10 @@ namespace Semplicita.Models
 
         #endregion
 
+        public RolesHelper.TicketPermissionsContainer Permissions(IPrincipal User)
+        {
+            return new RolesHelper.TicketPermissionsContainer(new RolesHelper(), User, this.Id);
+        }
 
         public string GetTicketIdentifier() {
             return ParentProject.TicketTag + this.Id;
@@ -325,7 +330,7 @@ namespace Semplicita.Models
             var history = new TicketHistoryEntry() {
                 UserId = User.Identity.GetUserId(),
                 ParentTicketId = this.Id,
-                EntryType = workflow ? (newStatus.IsArchived ? TicketHistoryEntry.TicketHistoryEntryType.Archived : TicketHistoryEntry.TicketHistoryEntryType.StatusChangedByWorkflow) : TicketHistoryEntry.TicketHistoryEntryType.StatusChanged,
+                EntryType = workflow ? ( newStatus.IsArchived ? TicketHistoryEntry.TicketHistoryEntryType.Archived : TicketHistoryEntry.TicketHistoryEntryType.StatusChangedByWorkflow ) : TicketHistoryEntry.TicketHistoryEntryType.StatusChanged,
                 OldData = this.TicketStatus.Id.ToString(),
                 NewData = newStatus.Id.ToString(),
                 OccuredAt = DateTime.Now
@@ -397,105 +402,24 @@ namespace Semplicita.Models
             foreach( TicketComment c in comments ) {
                 try {
                     histories.Add(GetAddedCommentHistory(c, User, context));
-
-                    if( statusByWorkflow ) {
-                        var rolesHelper = new RolesHelper(context);
-                        var project = context.Tickets.Find(c.ParentTicketId).ParentProject;
-                        var workflow = project.ActiveWorkflow;
-                        switch( rolesHelper.GetUserMaxRole(User) ) {
-                            case "ServerAdmin":
-                                if( workflow.ServerAdminInteractionStatusId.HasValue ) { histories.Add(UpdateStatus(workflow.ServerAdminInteractionStatusId.Value, User, context, true, true)); }
-                                break;
-
-                            case "ProjectAdmin":
-                                if( workflow.ProjMgrInteractionStatusId.HasValue && rolesHelper.IsProjectManager(User, project.Id) ) { histories.Add(UpdateStatus(workflow.ProjMgrInteractionStatusId.Value, User, context, true, true)); }
-                                break;
-
-                            case "SuperSolver":
-                                if( workflow.SuperSolverInteractionStatusId.HasValue && rolesHelper.IsEligibleTicketSolver(User, c.ParentTicketId) ) { histories.Add(UpdateStatus(workflow.SuperSolverInteractionStatusId.Value, User, context, true, true)); }
-                                break;
-
-                            case "Solver":
-                                if( workflow.SolverInteractionStatusId.HasValue && rolesHelper.IsEligibleTicketSolver(User, c.ParentTicketId) ) { histories.Add(UpdateStatus(workflow.SolverInteractionStatusId.Value, User, context, true, true)); }
-                                break;
-
-                            case "Reporter":
-                                if( workflow.ReporterInteractionStatusId.HasValue && rolesHelper.IsTicketOwner(User, c.ParentTicketId) ) { histories.Add(UpdateStatus(workflow.ReporterInteractionStatusId.Value, User, context, true, true)); }
-                                break;
-
-
-                            default:
-                                break;
-                        }
-
-                    }
-
+                    var interactionStatusUpdate = ProcessInteraction(User, context, statusByWorkflow);
+                    if( interactionStatusUpdate != null ) { histories.Add(interactionStatusUpdate); }
                 } catch { }
             }
             context.TicketHistoryEntries.AddRange(histories);
             context.SaveChanges();
 
 
-
-
             return comments;
         }
         public TicketComment AddComment(TicketComment comment, IPrincipal User, ApplicationDbContext context, bool save = true, bool statusByWorkflow = true) {
             context.TicketComments.Add(comment);
-            context.SaveChanges();
-
             context.TicketHistoryEntries.Add(GetAddedCommentHistory(comment, User, context));
-            if( statusByWorkflow ) {
-                var rolesHelper = new RolesHelper(context);
-                var tPerm = new RolesHelper.TicketPermissionsContainer(rolesHelper, User, this.Id);
-                var pPerm = new RolesHelper.ProjectPermissionsContainer(rolesHelper, User, this.ParentProjectId);
-                var workflow = this.ParentProject.ActiveWorkflow;
 
-                TicketHistoryEntry history;
-                switch( rolesHelper.GetUserMaxRole(User) ) {
-                    case "ServerAdmin":
-                        if( workflow.ServerAdminInteractionStatusId != null ) {
-                            history = UpdateStatus(workflow.ServerAdminInteractionStatusId.Value, User, context, false, true);
-                            context.TicketHistoryEntries.Add(history);
-                        }
-                        break;
+            var interactionStatusUpdate = ProcessInteraction(User, context, statusByWorkflow);
+            if( interactionStatusUpdate != null ) { context.TicketHistoryEntries.Add(interactionStatusUpdate); }
 
-                    case "ProjectAdmin":
-                        if( workflow.ProjMgrInteractionStatusId != null && pPerm.IsProjectManager ) {
-                            history = UpdateStatus(workflow.ProjMgrInteractionStatusId.Value, User, context, false, true);
-                            context.TicketHistoryEntries.Add(history);
-                        }
-                        break;
-
-                    case "SuperSolver":
-                        if( workflow.SuperSolverInteractionStatusId != null && tPerm.IsEligibleSolver ) {
-                            history = UpdateStatus(workflow.SuperSolverInteractionStatusId.Value, User, context, false, true);
-                            context.TicketHistoryEntries.Add(history);
-                        }
-                        break;
-
-                    case "Solver":
-                        if( workflow.SolverInteractionStatusId != null && tPerm.IsEligibleSolver ) {
-                            history = UpdateStatus(workflow.SolverInteractionStatusId.Value, User, context, false, true);
-                            context.TicketHistoryEntries.Add(history);
-                        }
-                        break;
-
-                    case "Reporter":
-                        if( workflow.ReporterInteractionStatusId != null && tPerm.IsTicketOwner ) {
-                            history = UpdateStatus(workflow.ReporterInteractionStatusId.Value, User, context, false, true);
-                            context.TicketHistoryEntries.Add(history);
-                        }
-                        break;
-
-                    default:
-                        break;
-                }
-
-            }
             context.SaveChanges();
-
-
             return comment;
         }
         private TicketHistoryEntry GetAddedCommentHistory(TicketComment comment, IPrincipal User, ApplicationDbContext context) {
@@ -509,6 +433,50 @@ namespace Semplicita.Models
             };
 
             return history;
+        }
+
+        private TicketHistoryEntry ProcessInteraction(IPrincipal User, ApplicationDbContext context, bool statusByWorkflow = true) {
+            if( statusByWorkflow ) {
+                var tPerm = new RolesHelper.TicketPermissionsContainer(new RolesHelper(context), User, this.Id);
+                var pPerm = new RolesHelper.ProjectPermissionsContainer(new RolesHelper(context), User, this.ParentProjectId);
+                var workflow = this.ParentProject.ActiveWorkflow;
+
+                switch( new RolesHelper(context).GetHighestRole(User) ) {
+                    case "ServerAdmin":
+                        if( workflow.ServerAdminInteractionStatusId != null ) {
+                            return UpdateStatus(workflow.ServerAdminInteractionStatusId.Value, User, context, false, true);
+                        }
+                        break;
+
+                    case "ProjectAdmin":
+                        if( workflow.ProjMgrInteractionStatusId != null && pPerm.IsProjectManager ) {
+                            return UpdateStatus(workflow.ProjMgrInteractionStatusId.Value, User, context, false, true);
+                        }
+                        break;
+
+                    case "SuperSolver":
+                        if( workflow.SuperSolverInteractionStatusId != null && tPerm.IsEligibleSolver ) {
+                            return UpdateStatus(workflow.SuperSolverInteractionStatusId.Value, User, context, false, true);
+                        }
+                        break;
+
+                    case "Solver":
+                        if( workflow.SolverInteractionStatusId != null && tPerm.IsEligibleSolver ) {
+                            return UpdateStatus(workflow.SolverInteractionStatusId.Value, User, context, false, true);
+                        }
+                        break;
+
+                    case "Reporter":
+                        if( workflow.ReporterInteractionStatusId != null && tPerm.IsTicketOwner ) {
+                            return UpdateStatus(workflow.ReporterInteractionStatusId.Value, User, context, false, true);
+                        }
+                        break;
+
+                    default:
+                        throw new Exception();
+                }
+            }
+            return null;
         }
 
     }

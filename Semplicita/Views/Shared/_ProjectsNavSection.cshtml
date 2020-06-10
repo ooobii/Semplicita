@@ -1,6 +1,9 @@
-﻿@{
-    var rolesHelper = new Semplicita.Helpers.RolesHelper();
-    var projects = rolesHelper.GetViewableProjects(User);
+﻿@using Semplicita.Helpers
+@using Semplicita.Models
+
+@{
+    var projects = new RolesHelper().GetViewableProjects(User);
+    var uPerm = new RolesHelper.PermissionsContainer(new RolesHelper(), User, false);
 }
 
 <li class="nav-item has-treeview" id="navProjectsFolder">
@@ -18,7 +21,7 @@
                 <p>View Projects</p>
             </a>
         </li>
-        @if( rolesHelper.CanCreateProject(User) ) {
+        @if( uPerm.CanCreateProjects ) {
             <li class="nav-item border-bottom">
                 <a href="@Url.Action("New", "Projects")" class="nav-link" id="navProjects_CreateNew">
                     <i class="fas fa-plus-square nav-icon"></i>
@@ -26,8 +29,9 @@
                 </a>
             </li>
         }
-        @foreach( Semplicita.Models.Project p in projects ) {
-            if( rolesHelper.CanViewProject(User, p.Id) ) {
+        @foreach( Project p in projects ) {
+            var permissions = p.Permissions(User);
+            if( permissions.CanViewProject ) {
                 <li class="nav-item border-bottom mb-1 mt-1">
                     <a href="@Url.Action("Project", "Projects", new { TicketTag = p.TicketTag })" class="nav-link" id="navProjects_Project@(p.Id)">
                         <i class="fas fa-external-link-alt nav-icon"></i>

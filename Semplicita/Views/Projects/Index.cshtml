@@ -40,23 +40,24 @@
                     </thead>
                     <tbody>
                         @foreach( Project p in Model.AvailableProjects.Where(p => p.IsActiveProject == true) ) {
+                            var permissions = p.Permissions(User);
                             <tr>
                                 <td>@p.Name</td>
                                 <td>@(p.ProjectManagerId == null ? "None" : Model.Users.FirstOrDefault(u => u.Id == p.ProjectManagerId).FullNameStandard)</td>
                                 <td>@(p.Members.Count)</td>
                                 <td>@p.ChildTickets.Count
-                                    @if( @p.ChildTickets.Select(t => t.TicketStatus.IsClosed == false).Count() > 0 ) {
+                                    @if( @p.ChildTickets.Any(t => t.TicketStatus.IsClosed == false) ) {
                                         <font>(@p.ChildTickets.Select(t => t.TicketStatus.IsClosed == false).Count() open)</font>
                                     }
                                 </td>
-                                <td>@p.ChildTickets.Where(t => Model.AvailableTickets.Contains(t)).Count()
-                                    @if ( p.ChildTickets.Where(t => t.TicketStatus.IsClosed == false && Model.AvailableTickets.Contains(t)).Count() > 0) {
-                                        <font>(@p.ChildTickets.Where(t => t.TicketStatus.IsClosed == false && Model.AvailableTickets.Contains(t)).Count() open)</font>
+                                <td>@p.ChildTickets.Count(t => Model.AvailableTickets.Contains(t))
+                                    @if ( p.ChildTickets.Any(t => t.TicketStatus.IsClosed == false && Model.AvailableTickets.Contains(t))) {
+                                        <font>(@p.ChildTickets.Count(t => t.TicketStatus.IsClosed == false && Model.AvailableTickets.Contains(t)) open)</font>
                                     }
                                 </td>
                                 <td class="text-center">
                                     <div class="row">
-                                        @if( roleHelper.CanViewProject(User, p.Id) ) {
+                                        @if( permissions.CanViewProject ) {
                                             <div class="col pl-1 pr-1">
                                                 <a href="@Url.Action("Project", "Projects", new { p.TicketTag } )">
                                                     <div class="btn btn-sm btn-block btn-success">Show</div>
@@ -64,7 +65,7 @@
                                             </div>
                                         }
 
-                                        @if( roleHelper.CanEditProject(User, p.Id) ) {
+                                        @if( permissions.CanEditProject ) {
                                             <div class="col pl-1 pr-1">
                                                 <a href="@Url.Action("Edit", "Projects", new { p.TicketTag } )">
                                                     <div class="btn btn-sm btn-block btn-warning">Edit</div>
@@ -72,7 +73,7 @@
                                             </div>
                                         }
 
-                                        @if( roleHelper.CanArchiveProject(User, p.Id) ) {
+                                        @if( permissions.CanArchiveProject ) {
                                             <div class="col pl-1 pr-1">
                                                 <a href="@Url.Action("Archive", "Projects", new { p.TicketTag } )">
                                                     <div class="btn btn-sm btn-block btn-danger">Archive</div>

@@ -6,7 +6,7 @@
 
 @{
     ViewBag.Title = $"Ticket: {Model.CurrentTicket.GetTicketIdentifier()}";
-    RolesHelper rolesHelper = new RolesHelper();
+    var permissions = Model.CurrentTicket.Permissions(User);
 }
 
 <div class="jumbotron jumbotron-skinny bg-gradient-dkpurple">
@@ -76,7 +76,7 @@
                                             <!-- Message to the right -->
                                             <div class="direct-chat-msg right pt-1">
                                                 <div class="direct-chat-infos clearfix">
-                                                    <span class="direct-chat-name float-left">@comment.Author.FullNameStandard @comment.Author.GetRoleBadges(rolesHelper.ListUserRoles(comment.AuthorId))</span>
+                                                    <span class="direct-chat-name float-left">@comment.Author.FullNameStandard @comment.Author.GetRoleBadges()</span>
                                                     <span class="direct-chat-timestamp float-right">@comment.CreatedAt.ToString("d MMM h:mm:ss tt")</span>
                                                 </div>
                                                 <!-- /.direct-chat-infos -->
@@ -102,7 +102,7 @@
                                                         }
                                                         @if( Model.ParentProject.ProjectManagerId == comment.AuthorId ) {
                                                             <small class="badge bg-gradient-navy white align-top">'@Model.ParentProject.TicketTag' Project Mgr</small>
-                                                        } @comment.Author.GetRoleBadges(rolesHelper.ListUserRoles(comment.AuthorId))
+                                                        } @comment.Author.GetRoleBadges()
                                                     </span>
                                                     <span class="direct-chat-timestamp float-right">@comment.CreatedAt.ToString("d MMM h:mm:ss tt")</span>
                                                 </div>
@@ -134,7 +134,7 @@
                                                             @user.FullNameStandard
                                                             <small class="contacts-list-date float-right">@Model.CurrentTicket.Comments.Where(c => c.AuthorId == user.Id).Select(c => c.CreatedAt).Min().ToString("M/d/yyyy h:mm:ss tt")</small>
                                                         </span>
-                                                        <span class="contacts-list-msg">@user.GetRoleBadges(rolesHelper.ListUserRoles(user.Id))</span>
+                                                        <span class="contacts-list-msg">@user.GetRoleBadges()</span>
                                                     </div>
                                                     <!-- /.contacts-list-info -->
                                                 </a>
@@ -153,7 +153,7 @@
 
                         </div>
 
-                        @if( rolesHelper.CanCommentOnTicket(User, Model.CurrentTicket.Id) ) {
+                        @if( permissions.CanCommentOnTicket ) {
                             <div class="card-footer">
                                 @using (Html.BeginForm("AddComment", "Tickets", FormMethod.Post)) {
                                     @Html.AntiForgeryToken()
@@ -247,7 +247,7 @@
                         <!-- /.card-header -->
                         <div class="card-body p-3">
 
-                            @if( rolesHelper.CanEditTicket(User, Model.CurrentTicket.Id) ) {
+                            @if( permissions.CanEditTicket ) {
                                 <div class="row p-1">
                                     <div class="col">
                                         <a href="@Url.Action("Edit", "Tickets", new { TicketIdentifier = Model.CurrentTicket.GetTicketIdentifier() })">
@@ -256,7 +256,7 @@
                                     </div>
                                 </div>
                             }
-                            @if( rolesHelper.CanArchiveTicket(User, Model.CurrentTicket.Id) ) {
+                            @if( permissions.CanArchiveTicket ) {
                                 <div class="row p-1">
                                     <div class="col">
                                         <a href="@Url.Action("Archive", "Tickets", new { TicketIdentifier = Model.CurrentTicket.GetTicketIdentifier() })">
@@ -283,11 +283,7 @@
                             @if( Model.CurrentTicket.AssignedSolverId != null ) {
                                 <h5>
                                     @Model.CurrentTicket.AssignedSolver.FullNameStandard
-                                    @if( rolesHelper.IsInRole(Model.CurrentTicket.AssignedSolverId, "SuperSolver") ) {
-                                        <small class="text-sm badge badge-sm badge-secondary align-top">Super Solver</small>
-                                    } else if( rolesHelper.IsInRole(Model.CurrentTicket.AssignedSolverId, "Solver") ) {
-                                        <small class="text-sm badge badge-sm badge-success align-top">Solver</small>
-                                    }
+                                    @Model.CurrentTicket.AssignedSolver.GetStaffBadge()
                                 </h5>
                                 <small>@Model.CurrentTicket.AssignedSolver.Email</small>
                             } else {

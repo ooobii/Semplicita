@@ -26,30 +26,6 @@ namespace Semplicita.Helpers
 
         private UserManager<ApplicationUser> userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext()));
 
-        public ICollection<string> ListAllRoles() {
-            return db.Roles.Select(r => r.Name).OrderBy(x =>
-                x == "ServerAdmin" ? 1 :
-                x == "ProjectAdmin" ? 2 :
-                x == "SuperSolver" ? 3 :
-                x == "Solver" ? 4 :
-                x == "Reporter" ? 5 :
-                6
-            ).ToList();
-        }
-        public ICollection<string> ListAllRoleDisplayNames() {
-            var output = new List<string>();
-            foreach( var role in db.Roles.Select(r => r.Name).OrderBy(x =>
-                x == "ServerAdmin" ? 1 :
-                x == "ProjectAdmin" ? 2 :
-                x == "SuperSolver" ? 3 :
-                x == "Solver" ? 4 :
-                x == "Reporter" ? 5 :
-                6
-            ).ToList() ) {
-                output.Add(roleDictionary[ role ]);
-            }
-            return output;
-        }
         public ICollection<string> ListUserRoles(string userId) {
             var output = new List<string>();
             foreach( var role in userManager.GetRoles(userId).OrderBy(x =>
@@ -78,6 +54,10 @@ namespace Semplicita.Helpers
             }
             return output;
         }
+        public string GetHighestRole(IPrincipal User) {
+            var roles = ListUserRoles(User.Identity.GetUserId());
+            return roles.Count > 0 ? roles.ToList()[ 0 ] : "";
+        }
         public bool IsInRole(string userId, string role) {
             return userManager.IsInRole(userId, role);
         }
@@ -100,12 +80,8 @@ namespace Semplicita.Helpers
             return output;
         }
 
-        public ICollection<ApplicationUser> PullReportersFromUserList(ICollection<ApplicationUser> input) {
-            return input.Where(u => IsInRole(u.Id, "Reporter")).ToList();
-        }
 
-
-        public bool IsUserStaff(IPrincipal User) {
+        private bool IsUserStaff(IPrincipal User) {
             if( User.IsInRole("ServerAdmin") ||
                  User.IsInRole("ProjectAdmin") ||
                  User.IsInRole("SuperSolver") ||
@@ -116,7 +92,7 @@ namespace Semplicita.Helpers
             }
         }
 
-        public bool CanCreateProject(IPrincipal User) {
+        private bool CanCreateProject(IPrincipal User) {
             //Server Admins can OR
             //Project Admins can
 
@@ -126,7 +102,7 @@ namespace Semplicita.Helpers
                 return false;
             }
         }
-        public bool CanViewProject(IPrincipal User, int projectId) {
+        private bool CanViewProject(IPrincipal User, int projectId) {
             //Server Admins can OR
             //Project Admins can IF assigned as project manager OR
             //Any other role (as long as user is member of project) can
@@ -141,7 +117,11 @@ namespace Semplicita.Helpers
                 return false;
             }
         }
-        public bool CanEditProject(IPrincipal User, int projectId) {
+        private bool CanViewAllProjects(IPrincipal User) {
+            //ONLY Server Admins can
+            return User.IsInRole("ServerAdmin");
+        }
+        private bool CanEditProject(IPrincipal User, int projectId) {
             //Server Admins can OR
             //Project Admins can IF assigned as project manager.
 
@@ -155,7 +135,7 @@ namespace Semplicita.Helpers
                 return false;
             }
         }
-        public bool CanArchiveProject(IPrincipal User, int projectId) {
+        private bool CanArchiveProject(IPrincipal User, int projectId) {
             //Server Admins can OR
             //Project Admins can IF assigned as project manager.
 
@@ -169,7 +149,7 @@ namespace Semplicita.Helpers
                 return false;
             }
         }
-        public bool IsProjectManager(IPrincipal User, int projectId) {
+        private bool IsProjectManager(IPrincipal User, int projectId) {
             var mgrId = db.Projects.Find(projectId).ProjectManagerId;
             var isProjManager = User.IsInRole("ProjectAdmin");
 
@@ -184,7 +164,7 @@ namespace Semplicita.Helpers
 
             return output;
         }
-        public ICollection<Project> GetEditableProjects(IPrincipal User) {
+        private ICollection<Project> GetEditableProjects(IPrincipal User) {
             var output = new List<Project>();
 
             foreach( Project p in db.Projects.ToList().Where(p => CanEditProject(User, p.Id)) ) {
@@ -193,15 +173,22 @@ namespace Semplicita.Helpers
 
             return output;
         }
+        private ApplicationUser GetProjectManager(IPrincipal User, int projectId) {
+            if( !CanViewProject(User, projectId) ) { return null; }
 
-        public bool CanCreateTicket(IPrincipal User, int projectId) {
+            var projadminId = db.Projects.Find(projectId).ProjectManagerId;
+            return db.Users.FirstOrDefault(u => u.Id == projadminId);
+        }
+
+
+        private bool CanCreateTicket(IPrincipal User, int projectId) {
             //Reporters Only
 
             var userId = User.Identity.GetUserId();
 
             return User.IsInRole("Reporter") && db.Projects.Find(projectId).Members.Select(u => u.Id).Contains(userId);
         }
-        public bool CanCreateTicket(IPrincipal User) {
+        private bool CanCreateTicket(IPrincipal User) {
             //Reporters Only
 
             var userId = User.Identity.GetUserId();
@@ -212,7 +199,7 @@ namespace Semplicita.Helpers
                 return false;
             }
         }
-        public bool CanViewTicket(IPrincipal User, int TicketId) {
+        private bool CanViewTicket(IPrincipal User, int TicketId) {
             //ServerAdmin can OR
             //ProjectAdmin can IF assigned as parent project manager OR
             //SuperSolver or Solver can IF member of parent project
@@ -230,7 +217,7 @@ namespace Semplicita.Helpers
                 return false;
             }
         }
-        public bool CanViewAllTicketsInProject(IPrincipal User, int projectId) {
+        private bool CanViewAllTicketsInProject(IPrincipal User, int projectId) {
             //ServerAdmin can
             //ProjectAdmin can IF is project's manager
             //SuperSolver can IF they are member of the project
@@ -249,7 +236,7 @@ namespace Semplicita.Helpers
                 return false;
             }
         }
-        public bool CanViewAllTickets(IPrincipal User) {
+        private bool CanViewAllTickets(IPrincipal User) {
             //ServerAdmin can
             //Anyone else CAN NOT
 
@@ -262,7 +249,7 @@ namespace Semplicita.Helpers
                 return false;
             }
         }
-        public bool CanEditTicket(IPrincipal User, int TicketId) {
+        private bool CanEditTicket(IPrincipal User, int TicketId) {
             //ServerAdmin can OR
             //ProjectAdmin can IF assigned as project manager
             //SuperSolver can IF member of parent project
@@ -281,7 +268,7 @@ namespace Semplicita.Helpers
                 return false;
             }
         }
-        public bool CanCommentOnTicket(IPrincipal User, int TicketId) {
+        private bool CanCommentOnTicket(IPrincipal User, int TicketId) {
             //ServerAdmin can OR
             //ProjectAdmin can IF assigned as project manager
             //SuperSolver can IF member of parent project
@@ -296,14 +283,14 @@ namespace Semplicita.Helpers
                    IsEligibleTicketSolver(User, TicketId) ||
                    ( User.IsInRole("Reporter") & Ticket.ReporterId == userId );
         }
-        public bool CanUpdateTicketStatus(IPrincipal User, int TicketId) {
+        private bool CanUpdateTicketStatus(IPrincipal User, int TicketId) {
             var ticket = db.Tickets.Find(TicketId);
             var workflow = ticket.ParentProject.ActiveWorkflow;
 
             return workflow.CanStaffSetStatusOnInteract && ( IsEligibleTicketSolver(User, TicketId) || IsProjectManager(User, ticket.ParentProject.Id) ) ||
                    workflow.CanTicketOwnerSetStatusOnInteract && ( IsTicketOwner(User, TicketId) );
         }
-        public bool CanArchiveTicket(IPrincipal User, int TicketId) {
+        private bool CanArchiveTicket(IPrincipal User, int TicketId) {
             //Server Admins can OR
             //ProjectAdmins can IF assigned as project manager.
 
@@ -317,7 +304,7 @@ namespace Semplicita.Helpers
                 return false;
             }
         }
-        public bool IsEligibleTicketSolver(IPrincipal User, int TicketId) {
+        private bool IsEligibleTicketSolver(IPrincipal User, int TicketId) {
             //SuperSolver can IF member of parent project
             //Solver can IF assigned as solver
             //Anyone else CAN NOT
@@ -332,7 +319,7 @@ namespace Semplicita.Helpers
                 return false;
             }
         }
-        public bool IsTicketOwner(IPrincipal User, int TicketId) {
+        private bool IsTicketOwner(IPrincipal User, int TicketId) {
             return User.Identity.GetUserId() == db.Tickets.Find(TicketId).ReporterId;
         }
         public ICollection<Ticket> GetViewableTickets(IPrincipal User) {
@@ -344,7 +331,7 @@ namespace Semplicita.Helpers
 
             return output;
         }
-        public ICollection<Ticket> GetEditableTickets(IPrincipal User) {
+        private ICollection<Ticket> GetEditableTickets(IPrincipal User) {
             var output = new List<Ticket>();
 
             foreach( Ticket t in db.Tickets.ToList() ) {
@@ -356,32 +343,30 @@ namespace Semplicita.Helpers
             return output;
         }
 
-        public string GetUserMaxRole(IPrincipal User) {
-            var roles = ListUserRoles(User.Identity.GetUserId());
-            return roles.Count > 0 ? roles.ToList()[ 0 ] : "";
-        }
 
         public class PermissionsContainer
         {
             public bool IsUserStaff { get; }
 
             public bool CanCreateTickets { get; }
-            public bool CanCreateProjects { get;}
-            public bool CanViewAllTickets { get;}
+            public bool CanCreateProjects { get; }
+            public bool CanViewAllTickets { get; }
+            public bool CanViewAllProjects { get; }
 
-            public List<Project> ViewableProjects { get;}
-            public List<Project> EditableProjects { get;}
-            public List<Ticket> ViewableTickets { get;}
-            public List<Ticket> EditableTickets { get;}
+            public List<Project> ViewableProjects { get; }
+            public List<Project> EditableProjects { get; }
+            public List<Ticket> ViewableTickets { get; }
+            public List<Ticket> EditableTickets { get; }
 
-            public PermissionsContainer(RolesHelper helper, IPrincipal User)
-            {
+            public PermissionsContainer(RolesHelper helper, IPrincipal User, bool fetchViewables = true) {
                 IsUserStaff = helper.IsUserStaff(User);
 
                 CanCreateTickets = helper.CanCreateTicket(User);
                 CanCreateProjects = helper.CanCreateProject(User);
                 CanViewAllTickets = helper.CanViewAllTickets(User);
+                CanViewAllProjects = helper.CanViewAllProjects(User);
 
+                if( !fetchViewables ) return;
                 ViewableProjects = helper.GetViewableProjects(User).ToList();
                 EditableProjects = helper.GetEditableProjects(User).ToList();
                 ViewableTickets = helper.GetViewableTickets(User).ToList();
@@ -390,13 +375,13 @@ namespace Semplicita.Helpers
         }
         public class TicketPermissionsContainer
         {
-            public bool CanViewTicket { get;}
-            public bool CanEditTicket { get;}
-            public bool CanCommentOnTicket { get;}
-            public bool CanUpdateTicketStatus { get;}
-            public bool CanArchiveTicket { get;}
-            public bool IsEligibleSolver { get;}
-            public bool IsTicketOwner { get;}
+            public bool CanViewTicket { get; }
+            public bool CanEditTicket { get; }
+            public bool CanCommentOnTicket { get; }
+            public bool CanUpdateTicketStatus { get; }
+            public bool CanArchiveTicket { get; }
+            public bool IsEligibleSolver { get; }
+            public bool IsTicketOwner { get; }
 
             public TicketPermissionsContainer(RolesHelper helper, IPrincipal User, int ticketId) {
                 CanViewTicket = helper.CanViewTicket(User, ticketId);
@@ -410,21 +395,25 @@ namespace Semplicita.Helpers
         }
         public class ProjectPermissionsContainer
         {
-            public bool CanViewProject { get;}
-            public bool CanEditProject { get;}
-            public bool CanArchiveProject { get;}
-            public bool IsProjectManager { get;}
-            public bool CanCreateTicket { get;}
-            public bool CanViewAllTicketsInProject { get;}
+            public bool CanViewProject { get; }
+            public bool CanEditProject { get; }
+            public bool CanArchiveProject { get; }
+            public bool IsProjectManager { get; }
+            public bool CanCreateTicket { get; }
+            public bool CanViewAllTicketsInProject { get; }
 
-            public ProjectPermissionsContainer(RolesHelper helper, IPrincipal User, int projectId)
-            {
+            public ApplicationUser ProjectManager { get; set; }
+
+
+            public ProjectPermissionsContainer(RolesHelper helper, IPrincipal User, int projectId) {
                 CanViewProject = helper.CanViewProject(User, projectId);
                 CanEditProject = helper.CanEditProject(User, projectId);
                 CanArchiveProject = helper.CanArchiveProject(User, projectId);
                 IsProjectManager = helper.IsProjectManager(User, projectId);
                 CanCreateTicket = helper.CanCreateTicket(User, projectId);
                 CanViewAllTicketsInProject = helper.CanViewAllTicketsInProject(User, projectId);
+
+                ProjectManager = helper.GetProjectManager(User, projectId);
             }
         }
     }

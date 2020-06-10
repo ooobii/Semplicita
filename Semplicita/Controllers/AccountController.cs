@@ -505,7 +505,7 @@ namespace Semplicita.Controllers
             var userid = User.Identity.GetUserId();
             var user = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>().FindById(userid);
             var rolesHelper = new RolesHelper();
-            return Content(user.GetRoleBadges(rolesHelper.ListUserRoles(userid)).ToHtmlString());
+            return Content(user.GetRoleBadges().ToHtmlString());
         }
 
         #endregion info fetching
