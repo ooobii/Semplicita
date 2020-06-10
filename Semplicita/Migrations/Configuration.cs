@@ -17,6 +17,9 @@ namespace Semplicita.Migrations
         }
 
         protected override void Seed(Semplicita.Models.ApplicationDbContext context) {
+            bool seedDemo = false;
+
+
             RoleManager<IdentityRole> roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
 
             try {
@@ -100,70 +103,6 @@ namespace Semplicita.Migrations
                     userManager.AddToRole(user.Id, "Reporter");
                 }
 
-
-                //Demo Users
-                #region demousers
-                //if( !context.Users.Any(u => u.Email == "demo_admin@matthewwendel.info") ) {
-                //    var user = new ApplicationUser {
-                //        UserName = "demo_admin@matthewwendel.info",
-                //        Email = "demo_admin@matthewwendel.info",
-                //        FirstName = "Demo:",
-                //        LastName = "Server Admin",
-                //        EmailConfirmed = true,
-                //        IsDemoUser = true
-                //    };
-                //    userManager.Create(user, Util.GetSetting("demo:Password"));
-                //    userManager.AddToRole(user.Id, "ServerAdmin");
-                //}
-                //if( !context.Users.Any(u => u.Email == "demo_projadmin@matthewwendel.info") ) {
-                //    var user = new ApplicationUser {
-                //        UserName = "demo_projadmin@matthewwendel.info",
-                //        Email = "demo_projadmin@matthewwendel.info",
-                //        FirstName = "Demo:",
-                //        LastName = "Project Admin",
-                //        EmailConfirmed = true,
-                //        IsDemoUser = true
-                //    };
-                //    userManager.Create(user, Util.GetSetting("demo:Password"));
-                //    userManager.AddToRole(user.Id, "ProjectAdmin");
-                //}
-                //if( !context.Users.Any(u => u.Email == "demo_ssolver@matthewwendel.info") ) {
-                //    var user = new ApplicationUser {
-                //        UserName = "demo_ssolver@matthewwendel.info",
-                //        Email = "demo_ssolver@matthewwendel.info",
-                //        FirstName = "Demo:",
-                //        LastName = "Super Solver",
-                //        EmailConfirmed = true,
-                //        IsDemoUser = true
-                //    };
-                //    userManager.Create(user, Util.GetSetting("demo:Password"));
-                //    userManager.AddToRole(user.Id, "SuperSolver");
-                //}
-                //if( !context.Users.Any(u => u.Email == "demo_solver@matthewwendel.info") ) {
-                //    var user = new ApplicationUser {
-                //        UserName = "demo_solver@matthewwendel.info",
-                //        Email = "demo_solver@matthewwendel.info",
-                //        FirstName = "Demo:",
-                //        LastName = "Solver",
-                //        EmailConfirmed = true,
-                //        IsDemoUser = true
-                //    };
-                //    userManager.Create(user, Util.GetSetting("demo:Password"));
-                //    userManager.AddToRole(user.Id, "Solver");
-                //}
-                //if( !context.Users.Any(u => u.Email == "demo@matthewwendel.info") ) {
-                //    var user = new ApplicationUser {
-                //        UserName = "demo@matthewwendel.info",
-                //        Email = "demo@matthewwendel.info",
-                //        FirstName = "Demo:",
-                //        LastName = "Reporter",
-                //        EmailConfirmed = true,
-                //        IsDemoUser = true
-                //    };
-                //    userManager.Create(user, Util.GetSetting("demo:Password"));
-                //    userManager.AddToRole(user.Id, "Reporter");
-                //}
-                #endregion
 
                 #endregion User Creation
 
@@ -625,6 +564,73 @@ namespace Semplicita.Migrations
 
                 context.SaveChanges();
                 #endregion Project Creation
+
+                if( seedDemo ) {
+                    #region Demo Components
+                    //Demo Users
+                    if( !context.Users.Any(u => u.Email == "demo_admin@matthewwendel.info") ) {
+                        var user = new ApplicationUser {
+                            UserName = "demo_admin@matthewwendel.info",
+                            Email = "demo_admin@matthewwendel.info",
+                            FirstName = "Demo:",
+                            LastName = "Server Admin",
+                            EmailConfirmed = true,
+                            IsDemoUser = true
+                        };
+                        userManager.Create(user, Util.GetSetting("demo:Password"));
+                        userManager.AddToRole(user.Id, "ServerAdmin");
+                    }
+                    if( !context.Users.Any(u => u.Email == "demo_projadmin@matthewwendel.info") ) {
+                        var user = new ApplicationUser {
+                            UserName = "demo_projadmin@matthewwendel.info",
+                            Email = "demo_projadmin@matthewwendel.info",
+                            FirstName = "Demo:",
+                            LastName = "Project Admin",
+                            EmailConfirmed = true,
+                            IsDemoUser = true
+                        };
+                        userManager.Create(user, Util.GetSetting("demo:Password"));
+                        userManager.AddToRole(user.Id, "ProjectAdmin");
+                    }
+                    if( !context.Users.Any(u => u.Email == "demo_ssolver@matthewwendel.info") ) {
+                        var user = new ApplicationUser {
+                            UserName = "demo_ssolver@matthewwendel.info",
+                            Email = "demo_ssolver@matthewwendel.info",
+                            FirstName = "Demo:",
+                            LastName = "Super Solver",
+                            EmailConfirmed = true,
+                            IsDemoUser = true
+                        };
+                        userManager.Create(user, Util.GetSetting("demo:Password"));
+                        userManager.AddToRole(user.Id, "SuperSolver");
+                    }
+                    if( !context.Users.Any(u => u.Email == "demo_solver@matthewwendel.info") ) {
+                        var user = new ApplicationUser {
+                            UserName = "demo_solver@matthewwendel.info",
+                            Email = "demo_solver@matthewwendel.info",
+                            FirstName = "Demo:",
+                            LastName = "Solver",
+                            EmailConfirmed = true,
+                            IsDemoUser = true
+                        };
+                        userManager.Create(user, Util.GetSetting("demo:Password"));
+                        userManager.AddToRole(user.Id, "Solver");
+                    }
+                    if( !context.Users.Any(u => u.Email == "demo@matthewwendel.info") ) {
+                        var user = new ApplicationUser {
+                            UserName = "demo@matthewwendel.info",
+                            Email = "demo@matthewwendel.info",
+                            FirstName = "Demo:",
+                            LastName = "Reporter",
+                            EmailConfirmed = true,
+                            IsDemoUser = true
+                        };
+                        userManager.Create(user, Util.GetSetting("demo:Password"));
+                        userManager.AddToRole(user.Id, "Reporter");
+                    }
+                    #endregion
+                }
+
 
             } catch( DbEntityValidationException e ) {
                 foreach( var eve in e.EntityValidationErrors ) {
