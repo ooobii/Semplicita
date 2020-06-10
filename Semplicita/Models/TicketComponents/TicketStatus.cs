@@ -49,6 +49,13 @@ namespace Semplicita.Models
         public bool IsForStaff { get; set; }
 
 
+        //this status should not update the issue's status if a staff member interacts with the ticket
+        public bool ShouldWorkflowContinueStaff { get; set; }
+
+        //this status should not update the issue's status if the reporter interacts with the ticket
+        public bool ShouldWorkflowContinueReporter { get; set; }
+
+
 
 
         public HtmlString GetStatusBadgeHtml() {

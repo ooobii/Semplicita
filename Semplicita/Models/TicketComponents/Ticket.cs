@@ -99,8 +99,7 @@ namespace Semplicita.Models
 
         #endregion
 
-        public RolesHelper.TicketPermissionsContainer Permissions(IPrincipal User)
-        {
+        public RolesHelper.TicketPermissionsContainer Permissions(IPrincipal User) {
             return new RolesHelper.TicketPermissionsContainer(new RolesHelper(), User, this.Id);
         }
 
@@ -324,9 +323,9 @@ namespace Semplicita.Models
             return output;
         }
         private TicketHistoryEntry UpdateStatus(int newId, IPrincipal User, ApplicationDbContext context, bool save = true, bool workflow = false) {
+            var newStatus = context.TicketStatuses.Find(newId);
             if( newId == this.TicketStatusId ) { return null; }
 
-            var newStatus = context.TicketStatuses.Find(newId);
             var history = new TicketHistoryEntry() {
                 UserId = User.Identity.GetUserId(),
                 ParentTicketId = this.Id,
@@ -437,44 +436,49 @@ namespace Semplicita.Models
 
         private TicketHistoryEntry ProcessInteraction(IPrincipal User, ApplicationDbContext context, bool statusByWorkflow = true) {
             if( statusByWorkflow ) {
+                var isStaff = new RolesHelper.PermissionsContainer(new RolesHelper(context), User, false).IsUserStaff;
                 var tPerm = new RolesHelper.TicketPermissionsContainer(new RolesHelper(context), User, this.Id);
                 var pPerm = new RolesHelper.ProjectPermissionsContainer(new RolesHelper(context), User, this.ParentProjectId);
                 var workflow = this.ParentProject.ActiveWorkflow;
 
-                switch( new RolesHelper(context).GetHighestRole(User) ) {
-                    case "ServerAdmin":
-                        if( workflow.ServerAdminInteractionStatusId != null ) {
-                            return UpdateStatus(workflow.ServerAdminInteractionStatusId.Value, User, context, false, true);
-                        }
-                        break;
+                if( isStaff && this.TicketStatus.ShouldWorkflowContinueStaff || !isStaff && this.TicketStatus.ShouldWorkflowContinueReporter ) {
+                    switch( new RolesHelper(context).GetHighestRole(User) ) {
+                        case "ServerAdmin":
+                            if( workflow.ServerAdminInteractionStatusId != null ) {
+                                return UpdateStatus(workflow.ServerAdminInteractionStatusId.Value, User, context, false, true);
+                            }
+                            break;
 
-                    case "ProjectAdmin":
-                        if( workflow.ProjMgrInteractionStatusId != null && pPerm.IsProjectManager ) {
-                            return UpdateStatus(workflow.ProjMgrInteractionStatusId.Value, User, context, false, true);
-                        }
-                        break;
+                        case "ProjectAdmin":
+                            if( workflow.ProjMgrInteractionStatusId != null && pPerm.IsProjectManager ) {
+                                return UpdateStatus(workflow.ProjMgrInteractionStatusId.Value, User, context, false, true);
+                            }
+                            break;
 
-                    case "SuperSolver":
-                        if( workflow.SuperSolverInteractionStatusId != null && tPerm.IsEligibleSolver ) {
-                            return UpdateStatus(workflow.SuperSolverInteractionStatusId.Value, User, context, false, true);
-                        }
-                        break;
+                        case "SuperSolver":
+                            if( workflow.SuperSolverInteractionStatusId != null && tPerm.IsEligibleSolver ) {
+                                return UpdateStatus(workflow.SuperSolverInteractionStatusId.Value, User, context, false, true);
+                            }
+                            break;
 
-                    case "Solver":
-                        if( workflow.SolverInteractionStatusId != null && tPerm.IsEligibleSolver ) {
-                            return UpdateStatus(workflow.SolverInteractionStatusId.Value, User, context, false, true);
-                        }
-                        break;
+                        case "Solver":
+                            if( workflow.SolverInteractionStatusId != null && tPerm.IsEligibleSolver ) {
+                                return UpdateStatus(workflow.SolverInteractionStatusId.Value, User, context, false, true);
+                            }
+                            break;
 
-                    case "Reporter":
-                        if( workflow.ReporterInteractionStatusId != null && tPerm.IsTicketOwner ) {
-                            return UpdateStatus(workflow.ReporterInteractionStatusId.Value, User, context, false, true);
-                        }
-                        break;
+                        case "Reporter":
+                            if( workflow.ReporterInteractionStatusId != null && tPerm.IsTicketOwner ) {
+                                return UpdateStatus(workflow.ReporterInteractionStatusId.Value, User, context, false, true);
+                            }
+                            break;
 
-                    default:
-                        throw new Exception();
+                        default:
+                            throw new Exception();
+                    }
                 }
+
+
             }
             return null;
         }

@@ -237,7 +237,9 @@ namespace Semplicita.Migrations
                         IsClosed = false,
                         IsCanceled = false,
                         IsForReporter = true,
-                        IsForStaff = true
+                        IsForStaff = true,
+                        ShouldWorkflowContinueReporter = false,
+                        ShouldWorkflowContinueStaff = false,
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -256,7 +258,9 @@ namespace Semplicita.Migrations
                         IsClosed = false,
                         IsCanceled = false,
                         IsForReporter = false,
-                        IsForStaff = false
+                        IsForStaff = false,
+                        ShouldWorkflowContinueReporter = false,
+                        ShouldWorkflowContinueStaff = true
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -276,7 +280,9 @@ namespace Semplicita.Migrations
                         IsClosed = false,
                         IsCanceled = false,
                         IsForReporter = false,
-                        IsForStaff = true
+                        IsForStaff = true,
+                        ShouldWorkflowContinueReporter = true,
+                        ShouldWorkflowContinueStaff = true
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -295,7 +301,9 @@ namespace Semplicita.Migrations
                         IsClosed = false,
                         IsCanceled = false,
                         IsForReporter = false,
-                        IsForStaff = true
+                        IsForStaff = true,
+                        ShouldWorkflowContinueReporter = false,
+                        ShouldWorkflowContinueStaff = false,
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -314,7 +322,9 @@ namespace Semplicita.Migrations
                         IsClosed = false,
                         IsCanceled = false,
                         IsForReporter = false,
-                        IsForStaff = true
+                        IsForStaff = true,
+                        ShouldWorkflowContinueReporter = false,
+                        ShouldWorkflowContinueStaff = false,
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -333,7 +343,9 @@ namespace Semplicita.Migrations
                         IsClosed = false,
                         IsCanceled = false,
                         IsForReporter = true,
-                        IsForStaff = false
+                        IsForStaff = false,
+                        ShouldWorkflowContinueReporter = true,
+                        ShouldWorkflowContinueStaff = true,
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -353,7 +365,9 @@ namespace Semplicita.Migrations
                         IsClosed = false,
                         IsCanceled = false,
                         IsForReporter = false,
-                        IsForStaff = true
+                        IsForStaff = true,
+                        ShouldWorkflowContinueReporter = false,
+                        ShouldWorkflowContinueStaff = false,
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -374,7 +388,9 @@ namespace Semplicita.Migrations
                         IsClosed = false,
                         IsCanceled = false,
                         IsForReporter = false,
-                        IsForStaff = true
+                        IsForStaff = true,
+                        ShouldWorkflowContinueReporter = true,
+                        ShouldWorkflowContinueStaff = false,
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -393,7 +409,9 @@ namespace Semplicita.Migrations
                         IsClosed = false,
                         IsCanceled = false,
                         IsForReporter = false,
-                        IsForStaff = true
+                        IsForStaff = true,
+                        ShouldWorkflowContinueReporter = false,
+                        ShouldWorkflowContinueStaff = false,
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -413,7 +431,9 @@ namespace Semplicita.Migrations
                         IsClosed = false,
                         IsCanceled = true,
                         IsForReporter = false,
-                        IsForStaff = true
+                        IsForStaff = true,
+                        ShouldWorkflowContinueReporter = false,
+                        ShouldWorkflowContinueStaff = false,
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -432,7 +452,9 @@ namespace Semplicita.Migrations
                         IsClosed = false,
                         IsCanceled = true,
                         IsForReporter = false,
-                        IsForStaff = true
+                        IsForStaff = true,
+                        ShouldWorkflowContinueReporter = false,
+                        ShouldWorkflowContinueStaff = false,
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -451,7 +473,9 @@ namespace Semplicita.Migrations
                         IsResolved = true,
                         IsClosed = true,
                         IsCanceled = false,
-                        IsArchived = true
+                        IsArchived = true,
+                        ShouldWorkflowContinueReporter = false,
+                        ShouldWorkflowContinueStaff = false,
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -469,7 +493,9 @@ namespace Semplicita.Migrations
                         IsResolved = true,
                         IsClosed = true,
                         IsCanceled = false,
-                        IsArchived = true
+                        IsArchived = true,
+                        ShouldWorkflowContinueReporter = false,
+                        ShouldWorkflowContinueStaff = false,
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -479,7 +505,7 @@ namespace Semplicita.Migrations
                         Display = "Disposed",
                         DisplayForeColor = "#FFF",
                         DisplayBackColor = "#4F4F4F",
-                        Description = "The reporter's issue was cancled, and has been archived.",
+                        Description = "The reporter's issue was canceled, and has been archived.",
                         IsStarted = true,
                         MustBeAssigned = false,
                         IsInProgress = false,
@@ -487,7 +513,9 @@ namespace Semplicita.Migrations
                         IsResolved = false,
                         IsClosed = true,
                         IsCanceled = true,
-                        IsArchived = true
+                        IsArchived = true,
+                        ShouldWorkflowContinueReporter = false,
+                        ShouldWorkflowContinueStaff = false,
                     };
                     context.TicketStatuses.Add(status);
                 }
@@ -505,7 +533,7 @@ namespace Semplicita.Migrations
                         CreatedAt = DateTime.Now,
 
                         AutoTicketAssignBehavior = ProjectWorkflow.AutoTicketAssignBehaviorType.LeaveUnassigned,
-                        
+
 
                         ArchivedNotResolvedStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Disposed").Id,
                         ArchivedResolvedStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "Closed").Id,
