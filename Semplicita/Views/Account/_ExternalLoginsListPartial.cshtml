@@ -10,7 +10,7 @@
                 @foreach( AuthenticationDescription p in loginProviders ) {
                     switch( p.AuthenticationType ) {
                         case "Facebook":
-                            <button type="submit" class="btn btn-block btn-outline btn-primary" name="provider" value="@p.AuthenticationType" title="Log in with Facebok">
+                            <button type="submit" class="btn btn-block btn-outline btn-primary" name="provider" value="@p.AuthenticationType" title="Log in with Facebook">
                                 Sign in using Facebook
                             </button>
                             break;

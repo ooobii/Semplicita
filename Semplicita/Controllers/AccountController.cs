@@ -314,7 +314,7 @@ namespace Semplicita.Controllers
                     var emailSvc = new EmailService();
                     await emailSvc.SendAsync(emailMsg);
 
-                    ViewBag.EmailSentTo = user.Email;
+                    TempData.Add("EmailSentTo", user.Email);
                     return RedirectToAction("ForgotPasswordConfirmation", "Account");
                 } catch( Exception ex ) {
                     Console.WriteLine(ex.ToString());
