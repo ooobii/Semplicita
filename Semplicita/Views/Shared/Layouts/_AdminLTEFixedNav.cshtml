@@ -3,9 +3,12 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    @if( ViewBag.Title != null ) {
+    @if (ViewBag.Title != null)
+    {
         <title>@ViewBag.Title - Simplicita Issue Tracker</title>
-    } else {
+    }
+    else
+    {
         <title>Simplicita Issue Tracker</title>
     }
 
@@ -32,6 +35,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/plugin/databasic/summernote-ext-databasic.min.css">
     <!-- select2 -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- toastr -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet" />
+
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <!-- Theme style -->
@@ -61,16 +67,16 @@
             </ul>
 
             @* TODO: Searching
-        <form class="form-inline ml-3">
-            <div class="input-group input-group-sm">
-                <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
-                <div class="input-group-append">
-                    <button class="btn btn-navbar" type="submit">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </div>
-        </form>
+                <form class="form-inline ml-3">
+                    <div class="input-group input-group-sm">
+                        <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
+                        <div class="input-group-append">
+                            <button class="btn btn-navbar" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
             *@
 
 
@@ -183,10 +189,48 @@
     <!-- DataTables -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.20/js/jquery.dataTables.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.20/js/dataTables.bootstrap4.min.js"></script>
-
+    <!-- toastr -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
     <!-- AdminLTE App -->
     <script src="~/Scripts/adminlte/adminlte.min.js">
     </script>
+
+
+    <!-- alerts processing -->
+    @{
+        var alertsDanger = TempData.Where(t => t.Key.StartsWith("tdngr-")).ToList();
+        var alertsSuccess = TempData.Where(t => t.Key.StartsWith("tsuc-")).ToList();
+        var alertsInfo = TempData.Where(t => t.Key.StartsWith("tinfo-")).ToList();
+    }
+    @if (alertsDanger.Count > 0)
+    {
+        foreach (var avm in alertsDanger)
+        {
+            <script>
+            toastr.error('@avm.Value.ToString()');
+            </script>
+        }
+    }
+
+    @if (alertsInfo.Count > 0)
+    {
+        foreach (var avm in alertsInfo)
+        {
+            <script>
+            toastr.info('@avm.Value.ToString()');
+            </script>
+        }
+    }
+
+    @if (alertsSuccess.Count > 0)
+    {
+        foreach (var avm in alertsSuccess)
+        {
+            <script>
+            toastr.success('@avm.Value.ToString()');
+            </script>
+        }
+    }
 
     @*
         <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
@@ -196,5 +240,7 @@
 
     *@
     @RenderSection("Scripts", required: false)
+
+
 </body>
 </html>
