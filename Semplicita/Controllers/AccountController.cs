@@ -12,7 +12,7 @@ using System.Web;
 using System.Web.Configuration;
 using System.Web.Mvc;
 using System.Web.UI.WebControls;
-using static Util;
+using static Semplicita.Helpers.Util;
 
 namespace Semplicita.Controllers
 {
