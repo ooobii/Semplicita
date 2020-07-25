@@ -1,4 +1,5 @@
 using Semplicita.Helpers;
+
 namespace Semplicita.Migrations
 {
     using Microsoft.AspNet.Identity;

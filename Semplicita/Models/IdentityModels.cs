@@ -21,13 +21,13 @@ namespace Semplicita.Models
         public string AvatarImagePath { get; set; }
 
         [NotMapped]
-        public string FullName { get { return $"{LastName}, {FirstName}"; } }
+        public string FullName => $"{LastName}, {FirstName}";
 
         [NotMapped]
-        public string FullNameStandard { get { return $"{FirstName} {LastName}"; } }
+        public string FullNameStandard => $"{FirstName} {LastName}";
 
         [NotMapped]
-        public string ShortName { get { return $"{FirstName} {LastName.Substring(0, 1)}."; } }
+        public string ShortName => $"{FirstName} {LastName.Substring(0, 1)}.";
 
         public virtual ICollection<Project> Projects { get; set; }
         public virtual ICollection<TicketComment> CommentsWritten { get; set; }

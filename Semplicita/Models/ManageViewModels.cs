@@ -14,6 +14,10 @@ namespace Semplicita.Models
         public bool BrowserRemembered { get; set; }
 
         public ApplicationUser ThisUser { get; set; }
+
+
+        public IList<UserLoginInfo> CurrentLogins { get; set; }
+        public IList<AuthenticationDescription> OtherLogins { get; set; }
     }
 
     public class ManageLoginsViewModel
