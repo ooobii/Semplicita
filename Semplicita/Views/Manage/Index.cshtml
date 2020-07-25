@@ -1,4 +1,5 @@
-﻿@model Semplicita.Models.IndexViewModel
+﻿@using Microsoft.Owin.Security
+@model Semplicita.Models.IndexViewModel
 @{
     ViewBag.Title = "Your Account";
 }
@@ -8,51 +9,37 @@
     <p class="lead">Change your account preferences, and see where you're assigned.</p>
 </div>
 
-<div class="row">
-    <div class="col-xl-4 p-3 pt-0">
-        <div class="card card-warning">
-            <div class="card-header">
-                <h5 class="pt-2">Authentication</h5>
-            </div>
+<div class="row row-cols-1">
 
-            <div class="card-body">
-                @if( ViewBag.StatusMessage != "" ) {
-                    <div class="alert alert-success alert-dismissibl">
-                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                        <h6><i class="icon fas fa-check"></i> <b>Success!</b></h6>
-                        @ViewBag.StatusMessage
-                    </div>
-                }
-                <a class="p-2" href="@Url.Action("ChangePassword")"><div class="btn btn-dark btn-block">Change Password</div></a>
-                <a class="p-2" href="@Url.Action("ManageLogins")"><div class="btn btn-dark btn-block">Manage External Logins (@Model.Logins.Count total) </div></a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-8 p-3 pt-0">
+    <div class="col p-3">
         <div class="card card-info card-tabs">
             <div class="card-header p-0 pt-3">
                 <ul class="nav nav-tabs" role="tablist">
-                    <li class="pt-2 px-3"><h5 class="card-title">User Preferences</h5></li>
-                    <li class="nav-item">
-                        <a class="nav-link active" data-toggle="pill" href="#manage-tab-name" role="tab" aria-selected="true">Name</a>
+                    <li class="pt-2 px-3">
+                        <h3 class="card-title pr-2"><i class="fas fa-fingerprint" style="margin-right:10px; width: 18px;"></i><b>Identity Management</b></h3>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="pill" href="#manage-tab-email" role="tab" aria-selected="false">Email</a>
+
+                    <li class="nav-item mr-2">
+                        <a class="nav-link active" data-toggle="pill" href="#ident-name" role="tab" aria-selected="true">Name</a>
+                    </li>
+                    <li class="nav-item mr-2">
+                        <a class="nav-link" data-toggle="pill" href="#ident-email" role="tab" aria-selected="false">Email</a>
                     </li>
                 </ul>
             </div>
             <div class="card-body">
                 <div class="tab-content" id="custom-tabs-two-tabContent">
-                    <div class="tab-pane fade show active" id="manage-tab-name" role="tabpanel" aria-labelledby="manage-tab-name">
+                    <div class="tab-pane fade show active" id="ident-name" role="tabpanel" aria-labelledby="ident-name">
                         <p>
                             To change the name associated with your account, please enter your changes here and click "Change Name" below.
-                            This will change the name that is shown on all tickets, projects, and interactions including past and future updates.
+                            This will change the name that is shown on all tickets, projects, and interactions; past and future.
                         </p>
-                        @if( ViewBag.AccountChangeNameMessage != null ) {
+                        @if (ViewBag.AccountChangeNameMessage != null)
+                        {
                             <p class="text-success">@ViewBag.AccountChangeNameMessage</p>
                         }
-                        @if( ViewBag.AccountChangeNameError != null ) {
+                        @if (ViewBag.AccountChangeNameError != null)
+                        {
                             <p class="text-danger">@ViewBag.AccountChangeNameError</p>
                         }
                         <form action="" method="post">
@@ -87,50 +74,200 @@
                         </form>
 
                     </div>
-                    <div class="tab-pane fade" id="manage-tab-email" role="tabpanel" aria-labelledby="manage-tab-email">
+                    <div class="tab-pane fade" id="ident-email" role="tabpanel" aria-labelledby="ident-email">
                         <p>To change the email associated with your account, please enter your changes here and click the "Update Email" button below.</p>
-                        <div class="callout callout-danger">
-                            <p><b class="text-danger"><u>Careful</u>!</b> If you change the email associated with your account, you will be logged out. You <b>must confirm</b> your new email address before you will be able to log in again.</p>
+                        <div class="callout callout-warning">
+                            <p><b class="text-warning"><u>Heads Up</u>!</b> If you change the email associated with your account, you will be logged out. You <b>must confirm</b> your new email address before you will be able to log in again.</p>
                         </div>
-                        @if( ViewBag.AccountChangeNameMessage != null ) {
+                        @if (ViewBag.AccountChangeNameMessage != null)
+                        {
                             <p class="text-success">@ViewBag.AccountChangeNameMessage</p>
                         }
-                        @if( ViewBag.AccountChangeNameError != null ) {
+                        @if (ViewBag.AccountChangeNameError != null)
+                        {
                             <p class="text-danger">@ViewBag.AccountChangeNameError</p>
                         }
-                    <form action="" method="post">
-                        @Html.AntiForgeryToken()
-                        <div class="row pb-2 pt-2">
-                            <div class="col">
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text right" id="basic-addon1">@@</span>
+                        <form action="" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="row pb-2 pt-2">
+                                <div class="col">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text right">@@</span>
+                                        </div>
+                                        <input type="text" class="form-control" name="NewEmail" value="@Model.ThisUser.Email">
                                     </div>
-                                    <input type="text" class="form-control" name="NewEmail" value="@Model.ThisUser.Email">
                                 </div>
                             </div>
-                        </div>
-                        <div class="row pb-4">
-                            <div class="col">
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text right" id="basic-addon1">@@</span>
+                            <div class="row pb-4">
+                                <div class="col">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text right">@@</span>
+                                        </div>
+                                        <input type="text" class="form-control" name="NewEmailConfirmed" value="">
                                     </div>
-                                    <input type="text" class="form-control" name="NewEmailConfirmed" value="">
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-8 p-0"></div>
-                            <div class="col-4 p-0">
-                                <div class="input-group">
-                                    <input type="submit" name="accountUpdate:UpdateEmail" class="btn btn-sm btn-block btn-success" value="Update Email" />
+                            <div class="row">
+                                <div class="col-8 p-0"></div>
+                                <div class="col-4 p-0">
+                                    <div class="input-group">
+                                        <input type="submit" name="accountUpdate:UpdateEmail" class="btn btn-sm btn-block btn-success" value="Update Email" />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                    </form>
+                        </form>
 
+                    </div>
+                </div>
+            </div>
+            <!-- /.card -->
+        </div>
+
+    </div>
+
+    <div class="col p-3">
+        <div class="card card-warning card-tabs">
+            <div class="card-header p-0 pt-3">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="pt-2 px-3">
+                        <h3 class="card-title pr-2"><i class="fas fa-lock" style="margin-right:10px; width: 18px;"></i><b>Authentication Options</b></h3>
+                    </li>
+
+                    <li class="nav-item mr-2">
+                        <a class="nav-link" data-toggle="pill" href="#auth-pswd" role="tab" aria-selected="false">Password</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="pill" href="#auth-logins" role="tab" aria-selected="false">External Logins</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content">
+                    <div class="tab-pane fade" id="auth-pswd" role="tabpanel" aria-labelledby="auth-pswd">
+                        @using (Html.BeginForm("ChangePassword", "Manage", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <div class="input-group mb-3">
+                                <div class="input-group-append">
+                                    <div class="input-group-text">
+                                        <span class="fas fa-key"></span>
+                                    </div>
+                                </div>
+                                <input type="password" class="form-control" placeholder="Enter Current Password..." name="OldPassword">
+                            </div>
+                            <div class="input-group mb-3">
+                                <div class="input-group-append">
+                                    <div class="input-group-text">
+                                        <span class="fas fa-lock"></span>
+                                    </div>
+                                </div>
+                                <input type="password" class="form-control" placeholder="Enter New Password..." name="NewPassword">
+                            </div>
+                            <div class="input-group mb-3">
+                                <div class="input-group-append">
+                                    <div class="input-group-text">
+                                        <span class="fas fa-lock"></span>
+                                    </div>
+                                </div>
+                                <input type="password" class="form-control" placeholder="Confirm New Password..." name="ConfirmPassword">
+                            </div>
+                            <button type="submit" class="btn btn-success float-right mb-2">Change Password</button>
+
+                        }
+                    </div>
+                    <div class="tab-pane fade show active" id="auth-logins" role="tabpanel" aria-labelledby="auth-logins">
+                        @{ var loginProviders = Context.GetOwinContext().Authentication.GetExternalAuthenticationTypes();
+                            if (!loginProviders.Any())
+                            {
+                                <div>
+                                    <p>
+                                        We're sorry. There are no external authentication methods registered with this server, or external authentication has been disabled.
+                                        Please contact your server administrator for more information.
+                                    </p>
+                                </div>
+                            }
+                            else
+                            {
+                                if (Model.CurrentLogins.Count > 0)
+                                {
+                                    <h5>Your Linked Accounts:</h5>
+                                    <table class="table">
+                                        <tbody>
+                                            @foreach (var account in Model.CurrentLogins)
+                                            {
+                                                <tr>
+                                                    <td width="25%">@account.LoginProvider</td>
+                                                    <td>
+                                                        @if (ViewBag.ShowRemoveButton)
+                                                        {
+                                                            using (Html.BeginForm("RemoveLogin", "Manage"))
+                                                            {
+                                                                @Html.AntiForgeryToken()
+                                                                <div>
+                                                                    @Html.Hidden("loginProvider", account.LoginProvider)
+                                                                    @Html.Hidden("providerKey", account.ProviderKey)
+                                                                    <input type="submit" class="btn btn-sm btn-danger" value="Remove" title="Remove @account.LoginProvider from your account" />
+                                                                </div> 
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            @: &nbsp;
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+
+                                if (Model.OtherLogins.Count > 0)
+                                {
+                                    using (Html.BeginForm("LinkLogin", "Manage"))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <h5>Link New Account:</h5>
+                                        <hr />
+                                        <div id="socialLoginList">
+                                            <p>
+                                                @foreach (AuthenticationDescription p in Model.OtherLogins)
+                                                {
+                                                    switch (p.AuthenticationType)
+                                                    {
+                                                        case "Facebook":
+                                                            <button type="submit" class="btn btn-outline btn-primary" name="provider" value="@p.AuthenticationType" title="Log in with Facebook">
+                                                                <i class="fab fa-facebook"></i> Add Facebook Account
+                                                            </button>
+                                                            break;
+
+                                                        case "Google":
+                                                            <button type="submit" class="btn btn-danger" name="provider" value="@p.AuthenticationType" title="Log in with Google">
+                                                                <i class="fab fa-google"></i> Add Google Account
+                                                            </button>
+                                                            break;
+
+                                                        case "Microsoft":
+                                                            <button type="submit" class="btn btn-info" name="provider" value="@p.AuthenticationType" title="Log in with Microsoft">
+                                                                <i class="fab fa-microsoft"></i> Add Microsoft Account
+                                                            </button>
+                                                            break;
+
+                                                        default:
+                                                            <button type="submit" class="btn btn-light" name="provider" value="@p.AuthenticationType" title="Log in using your @p.Caption account">
+                                                                @p.AuthenticationType
+                                                            </button>
+                                                            break;
+                                                    }
+                                                }
+                                            </p>
+                                        </div>
+                                    }
+                                }
+                            }
+                        }
                     </div>
                 </div>
             </div>
