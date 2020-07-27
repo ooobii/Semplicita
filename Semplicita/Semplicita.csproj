@@ -186,7 +186,7 @@
     <Compile Include="Helpers\ProjectHelper.cs" />
     <Compile Include="Helpers\RoleDisplayDictionary.cs" />
     <Compile Include="Helpers\TicketsHelper.cs" />
-    <Compile Include="Helpers\RolesHelper.cs" />
+    <Compile Include="Helpers\PermissionsHelper.cs" />
     <Compile Include="Helpers\Util.cs" />
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />

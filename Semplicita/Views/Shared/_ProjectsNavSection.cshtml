@@ -2,8 +2,8 @@
 @using Semplicita.Models
 
 @{
-    var projects = new RolesHelper().GetViewableProjects(User);
-    var uPerm = new RolesHelper.PermissionsContainer(new RolesHelper(), User, false);
+    var projects = new PermissionsHelper().GetViewableProjects(User);
+    var uPerm = new PermissionsHelper.PermissionsContainer(new PermissionsHelper(), User, false);
 }
 
 <li class="nav-item has-treeview" id="navProjectsFolder">

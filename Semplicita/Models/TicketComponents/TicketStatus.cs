@@ -1,9 +1,4 @@
-﻿using Antlr.Runtime.Tree;
-using System.Drawing;
-using System.EnterpriseServices.Internal;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Web;
+﻿using System.Web;
 
 namespace Semplicita.Models
 {
@@ -40,14 +35,11 @@ namespace Semplicita.Models
         //the issue is archived and should not be displayed in general views
         public bool IsArchived { get; set; }
 
-
-
         //this status can only be set by the reporter of the ticket.
         public bool IsForReporter { get; set; }
 
         //this status can only be set by a staff member
         public bool IsForStaff { get; set; }
-
 
         //this status should not update the issue's status if a staff member interacts with the ticket
         public bool ShouldWorkflowContinueStaff { get; set; }
@@ -55,20 +47,18 @@ namespace Semplicita.Models
         //this status should not update the issue's status if the reporter interacts with the ticket
         public bool ShouldWorkflowContinueReporter { get; set; }
 
-
-
-
-        public HtmlString GetStatusBadgeHtml() {
+        public HtmlString GetStatusBadgeHtml()
+        {
             var style = $"style=\"color: {this.DisplayForeColor}; background-color: {this.DisplayBackColor}; font-size: 12px; font-weight:500;\"";
 
             return new HtmlString($"<span class=\"badge\" {style}>{this.Display}</span>");
         }
-        public HtmlString GetStatusBadgeHtml(int fontSize_px) {
+
+        public HtmlString GetStatusBadgeHtml(int fontSize_px)
+        {
             var style = $"style=\"color: {this.DisplayForeColor}; background-color: {this.DisplayBackColor}; font-size: {fontSize_px}px; font-weight:bold;\"";
 
             return new HtmlString($"<span class=\"badge\" {style}>{this.Display}</span>");
         }
-
-
     }
 }

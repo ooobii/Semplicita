@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using System.Web;
 
 namespace Semplicita.Models
@@ -27,9 +26,7 @@ namespace Semplicita.Models
         public int ParentTicketId { get; set; }
         public string UserId { get; set; }
 
-
         public DateTime OccuredAt { get; set; }
-
 
         public virtual Ticket ParentTicket { get; set; }
         public virtual ApplicationUser User { get; set; }
@@ -38,9 +35,10 @@ namespace Semplicita.Models
         public string OldData { get; set; }
         public string NewData { get; set; }
 
-
-        public HtmlString GetHistoryTitleHtml() {            
-            switch( this.EntryType ) {
+        public HtmlString GetHistoryTitleHtml()
+        {
+            switch (this.EntryType)
+            {
                 case TicketHistoryEntryType.Created:
                     return new HtmlString($"<u>{User.ShortName}</u> created the ticket '{ParentTicket.GetTicketIdentifier()}'.");
 
@@ -84,10 +82,13 @@ namespace Semplicita.Models
                     return new HtmlString("");
             }
         }
-        public HtmlString GetHistoryBodyHtml() {
+
+        public HtmlString GetHistoryBodyHtml()
+        {
             var db = new ApplicationDbContext();
             //https://localhost:44349/tickets/DEF2
-            switch( this.EntryType ) {
+            switch (this.EntryType)
+            {
                 case TicketHistoryEntryType.Created:
                     return new HtmlString($"<h6><b>{this.NewData}</b></h6>");
 
@@ -133,6 +134,5 @@ namespace Semplicita.Models
                     return new HtmlString("");
             }
         }
-
     }
 }

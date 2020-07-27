@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNet.Identity;
+using Semplicita.Helpers;
 using System;
 using System.IO;
-using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
 using System.Text;
 using System.Web;
-using System.Web.Razor.Parser.SyntaxTree;
-using Semplicita.Helpers;
 
 namespace Semplicita.Models
 {
@@ -21,16 +19,17 @@ namespace Semplicita.Models
         public DateTime UploadedAt { get; set; }
         public string MediaUrl { get; set; }
 
-
         public virtual Ticket ParentTicket { get; set; }
         public virtual ApplicationUser Author { get; set; }
 
-
-        public static TicketAttachment ProcessNewUpload(HttpPostedFileBase postedFile, HttpServerUtilityBase Server, Ticket parent, IPrincipal User, ApplicationDbContext context) {
-            if( postedFile.ContentLength > 31457280 ) { //30MB in binary bytes
+        public static TicketAttachment ProcessNewUpload(HttpPostedFileBase postedFile, HttpServerUtilityBase Server, Ticket parent, IPrincipal User, ApplicationDbContext context)
+        {
+            if (postedFile.ContentLength > 31457280)
+            { //30MB in binary bytes
                 throw new Exception("File is too big!");
-            } else {
-
+            }
+            else
+            {
                 //get file info
                 var FileName = Path.GetFileNameWithoutExtension(postedFile.FileName);
                 var FileExt = Path.GetExtension(postedFile.FileName);
@@ -40,23 +39,26 @@ namespace Semplicita.Models
                 postedFile.SaveAs(Path.Combine(Server.MapPath("~/AttachmentUploads/"), FileNameModded));
 
                 //generate model for uploaded file
-                var output = new TicketAttachment() {
+                var output = new TicketAttachment()
+                {
                     UploadedAt = DateTime.Now
-                    , ParentTicketId = parent.Id
-                    , AuthorId = User.Identity.GetUserId()
-                    , MediaUrl = "/AttachmentUploads/" + FileNameModded
-                    , Name = $"{FileName}{FileExt}"
+                    ,
+                    ParentTicketId = parent.Id
+                    ,
+                    AuthorId = User.Identity.GetUserId()
+                    ,
+                    MediaUrl = "/AttachmentUploads/" + FileNameModded
+                    ,
+                    Name = $"{FileName}{FileExt}"
                 };
 
                 //return model
                 return output;
-
-            }           
-
+            }
         }
 
-
-        public HtmlString GetDisplayHtml() {
+        public HtmlString GetDisplayHtml()
+        {
             var output = new StringBuilder();
             output.AppendLine("<ul class=\"products-list product-list-in-card pl-2 pr-2\">");
             output.AppendLine(" <li class=\"item\">");
@@ -73,7 +75,5 @@ namespace Semplicita.Models
 
             return new HtmlString(output.ToString());
         }
-
-
     }
 }

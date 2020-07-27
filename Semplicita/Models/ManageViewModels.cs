@@ -15,7 +15,6 @@ namespace Semplicita.Models
 
         public ApplicationUser ThisUser { get; set; }
 
-
         public IList<UserLoginInfo> CurrentLogins { get; set; }
         public IList<AuthenticationDescription> OtherLogins { get; set; }
     }

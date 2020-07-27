@@ -1,9 +1,4 @@
-﻿using Semplicita.Helpers;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
 
 namespace Semplicita.Models
 {
@@ -20,12 +15,12 @@ namespace Semplicita.Models
         public ICollection<int> ProjectIds { get; set; }
         public string ReturningViewName { get; set; }
     }
+
     public class AddRemoveUsersRolesModel
     {
         public ICollection<string> UserIds { get; set; }
         public ICollection<string> Roles { get; set; }
-    } 
-
+    }
 
     public class SetProjectWorkflowModel
     {

@@ -1,6 +1,6 @@
-﻿using Semplicita.Models;
+﻿using Microsoft.AspNet.Identity;
+using Semplicita.Models;
 using System.Collections.Generic;
-using Microsoft.AspNet.Identity;
 using System.Linq;
 using System.Security.Principal;
 
@@ -9,127 +9,168 @@ namespace Semplicita.Helpers
     public class ProjectHelper
     {
         public ApplicationDbContext db { get; set; }
-        public ProjectHelper(ApplicationDbContext context) {
+
+        public ProjectHelper(ApplicationDbContext context)
+        {
             db = context;
         }
-        public ProjectHelper() {
+
+        public ProjectHelper()
+        {
             db = new ApplicationDbContext();
         }
 
-        public bool IsUserOnProject(string userId, int projectId) {
+        public bool IsUserOnProject(string userId, int projectId)
+        {
             return db.Projects.Find(projectId).Members.Any(u => u.Id == userId);
         }
-        public ICollection<Project> ProjectsAssignedToUser(string userId) {
+
+        public ICollection<Project> ProjectsAssignedToUser(string userId)
+        {
             return db.Users.Find(userId).Projects.ToList();
         }
-        public void AddUserToProject(string userId, int projectId, out bool result) {
-            if( IsUserOnProject(userId, projectId) ) { result = false; return; }
 
-            try {
+        public void AddUserToProject(string userId, int projectId, out bool result)
+        {
+            if (IsUserOnProject(userId, projectId)) { result = false; return; }
+
+            try
+            {
                 db.Projects.Find(projectId).Members.Add(db.Users.Find(userId));
                 db.SaveChanges();
                 result = true;
-            } catch {
+            }
+            catch
+            {
                 result = false;
             }
-
         }
-        public bool AddUserToProject(string userId, int projectId) {
-            if( IsUserOnProject(userId, projectId) ) { return false; }
 
-            try {
+        public bool AddUserToProject(string userId, int projectId)
+        {
+            if (IsUserOnProject(userId, projectId)) { return false; }
+
+            try
+            {
                 db.Projects.Find(projectId).Members.Add(db.Users.Find(userId));
                 db.SaveChanges();
                 return true;
-            } catch {
+            }
+            catch
+            {
                 return false;
             }
-
         }
-        public void RemoveUserFromProject(string userId, int projectId, out bool result) {
-            if( !IsUserOnProject(userId, projectId) ) { result = false; return; }
 
-            try {
+        public void RemoveUserFromProject(string userId, int projectId, out bool result)
+        {
+            if (!IsUserOnProject(userId, projectId)) { result = false; return; }
+
+            try
+            {
                 db.Projects.Find(projectId).Members.Add(db.Users.Find(userId));
                 db.SaveChanges();
                 result = true;
-            } catch {
+            }
+            catch
+            {
                 result = false;
             }
         }
-        public bool RemoveUserFromProject(string userId, int projectId) {
-            if( !IsUserOnProject(userId, projectId) ) { return false; }
 
-            try {
+        public bool RemoveUserFromProject(string userId, int projectId)
+        {
+            if (!IsUserOnProject(userId, projectId)) { return false; }
+
+            try
+            {
                 db.Projects.Find(projectId).Members.Remove(db.Users.Find(userId));
                 db.SaveChanges();
                 return true;
-            } catch {
+            }
+            catch
+            {
                 return false;
             }
         }
 
-        public ApplicationUser GetManagerUserOfProject(int projectId) {
+        public ApplicationUser GetManagerUserOfProject(int projectId)
+        {
             var project = db.Projects.Find(projectId);
             return db.Users.Find(project.ProjectManagerId);
         }
-        public bool IsUserManagerOfAnyProject(IPrincipal User) {
-            foreach( Project p in db.Projects.ToList() ) {
-                if( p.ProjectManagerId == User.Identity.GetUserId() ) { return true; }
+
+        public bool IsUserManagerOfAnyProject(IPrincipal User)
+        {
+            foreach (Project p in db.Projects.ToList())
+            {
+                if (p.ProjectManagerId == User.Identity.GetUserId()) { return true; }
             }
 
             return false;
         }
 
-        public ICollection<ApplicationUser> UsersOnProject(int projectId) {
+        public ICollection<ApplicationUser> UsersOnProject(int projectId)
+        {
             return db.Projects.Find(projectId).Members;
         }
-        public ICollection<ApplicationUser> UsersNotOnProject(int projectId) {
+
+        public ICollection<ApplicationUser> UsersNotOnProject(int projectId)
+        {
             return db.Users.Where(u => u.Projects.All(p => p.Id != projectId)).ToList();
         }
 
-        public List<Project> GetProjectsAvailableToUser(IPrincipal User) {
+        public List<Project> GetProjectsAvailableToUser(IPrincipal User)
+        {
             var projects = new List<Project>();
             var user = db.Users.Find(User.Identity.GetUserId());
 
-            if( User.IsInRole("ServerAdmin") ) {
+            if (User.IsInRole("ServerAdmin"))
+            {
                 projects = db.Projects.ToList();
-
-            } else if( User.IsInRole("ProjectAdmin") ||
-                       User.IsInRole("SuperSolver") ||
-                       User.IsInRole("Solver") ||
-                       User.IsInRole("Reporter") ) {
+            }
+            else if (User.IsInRole("ProjectAdmin") ||
+                     User.IsInRole("SuperSolver") ||
+                     User.IsInRole("Solver") ||
+                     User.IsInRole("Reporter"))
+            {
                 projects = db.Projects.ToList().Where(p => IsUserOnProject(user.Id, p.Id)).ToList();
             }
 
             return projects;
         }
 
-        public bool SetProjectWorkflow(int projectId, int workflowId, ApplicationDbContext context) {
-            if( context.Projects.Find(projectId).ActiveWorkflowId == workflowId ) { return false; }
+        public bool SetProjectWorkflow(int projectId, int workflowId, ApplicationDbContext context)
+        {
+            if (context.Projects.Find(projectId).ActiveWorkflowId == workflowId) { return false; }
 
-            try {
+            try
+            {
                 var foundWorkflow = db.ProjectWorkflows.Find(workflowId);
                 context.Projects.Find(projectId).ActiveWorkflowId = foundWorkflow.Id;
                 //context.Projects.Find(projectId).ActiveWorkflow = foundWorkflow;
                 context.SaveChanges();
                 return true;
-            } catch {
+            }
+            catch
+            {
                 return false;
             }
-
         }
 
-        public TicketStatus GetArchiveStatusId(int ticketId) {
+        public TicketStatus GetArchiveStatusId(int ticketId)
+        {
             var ticket = db.Tickets.Find(ticketId);
             var workflow = ticket.ParentProject.ActiveWorkflow;
 
-            if( ticket.TicketStatus.IsResolved ) {
+            if (ticket.TicketStatus.IsResolved)
+            {
                 return db.TicketStatuses.Find(workflow.ArchivedResolvedStatusId);
-            } else {
+            }
+            else
+            {
                 return db.TicketStatuses.Find(workflow.ArchivedNotResolvedStatusId);
             }
-
         }
     }
 }
