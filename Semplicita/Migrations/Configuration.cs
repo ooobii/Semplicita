@@ -492,7 +492,7 @@ namespace Semplicita.Migrations
                         Description = "An example workflow that takes tickets into standard statuses upon normal interactions.",
                         CreatedAt = DateTime.Now,
 
-                        AutoTicketAssignBehavior = ProjectWorkflow.AutoTicketAssignBehaviorType.WorkloadBasedAvailability,
+                        AutoTicketAssignBehavior = ProjectWorkflow.AutoTicketAssignBehaviorType.EvenSteven,
 
                         InitialTicketStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "New-Unassigned").Id,
                         TicketUnassignedStatusId = context.TicketStatuses.ToList().First(ts => ts.Name == "New-Unassigned").Id,

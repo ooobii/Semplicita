@@ -38,6 +38,7 @@ namespace Semplicita.Models
             return new PermissionsHelper.ProjectPermissionsContainer( new PermissionsHelper(), User, this.Id );
         }
 
+
         public ApplicationUser GetNextSolverFromWorkflow() {
             switch ( this.ActiveWorkflow.AutoTicketAssignBehavior ) {
                 case ProjectWorkflow.AutoTicketAssignBehaviorType.AutoAssignToUser:
@@ -47,10 +48,9 @@ namespace Semplicita.Models
                         return null;
                     }
 
-                case ProjectWorkflow.AutoTicketAssignBehaviorType.LeaveUnassigned:
                 case ProjectWorkflow.AutoTicketAssignBehaviorType.RoundRobin:
                 case ProjectWorkflow.AutoTicketAssignBehaviorType.EvenSteven:
-                case ProjectWorkflow.AutoTicketAssignBehaviorType.WorkloadBasedAvailability:
+                case ProjectWorkflow.AutoTicketAssignBehaviorType.LeaveUnassigned:
                 default:
                     return null;
             }

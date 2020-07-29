@@ -13,8 +13,7 @@ namespace Semplicita.Models
             LeaveUnassigned = 0,
             AutoAssignToUser = 1,
             RoundRobin = 2,
-            EvenSteven = 3,
-            WorkloadBasedAvailability = 4
+            EvenSteven = 3
         }
 
         public int Id { get; set; }
