@@ -7,6 +7,7 @@ using System.Data.Entity.Infrastructure.Design;
 using System.Linq;
 using System.Security.Principal;
 using System.Web;
+using Microsoft.Owin.Security.Provider;
 
 namespace Semplicita.Models
 {
@@ -43,6 +44,7 @@ namespace Semplicita.Models
 
         public string AssignedSolverId { get; set; }
 
+
         public virtual Project ParentProject { get; set; }
         public virtual TicketType TicketType { get; set; }
         public virtual TicketStatus TicketStatus { get; set; }
@@ -54,6 +56,7 @@ namespace Semplicita.Models
         public virtual ICollection<TicketComment> Comments { get; set; }
         public virtual ICollection<TicketHistoryEntry> HistoryEntries { get; set; }
         public virtual ICollection<TicketNotification> Notifications { get; set; }
+        public virtual ICollection<TicketNotificationWatchEntry> Watchers { get; set; }
 
         public Ticket() {
             Attachments = new HashSet<TicketAttachment>();
@@ -87,9 +90,8 @@ namespace Semplicita.Models
                 if ( totalYears != 0 ) { timestring = $"{totalYears}'yrs"; } else if ( dif.Days != 0 ) { timestring = dif.ToString( @"%d'd '%h'hr '%m'min '%s'sec'" ); } else if ( dif.Hours != 0 ) { timestring = dif.ToString( @"%h'hr '%m'min '%s'sec'" ); } else if ( dif.Minutes != 0 ) { timestring = dif.ToString( @"%m'min '%s'sec'" ); } else if ( dif.Seconds != 0 ) { timestring = dif.ToString( @"%s'sec'" ); }
 
                 return new HtmlString( $"<span class=\"badge badge-info\" {style}><i class=\"far fa-clock\"></i> {timestring}</span>" );
-            } else {
-                return new HtmlString( "" );
             }
+            return new HtmlString( "" );
 
             //<small class="badge badge-danger"><i class="far fa-clock"></i> 2 mins</small>
         }
@@ -103,6 +105,9 @@ namespace Semplicita.Models
         public string GetTicketIdentifier() {
             return ParentProject.TicketTag + this.Id;
         }
+        public bool IsWatching( IPrincipal User ) {
+            return this.Watchers.Select( w => w.WatcherId ).Contains( User.Identity.GetUserId() );
+        }
 
         public void SaveTicketCreatedHistoryEntry( IPrincipal User, ApplicationDbContext context ) {
             var createdEntry = this.MakeCreatedHistoryEntry(User, context);
@@ -112,26 +117,6 @@ namespace Semplicita.Models
                 context.SaveChanges();
             }
         }
-
-        private TicketHistoryEntry MakeCreatedHistoryEntry( IPrincipal User, ApplicationDbContext context ) {
-            var history = context.TicketHistoryEntries.FirstOrDefault(the => the.EntryType == TicketHistoryEntry.TicketHistoryEntryType.Created
-                                                                           & the.ParentTicketId == this.Id);
-            if ( history == null ) {
-                //does not exist in db for this ticket yet, create a new one to be added.
-                return new TicketHistoryEntry() {
-                    UserId = User.Identity.GetUserId(),
-                    ParentTicketId = this.Id,
-                    EntryType = TicketHistoryEntry.TicketHistoryEntryType.Created,
-                    OldData = null,
-                    NewData = this.Title,
-                    OccuredAt = this.CreatedAt
-                };
-            } else {
-                //already exists
-                return null;
-            }
-        }
-
         public TicketHistoryEntry ArchiveTicket( IPrincipal User, ApplicationDbContext context ) {
             TicketHistoryEntry output = null;
 
@@ -146,7 +131,6 @@ namespace Semplicita.Models
 
             return output;
         }
-
         public ICollection<TicketHistoryEntry> UpdateTicket( Ticket newTicket, IPrincipal User, ApplicationDbContext context ) {
             var output = new List<TicketHistoryEntry>();
             bool useWorkflowStatus = true;
@@ -171,7 +155,62 @@ namespace Semplicita.Models
 
             return output;
         }
+        public ICollection<TicketAttachment> AddAttachments( ICollection<HttpPostedFileBase> files, IPrincipal User, ApplicationDbContext context, HttpServerUtilityBase Server ) {
+            //Upload and add attachment models
+            var output = new List<TicketAttachment>();
+            foreach ( HttpPostedFileBase file in files ) {
+                try {
+                    output.Add( TicketAttachment.ProcessNewUpload( file, Server, this, User, context ) );
+                } catch { }
+            }
+            context.TicketAttachments.AddRange( output );
+            context.SaveChanges();
 
+            //Generate and add history entries for uploaded histories
+            var histories = new List<TicketHistoryEntry>();
+            foreach ( TicketAttachment attach in output ) {
+                try {
+                    histories.Add( GetAddedAttachmentHistory( attach, User, context ) );
+                } catch { }
+            }
+            context.TicketHistoryEntries.AddRange( histories );
+            context.SaveChanges();
+
+            return output;
+        }
+        public TicketComment AddComment( TicketComment comment, IPrincipal User, ApplicationDbContext context, bool statusByWorkflow = true, int statusId = 0 ) {
+            context.TicketComments.Add( comment );
+            context.SaveChanges();
+            context.TicketHistoryEntries.Add( GetAddedCommentHistory( comment, User, context ) );
+
+            if ( statusId == 0 && statusByWorkflow == false ) { statusId = this.TicketStatusId; }
+
+            var interactionStatusUpdate = ProcessInteraction(User, context, statusByWorkflow, statusId);
+            if ( interactionStatusUpdate != null ) { context.TicketHistoryEntries.Add( interactionStatusUpdate ); }
+
+            context.SaveChanges();
+            return comment;
+        }
+
+
+        private TicketHistoryEntry MakeCreatedHistoryEntry( IPrincipal User, ApplicationDbContext context ) {
+            var history = context.TicketHistoryEntries.FirstOrDefault(the => the.EntryType == TicketHistoryEntry.TicketHistoryEntryType.Created
+                                                                           & the.ParentTicketId == this.Id);
+            if ( history == null ) {
+                //does not exist in db for this ticket yet, create a new one to be added.
+                return new TicketHistoryEntry() {
+                    UserId = User.Identity.GetUserId(),
+                    ParentTicketId = this.Id,
+                    EntryType = TicketHistoryEntry.TicketHistoryEntryType.Created,
+                    OldData = null,
+                    NewData = this.Title,
+                    OccuredAt = this.CreatedAt
+                };
+            } else {
+                //already exists
+                return null;
+            }
+        }
         private TicketHistoryEntry UpdateTitle( string newValue, IPrincipal User, ApplicationDbContext context ) {
             var history = new TicketHistoryEntry()
             {
@@ -182,15 +221,29 @@ namespace Semplicita.Models
                 NewData = newValue,
                 OccuredAt = DateTime.Now
             };
+            var notif = new TicketNotification() {
+                ParentTicketId = this.Id
+                ,
+                Created = DateTime.Now
+                ,
+                IsRead = false
+                ,
+                NotificationBody = $"Title was updated from '{this.Title}' to '{newValue}'"
+                ,
+                RecipientId = this.AssignedSolverId ?? this.ParentProject.ProjectManagerId
+                ,
+                SenderId = User.Identity.GetUserId()
+            };
+            context.TicketNotifications.Add( notif );
 
             var ticket = context.Tickets.Find(this.Id);
             ticket.LastInteractionAt = DateTime.Now;
             ticket.Title = newValue;
+
             context.SaveChanges();
 
             return history;
         }
-
         private TicketHistoryEntry UpdateDescription( string newValue, IPrincipal User, ApplicationDbContext context ) {
             var history = new TicketHistoryEntry()
             {
@@ -201,6 +254,20 @@ namespace Semplicita.Models
                 NewData = newValue,
                 OccuredAt = DateTime.Now
             };
+            var notif = new TicketNotification() {
+                ParentTicketId = this.Id
+                ,
+                Created = DateTime.Now
+                ,
+                IsRead = false
+                ,
+                NotificationBody = $"Description was updated (Length {(this.Description.Length - newValue.Length < 0 ? $"decreased by {(this.Description.Length - newValue.Length) * -1}." : this.Description.Length - newValue.Length > 0 ? $"increased by {this.Description.Length - newValue.Length}." : "stayed the same.")}"
+                ,
+                RecipientId = this.AssignedSolverId ?? this.ParentProject.ProjectManagerId
+                ,
+                SenderId = User.Identity.GetUserId()
+            };
+            context.TicketNotifications.Add( notif );
 
             var ticket = context.Tickets.Find(this.Id);
             ticket.LastInteractionAt = DateTime.Now;
@@ -209,7 +276,6 @@ namespace Semplicita.Models
 
             return history;
         }
-
         private TicketHistoryEntry UpdatePriority( int newId, IPrincipal User, ApplicationDbContext context ) {
             var newPriority = context.TicketPriorityTypes.Find(newId);
 
@@ -230,7 +296,6 @@ namespace Semplicita.Models
 
             return history;
         }
-
         private TicketHistoryEntry UpdateTicketType( int newId, IPrincipal User, ApplicationDbContext context ) {
             var newType = context.TicketTypes.Find(newId);
 
@@ -252,7 +317,6 @@ namespace Semplicita.Models
 
             return history;
         }
-
         private ICollection<TicketHistoryEntry> UpdateSolverAssignment( string newId, IPrincipal User, ApplicationDbContext context, bool statusByWorkflow = true ) {
             var output = new List<TicketHistoryEntry>();
             var newSolver = context.Users.Find(newId);
@@ -278,7 +342,6 @@ namespace Semplicita.Models
 
             return output;
         }
-
         private ICollection<TicketHistoryEntry> UpdateSolverReassigned( string newId, IPrincipal User, ApplicationDbContext context, bool statusByWorkflow = true ) {
             var output = new List<TicketHistoryEntry>();
             var newSolver = context.Users.Find(newId);
@@ -304,7 +367,6 @@ namespace Semplicita.Models
 
             return output;
         }
-
         private ICollection<TicketHistoryEntry> UpdateUnassigned( IPrincipal User, ApplicationDbContext context, bool statusByWorkflow = true ) {
             var output = new List<TicketHistoryEntry>();
             var history = new TicketHistoryEntry()
@@ -328,7 +390,6 @@ namespace Semplicita.Models
 
             return output;
         }
-
         private TicketHistoryEntry UpdateStatus( int newId, IPrincipal User, ApplicationDbContext context, bool save = true, bool workflow = false ) {
             var newStatus = context.TicketStatuses.Find(newId);
             if ( newId == this.TicketStatusId ) { return null; }
@@ -351,43 +412,6 @@ namespace Semplicita.Models
 
             return history;
         }
-
-        public TicketAttachment AddAttachment( HttpPostedFileBase file, IPrincipal User, ApplicationDbContext context, HttpServerUtilityBase Server ) {
-            var output = TicketAttachment.ProcessNewUpload(file, Server, this, User, context);
-
-            context.TicketAttachments.Add( output );
-            context.SaveChanges();
-
-            context.TicketHistoryEntries.Add( GetAddedAttachmentHistory( output, User, context ) );
-            context.SaveChanges();
-
-            return output;
-        }
-
-        public ICollection<TicketAttachment> AddAttachments( ICollection<HttpPostedFileBase> files, IPrincipal User, ApplicationDbContext context, HttpServerUtilityBase Server ) {
-            //Upload and add attachment models
-            var output = new List<TicketAttachment>();
-            foreach ( HttpPostedFileBase file in files ) {
-                try {
-                    output.Add( TicketAttachment.ProcessNewUpload( file, Server, this, User, context ) );
-                } catch { }
-            }
-            context.TicketAttachments.AddRange( output );
-            context.SaveChanges();
-
-            //Generate and add history entries for uploaded histories
-            var histories = new List<TicketHistoryEntry>();
-            foreach ( TicketAttachment attach in output ) {
-                try {
-                    histories.Add( GetAddedAttachmentHistory( attach, User, context ) );
-                } catch { }
-            }
-            context.TicketHistoryEntries.AddRange( histories );
-            context.SaveChanges();
-
-            return output;
-        }
-
         private TicketHistoryEntry GetAddedAttachmentHistory( TicketAttachment attach, IPrincipal User, ApplicationDbContext context ) {
             var history = new TicketHistoryEntry()
             {
@@ -401,21 +425,6 @@ namespace Semplicita.Models
 
             return history;
         }
-
-        public TicketComment AddComment( TicketComment comment, IPrincipal User, ApplicationDbContext context, bool statusByWorkflow = true, int statusId = 0 ) {
-            context.TicketComments.Add( comment );
-            context.SaveChanges();
-            context.TicketHistoryEntries.Add( GetAddedCommentHistory( comment, User, context ) );
-
-            if ( statusId == 0 && statusByWorkflow == false ) { statusId = this.TicketStatusId; }
-
-            var interactionStatusUpdate = ProcessInteraction(User, context, statusByWorkflow, statusId);
-            if ( interactionStatusUpdate != null ) { context.TicketHistoryEntries.Add( interactionStatusUpdate ); }
-
-            context.SaveChanges();
-            return comment;
-        }
-
         private TicketHistoryEntry GetAddedCommentHistory( TicketComment comment, IPrincipal User, ApplicationDbContext context ) {
             var history = new TicketHistoryEntry()
             {
@@ -429,7 +438,6 @@ namespace Semplicita.Models
 
             return history;
         }
-
         private TicketHistoryEntry ProcessInteraction( IPrincipal User, ApplicationDbContext context, bool statusByWorkflow = true, int statusId = 0 ) {
             if ( statusByWorkflow && statusId == -1 ) {
                 var isStaff = new PermissionsHelper.PermissionsContainer(new PermissionsHelper(context), User, false).IsUserStaff;
@@ -478,8 +486,6 @@ namespace Semplicita.Models
             }
             return null;
         }
-
-
 
     }
 }

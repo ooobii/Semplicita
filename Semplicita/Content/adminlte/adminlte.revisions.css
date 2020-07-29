@@ -218,6 +218,16 @@
     background-color: #B2B0B7;
 }
 
+/*Notification Dropdown Menu*/
+.notif-dropdown {
+    width: 400px !important;
+    max-width: 980px;
+}
+    .notif-dropdown li a {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
 /*Jumbotron*/
 @media (min-width: 576px) {

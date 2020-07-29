@@ -1,4 +1,16 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNet.Identity
+@using Semplicita.Models
+@{
+    ApplicationDbContext context = null;
+    List<TicketNotification> notifs = null;
+
+    if(User.Identity.IsAuthenticated) {
+        context = new ApplicationDbContext();
+        notifs = context.Users.Find( User.Identity.GetUserId() ).GetUnreadTicketNotifications( context ).ToList();
+    }
+}
+
+<!DOCTYPE html>
 
 <html>
 <head>
@@ -65,42 +77,56 @@
             </ul>
 
             @* TODO: Searching
-                <form class="form-inline ml-3">
-                    <div class="input-group input-group-sm">
-                        <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
-                        <div class="input-group-append">
-                            <button class="btn btn-navbar" type="submit">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
-                    </div>
-                </form>
+        <form class="form-inline ml-3">
+            <div class="input-group input-group-sm">
+                <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
+                <div class="input-group-append">
+                    <button class="btn btn-navbar" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
             *@
 
             <!-- Right navbar links -->
-            <ul class="navbar-nav ml-auto">
-                <!-- Messages Dropdown Menu -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link" data-toggle="dropdown" href="#">
-                        <i class="far fa-comments"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
-                    </div>
-                </li>
-                <!-- Notifications Dropdown Menu -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link" data-toggle="dropdown" href="#">
-                        <i class="far fa-bell"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                        <span class="dropdown-item dropdown-header">0 Notifications</span>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
-                    </div>
-                </li>
-            </ul>
+
+            @if ( User.Identity.IsAuthenticated ) {
+                <ul class="navbar-nav ml-auto">
+                    <!-- Notifications Dropdown Menu -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" data-toggle="dropdown" href="#">
+                            <i class="far fa-bell"></i>
+                            @if(notifs.Count > 0) { 
+                                <span class="badge badge-danger navbar-badge">@notifs.Count</span>
+                            }
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right notif-dropdown">
+                            <span class="dropdown-item dropdown-header">@notifs.Count @(notifs.Count == 1 ? "Notification" : "Notifications")</span>
+                            <div class="dropdown-divider"></div>
+                            @if (notifs.Count > 0) {
+                                foreach(TicketNotification notif in notifs) {
+                                    <a href="@Url.Action("RespondNotif", "Tickets", new {notif.Id})" class="dropdown-item">
+                                        <!-- Message Start -->
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <h3 class="dropdown-item-title pb-1">
+                                                    @notif.ParentTicket.GetTicketIdentifier()
+                                                    <span class="float-right text-sm text-danger"><i class="fas fa-star"></i></span>
+                                                </h3>
+                                                <p class="text-sm pb-2">@notif.NotificationBody</p>
+                                                <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i>@notif.Created.ToString("M/d/yy h:mm tt") by @notif.Sender.ShortName</p>
+                                            </div>
+                                        </div>
+                                        <!-- Message End -->
+                                    </a>
+                                }
+                            }
+                            <a href="#" class="dropdown-item dropdown-footer">Mark All Read</a>
+                        </div>
+                    </li>
+                </ul>
+            }
         </nav>
 
         <!-- Main Sidebar Container -->
@@ -124,7 +150,7 @@
 
                         @Html.Partial("_ProjectsNavSection")
 
-                        @*@Html.Partial("_TicketsNavSection")*@
+                        @Html.Partial("_TicketsNavSection")
 
                         @Html.Partial("_ServerAdministrationNavSection")
                     </ul>

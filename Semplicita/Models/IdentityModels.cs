@@ -3,10 +3,12 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.UI.WebControls;
 
 namespace Semplicita.Models
 {
@@ -75,7 +77,21 @@ namespace Semplicita.Models
             var mgr = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext()));
             return mgr.IsInRole( this.Id, role );
         }
+
+        public ICollection<TicketNotification> GetAllNotifications( ApplicationDbContext context ) {
+            return context.TicketNotifications.Where( tn => tn.RecipientId == this.Id )
+                                              .OrderByDescending(tn => tn.Created)
+                                              .ToList();
+        }
+        public ICollection<TicketNotification> GetUnreadTicketNotifications( ApplicationDbContext context ) {
+            return context.TicketNotifications.Where( tn => tn.RecipientId == this.Id )
+                                              .Where( tn => tn.IsRead == false )
+                                              .OrderByDescending( tn => tn.Created)
+                                              .ToList();
+        }
     }
+
+
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
@@ -94,6 +110,7 @@ namespace Semplicita.Models
         public DbSet<TicketComment> TicketComments { get; set; }
         public DbSet<TicketHistoryEntry> TicketHistoryEntries { get; set; }
         public DbSet<TicketNotification> TicketNotifications { get; set; }
+        public DbSet<TicketNotificationWatchEntry> TicketNotificationWatchEntries { get; set; }
         public DbSet<TicketPriority> TicketPriorityTypes { get; set; }
         public DbSet<TicketStatus> TicketStatuses { get; set; }
         public DbSet<TicketType> TicketTypes { get; set; }

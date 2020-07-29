@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNet.Identity;                   
+﻿using Microsoft.AspNet.Identity;
 using Semplicita.Helpers;
 using Semplicita.Models;
 using System;
@@ -13,7 +13,7 @@ using System.Web.Mvc;
 namespace Semplicita.Controllers
 {
     [Authorize]
-    [SuppressMessage("ReSharper", "Mvc.ViewNotResolved")]
+    [SuppressMessage( "ReSharper", "Mvc.ViewNotResolved" )]
     public class TicketsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -26,29 +26,35 @@ namespace Semplicita.Controllers
         [Route( "tickets/{ticketIdentifier}" )]
         public ActionResult Show( string ticketIdentifier ) {
             if ( string.IsNullOrWhiteSpace( ticketIdentifier ) ) {
-                return new HttpStatusCodeResult( HttpStatusCode.BadRequest );
+                TempData.AddDangerToast( "You must provide the ticket identifier to display. Please try again." );
+                return RedirectToAction( "Index", "Tickets" );
             }
             Ticket ticket = db.Tickets.ToList().FirstOrDefault(t => t.GetTicketIdentifier() == ticketIdentifier);
             if ( ticket == null ) {
-                return HttpNotFound();
+                TempData.AddDangerToast( "We were unable to locate this ticket. Please try again." );
+                return RedirectToAction( "Index", "Tickets" );
             }
+
+            if ( !_permissionsHelper.CanViewTicket( User, ticket.Id ) ) {
+                TempData.AddDangerToast( "You are not allowed to view this resource." );
+                return RedirectToAction( "Index", "Tickets" );
+            }
+
 
             ProjectWorkflow parentProjWorkflow = ticket.ParentProject.ActiveWorkflow;
             List<ApplicationUser> solvers = null;
             if ( User.Identity.GetUserId() == ticket.ParentProject.ProjectManagerId || User.IsInRole( "ServerAdmin" ) ) {
                 solvers = ticket.ParentProject.GetSolverMembers();
             }
-
-
             List<TicketStatus> availStatuses = null;
-            if ( ticket.Permissions(User).CanUpdateTicketStatus ) {
+            if ( ticket.Permissions( User ).CanUpdateTicketStatus ) {
                 availStatuses = parentProjWorkflow.GetAvailableStatuses( ticket.Id, User, db );
             }
 
             var viewModel = new EditTicketViewModel()
             {
                 ParentProject = ticket.ParentProject,
-                Reporter = db.Users.Find(User.Identity.GetUserId()),
+                Reporter = ticket.Reporter,
                 PrioritySelections = db.TicketPriorityTypes.ToDictionary(tp => tp.Name, tp => tp.Id),
                 AvailableTicketTypes = db.TicketTypes.ToList(),
                 CurrentTicket = ticket,
@@ -57,6 +63,103 @@ namespace Semplicita.Controllers
             };
 
             return View( viewModel );
+        }
+
+        [Route( "notifications/read/{id}" )]
+        public ActionResult RespondNotif( int id ) {
+            var notif = db.TicketNotifications.FirstOrDefault(n => n.Id == id);
+            if ( notif == null || notif.ParentTicket == null ) {
+                TempData.AddDangerToast( "We were unable to locate the notification, or the ticket it is linked to. Please try again later." );
+                return RedirectToAction( "Index", "Tickets" );
+            }
+            if ( notif.RecipientId != User.Identity.GetUserId() ) {
+                TempData.AddDangerToast( "You are not allowed to view this resource." );
+                return RedirectToAction( "Index", "Tickets" );
+            }
+
+            notif.IsRead = true;
+            db.SaveChanges();
+            return RedirectToAction( "Show", "Tickets", new { ticketIdentifier = notif.ParentTicket.GetTicketIdentifier() } );
+        }
+
+        [Route( "tickets/{ticketIdentifier}/watch" )]
+        public ActionResult AddWatch( string ticketIdentifier ) {
+            if ( string.IsNullOrWhiteSpace( ticketIdentifier ) ) {
+                TempData.AddDangerToast( "You must provide the ticket identifier to display. Please try again." );
+                return RedirectToAction( "Index", "Tickets" );
+            }
+            Ticket ticket = db.Tickets.ToList().FirstOrDefault(t => t.GetTicketIdentifier() == ticketIdentifier);
+            if ( ticket == null ) {
+                TempData.AddDangerToast( "We were unable to locate this ticket. Please try again." );
+                return RedirectToAction( "Index", "Tickets" );
+            }
+
+            if ( !_permissionsHelper.CanViewTicket( User, ticket.Id ) ) {
+                TempData.AddDangerToast( "You are not allowed to view this resource." );
+                return RedirectToAction( "Index", "Tickets" );
+            }
+
+            try {
+
+                var newWatch = new TicketNotificationWatchEntry() {
+                    WatcherId = User.Identity.GetUserId()
+                    ,TicketId = ticket.Id
+                };
+                db.TicketNotificationWatchEntries.Add( newWatch );
+                db.SaveChanges();
+
+                TempData.AddSuccessToast( $"You have successfully subscribed to ticket {ticket.GetTicketIdentifier()}'s notifications! You will be notified whenever changes occur to this ticket." );
+                return RedirectToAction( "Show", "Tickets", new { ticketIdentifier = ticket.GetTicketIdentifier() } );
+
+            } catch {
+
+                TempData.AddDangerToast( "We were unable to subscribe you to ticket updates. Please try again." );
+                return RedirectToAction( "Show", "Tickets", new { ticketIdentifier = ticket.GetTicketIdentifier() } );
+
+            }
+
+
+        }
+
+        [Route( "tickets/{ticketIdentifier}/remove-watch" )]
+        public ActionResult RemoveWatch( string ticketIdentifier ) {
+            if ( string.IsNullOrWhiteSpace( ticketIdentifier ) ) {
+                TempData.AddDangerToast( "You must provide the ticket identifier to display. Please try again." );
+                return RedirectToAction( "Index", "Tickets" );
+            }
+            Ticket ticket = db.Tickets.ToList().FirstOrDefault(t => t.GetTicketIdentifier() == ticketIdentifier);
+            if ( ticket == null ) {
+                TempData.AddDangerToast( "We were unable to locate this ticket. Please try again." );
+                return RedirectToAction( "Index", "Tickets" );
+            }
+
+            if ( !_permissionsHelper.CanViewTicket( User, ticket.Id ) ) {
+                TempData.AddDangerToast( "You are not allowed to view this resource." );
+                return RedirectToAction( "Index", "Tickets" );
+            }
+
+            try {
+
+                var watches = ticket.Watchers.Where(w => w.WatcherId == User.Identity.GetUserId()).ToList();
+                if(!watches.Any()) { throw new Exception(); } //throw error if no watch records exist for this user on this ticket
+
+                //remove any existance of watches on this ticket for this user, and notify if changes saved successfully
+                foreach(TicketNotificationWatchEntry w in watches) {
+                    ticket.Watchers.Remove( w );
+                    db.TicketNotificationWatchEntries.Remove( w );
+                }
+                db.SaveChanges();
+                TempData.AddInfoToast( $"You have successfully unsubscribed from ticket {ticket.GetTicketIdentifier()}'s notifications. You will be no longer be notified of changes." );
+
+            } catch {
+
+                TempData.AddDangerToast( "We were unable to unsubscribe you from ticket updates. Were you originally subscribed?" );
+
+            }
+
+            return RedirectToAction( "Show", "Tickets", new { ticketIdentifier = ticket.GetTicketIdentifier() } );
+
+
         }
 
         [Route( "tickets/{ticketIdentifier}/attachments/{attachmentId}" )]
@@ -133,14 +236,22 @@ namespace Semplicita.Controllers
                 var newTicket = new Ticket()
                 {
                     Title = model.Title
-                    ,Description = model.Description
-                    ,CreatedAt = now
-                    ,ParentProjectId = parentProject.Id
-                    ,TicketTypeId = model.TicketTypeId
-                    ,TicketStatusId = initStatus.Id
-                    ,TicketPriorityLevelId = priority.Id
-                    ,ReporterId = User.Identity.GetUserId()
-                    ,AssignedSolverId = initSolverId
+                    ,
+                    Description = model.Description
+                    ,
+                    CreatedAt = now
+                    ,
+                    ParentProjectId = parentProject.Id
+                    ,
+                    TicketTypeId = model.TicketTypeId
+                    ,
+                    TicketStatusId = initStatus.Id
+                    ,
+                    TicketPriorityLevelId = priority.Id
+                    ,
+                    ReporterId = User.Identity.GetUserId()
+                    ,
+                    AssignedSolverId = initSolverId
                 };
                 db.Tickets.Add( newTicket );
                 db.SaveChanges();
@@ -228,16 +339,26 @@ namespace Semplicita.Controllers
                 var newTicket = new Ticket()
                 {
                     Title = model.Title
-                    ,Description = model.Description
-                    ,CreatedAt = oldTicket.CreatedAt
-                    ,LastInteractionAt = now
-                    ,ParentProjectId = parentProject.Id
-                    ,TicketTypeId = model.TicketTypeId
-                    ,TicketType = db.TicketTypes.Find(model.TicketTypeId)
-                    ,TicketStatusId = nextStatus?.Id ?? oldTicket.TicketStatusId
-                    ,TicketPriorityLevelId = priority.Id
-                    ,ReporterId = User.Identity.GetUserId()
-                    ,AssignedSolverId = model.SolverId
+                    ,
+                    Description = model.Description
+                    ,
+                    CreatedAt = oldTicket.CreatedAt
+                    ,
+                    LastInteractionAt = now
+                    ,
+                    ParentProjectId = parentProject.Id
+                    ,
+                    TicketTypeId = model.TicketTypeId
+                    ,
+                    TicketType = db.TicketTypes.Find(model.TicketTypeId)
+                    ,
+                    TicketStatusId = nextStatus?.Id ?? oldTicket.TicketStatusId
+                    ,
+                    TicketPriorityLevelId = priority.Id
+                    ,
+                    ReporterId = User.Identity.GetUserId()
+                    ,
+                    AssignedSolverId = model.SolverId
                 };
 
                 var histories = oldTicket.UpdateTicket(newTicket, User, db);
@@ -298,7 +419,7 @@ namespace Semplicita.Controllers
                 var ticket = db.Tickets.Find(model.TicketId);
                 if ( ticket == null ) {
                     TempData.AddDangerToast( "The ticket no longer exists." );
-                    return RedirectToAction( "Index", "Tickets");
+                    return RedirectToAction( "Index", "Tickets" );
                 }
                 if ( !_permissionsHelper.CanCommentOnTicket( User, model.TicketId ) ) {
                     TempData.AddDangerToast( "You are not allowed to perform this action." );
@@ -309,11 +430,14 @@ namespace Semplicita.Controllers
                 var newComment = new TicketComment()
                 {
                     AuthorId = User.Identity.GetUserId()
-                    ,CreatedAt = DateTime.Now
-                    ,ParentTicketId = model.TicketId
-                    ,Body = model.Body
+                    ,
+                    CreatedAt = DateTime.Now
+                    ,
+                    ParentTicketId = model.TicketId
+                    ,
+                    Body = model.Body
                 };
-                
+
                 ticket.AddComment( newComment, User, db, model.StatusId == -1, model.StatusId );
 
                 return RedirectToAction( "Show", "Tickets", new { TicketIdentifier = ticket.GetTicketIdentifier() } );

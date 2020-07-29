@@ -10,8 +10,7 @@
 }
 
 <div class="jumbotron jumbotron-skinny bg-gradient-dkpurple">
-    <h1>Ticket: '@Model.CurrentTicket.GetTicketIdentifier()'</h1>
-    <p class="lead">@Model.CurrentTicket.Title</p>
+    <h2>Ticket: '@Model.CurrentTicket.GetTicketIdentifier()'</h2>
 </div>
 
 <div class="container">
@@ -19,7 +18,7 @@
 
         <div class="col pb-4">
             <h2 class="ticket-title">@Model.CurrentTicket.Title</h2>
-            <p class="mb-0 text-sm">Created at @Model.CurrentTicket.CreatedAt.ToString("M/d/yyyy h:mm tt") by <b>@Model.CurrentTicket.Reporter.FullNameStandard</b></p>
+            <p class="mb-0 text-sm">Created at @Model.CurrentTicket.CreatedAt.ToString( "M/d/yyyy h:mm tt" ) by <b>@Model.CurrentTicket.Reporter.FullNameStandard</b></p>
         </div>
     </div>
 
@@ -63,32 +62,27 @@
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body">
-                            <!-- Conversation -->
-                            <div class="direct-chat-messages">
+
+                            <div class="direct-chat-messages" id="comments">
                                 @if ( Model.CurrentTicket.Comments.Count > 0 ) {
                                     foreach ( TicketComment comment in Model.CurrentTicket.Comments.OrderBy( c => c.CreatedAt ).ToList() ) {
                                         if ( comment.AuthorId == User.Identity.GetUserId() ) {
                                             //this user created the comment; show on right
 
-                                            <!-- Message to the right -->
                                             <div class="direct-chat-msg right pt-1">
                                                 <div class="direct-chat-infos clearfix">
                                                     <span class="direct-chat-name float-left">@comment.Author.FullNameStandard @comment.Author.GetRoleBadges()</span>
                                                     <span class="direct-chat-timestamp float-right">@comment.CreatedAt.ToString( "d MMM h:mm:ss tt" )</span>
                                                 </div>
-                                                <!-- /.direct-chat-infos -->
                                                 <img class="direct-chat-img" src="@comment.Author.AvatarImagePath">
-                                                <!-- /.direct-chat-img -->
                                                 <div class="direct-chat-text">
                                                     @comment.Body
                                                 </div>
-                                                <!-- /.direct-chat-text -->
                                             </div>
 
                                         } else {
                                             //another user created the comment; show on left
 
-                                            <!-- Message. Default to the left -->
                                             <div class="direct-chat-msg">
                                                 <div class="direct-chat-infos clearfix">
                                                     <span class="direct-chat-name float-left">
@@ -98,7 +92,8 @@
                                                         }
                                                         @if ( Model.ParentProject.ProjectManagerId == comment.AuthorId ) {
                                                             <small class="badge bg-gradient-navy white align-top">'@Model.ParentProject.TicketTag' Project Mgr</small>
-                                                        } @comment.Author.GetRoleBadges()
+                                                        }
+                                                        @comment.Author.GetRoleBadges()
                                                     </span>
                                                     <span class="direct-chat-timestamp float-right">@comment.CreatedAt.ToString( "d MMM h:mm:ss tt" )</span>
                                                 </div>
@@ -106,7 +101,6 @@
                                                 <div class="direct-chat-text">
                                                     @comment.Body
                                                 </div>
-                                                <!-- /.direct-chat-text -->
                                             </div>
 
                                         }
@@ -132,7 +126,6 @@
                                                         </span>
                                                         <span class="contacts-list-msg">@user.GetRoleBadges()</span>
                                                     </div>
-                                                    <!-- /.contacts-list-info -->
                                                 </a>
                                             </li>
                                         }
@@ -141,10 +134,7 @@
                                             <h6 class="mt-5 mb-5 text-center">No Authors Yet! 📝</h6>
                                         </li>
                                     }
-
-                                    <!-- End Contact Item -->
                                 </ul>
-                                <!-- /.contacts-list -->
                             </div>
                         </div>
 
@@ -154,7 +144,6 @@
                                     @using ( Html.BeginForm( "AddComment", "Tickets", FormMethod.Post ) ) {
                                         @Html.AntiForgeryToken()
                                         @Html.Hidden( "TicketId", Model.CurrentTicket.Id )
-
                                         <div class="input-group">
                                             <input type="text" name="Body" placeholder="Type Message ..." class="form-control">
                                             <span class="input-group-append">
@@ -167,14 +156,13 @@
                                                         <button type="submit" name="StatusId" value="-1" class="dropdown-item text-sm">Use Workflow's Next Status</button>
                                                         <button type="submit" name="StatusId" value="0" class="dropdown-item text-sm">No Status Change (Ignore Workflow)</button>
                                                         <div class="dropdown-divider">Add comment</div>
-                                                        @foreach( TicketStatus s in Model.AvailableStatuses ) {
+                                                        @foreach ( TicketStatus s in Model.AvailableStatuses ) {
                                                             <button type="submit" name="StatusId" value="@s.Id" class="dropdown-item text-sm">Set status to @s.GetStatusBadgeHtml()</button>
                                                         }
                                                     </div>
                                                 </div>
                                             </span>
                                         </div>
-
                                     }
                                 </div>
 
@@ -221,20 +209,20 @@
                                     DateTime prevDate = Model.CurrentTicket.HistoryEntries.Max(he => he.OccuredAt).Date;
                                 }
                                 <div class="time-label">
-                                    <span class="bg-navy">@prevDate.ToString("MMMM d, yyyy")</span>
+                                    <span class="bg-navy">@prevDate.ToString( "MMMM d, yyyy" )</span>
                                 </div>
 
-                                @foreach( TicketHistoryEntry the in Model.CurrentTicket.HistoryEntries.OrderByDescending(he => he.OccuredAt) ) {
-                                    if( prevDate.Date != the.OccuredAt.Date ) {
+                                @foreach ( TicketHistoryEntry the in Model.CurrentTicket.HistoryEntries.OrderByDescending( he => he.OccuredAt ) ) {
+                                    if ( prevDate.Date != the.OccuredAt.Date ) {
                                         prevDate = the.OccuredAt.Date;
                                         <div class="time-label">
-                                            <span class="bg-navy">@prevDate.ToString("MMMM d, yyyy")</span>
+                                            <span class="bg-navy">@prevDate.ToString( "MMMM d, yyyy" )</span>
                                         </div>
                                     }
 
                                     <div>
                                         <div class="timeline-item">
-                                            <span class="time"><i class="fas fa-clock"></i> @the.OccuredAt.ToString("hh:mm:ss tt")</span>
+                                            <span class="time"><i class="fas fa-clock"></i> @the.OccuredAt.ToString( "hh:mm:ss tt" )</span>
                                             <h3 class="timeline-header">@the.GetHistoryTitleHtml()</h3>
 
                                             <div class="timeline-body">
@@ -251,45 +239,22 @@
         </div>
 
         <div class="col-xl-4">
-            <div class="row pt-4 pt-xl-0">
+            <div class="row pt-3 pt-xl-0">
                 <div class="col">
-                    <div class="card collapsed-card">
-                        <div class="card-header">
-                            <h5 class="card-title"><b>Actions</b></h5>
-
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
+                    <div class="card">
+                        <div class="card-header bg-gradient-navy">
+                            <h5><i class="fas fa-tasks card-header-icon"></i>Current Status</h5>
                         </div>
-                        <!-- /.card-header -->
-                        <div class="card-body p-3">
 
-                            @if( permissions.CanEditTicket ) {
-                                <div class="row p-1">
-                                    <div class="col">
-                                        <a href="@Url.Action("Edit", "Tickets", new { TicketIdentifier = Model.CurrentTicket.GetTicketIdentifier() })">
-                                            <div class="btn btn-block btn-warning" title="Report New Issue">Edit Ticket</div>
-                                        </a>
-                                    </div>
-                                </div>
-                            }
-                            @if( permissions.CanArchiveTicket ) {
-                                <div class="row p-1">
-                                    <div class="col">
-                                        <a href="@Url.Action("Archive", "Tickets", new { TicketIdentifier = Model.CurrentTicket.GetTicketIdentifier() })">
-                                            <div class="btn btn-block btn-danger">Archive Ticket</div>
-                                        </a>
-                                    </div>
-                                </div>
-                            }
+                        <div class="card-body">
+                            <h6>@Model.CurrentTicket.TicketStatus.GetStatusBadgeHtml( 14 )</h6>
+                            <p class="text-sm">@Model.CurrentTicket.TicketStatus.Description</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="row pt-4 pt-xl-0">
+            <div class="row pt-3 pt-xl-0">
                 <div class="col">
                     <div class="card">
                         <div class="card-header bg-gradient-navy">
@@ -297,7 +262,7 @@
                         </div>
 
                         <div class="card-body">
-                            @if( Model.CurrentTicket.AssignedSolverId != null ) {
+                            @if ( Model.CurrentTicket.AssignedSolverId != null ) {
                                 <h5>
                                     @Model.CurrentTicket.AssignedSolver.FullNameStandard
                                     @Model.CurrentTicket.AssignedSolver.GetStaffBadge()
@@ -311,7 +276,7 @@
                 </div>
             </div>
 
-            <div class="row pt-4 pt-xl-0">
+            <div class="row pt-3 pt-xl-0">
                 <div class="col">
                     <div class="card">
                         <div class="card-header bg-gradient-navy">
@@ -327,22 +292,58 @@
                 </div>
             </div>
 
-            <div class="row pt-4 pt-xl-0">
+            <div class="row pt-3 pt-xl-0">
                 <div class="col">
                     <div class="card">
                         <div class="card-header bg-gradient-navy">
-                            <h5><i class="fas fa-tasks card-header-icon"></i>Current Status</h5>
+                            <i class="far fa-bell card-header-icon"></i>Watchers
+
+                            <div class="card-tools">
+                                @if ( Model.CurrentTicket.IsWatching( User ) ) {
+                                    using ( Html.BeginForm( "RemoveWatch", "Tickets", FormMethod.Post ) ) {
+                                        Html.AntiForgeryToken();
+                                        @Html.Hidden( "ticketIdentifier", Model.CurrentTicket.GetTicketIdentifier() );
+                                        <button type="submit" title="Remove your subscription from this ticket." class="btn btn-danger btn-tool btn-sm no-border"><i class="far fa-minus-square"></i></button>
+                                    }
+                                } else {
+                                    using ( Html.BeginForm( "AddWatch", "Tickets", FormMethod.Post ) ) {
+                                        Html.AntiForgeryToken();
+                                        @Html.Hidden( "ticketIdentifier", Model.CurrentTicket.GetTicketIdentifier() );
+                                        <button type="submit" title="Subscribe to this ticket's notifications" class="btn btn-success btn-tool btn-sm no-border"><i class="far fa-plus-square"></i></button>
+                                    }
+                                }
+                            </div>
                         </div>
 
                         <div class="card-body">
-                            <h6>@Model.CurrentTicket.TicketStatus.GetStatusBadgeHtml(14)</h6>
-                            <p class="text-sm">@Model.CurrentTicket.TicketStatus.Description</p>
+                            @if ( Model.CurrentTicket.Watchers.Count > 0 ) {
+                                <p>The following users will receive notifications when this ticket updates:</p>
+                                <div class="card-comments">
+                                    @foreach ( ApplicationUser u in Model.CurrentTicket.Watchers.Select( w => w.Watcher ) ) {
+                                        <div class="card-comment">
+                                            <!-- User image -->
+                                            <img class="img-circle img-sm" src="~/img/avatars/matthew.png" alt="User Image">
+
+                                            <div class="comment-text">
+                                                <span class="username">
+                                                    @u.FullNameStandard
+                                                    <span class="float-right text-sm">@u.GetRoleBadges()</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            } else {
+                                <h6 class="text-center p-2">No users subscribed! 🤐</h6>
+                            }
+
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="row pt-4 pt-xl-0">
+
+            <div class="row pt-3 pt-xl-0">
                 <div class="col">
                     <div class="card">
                         <div class="card-header">
@@ -356,30 +357,52 @@
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body p-0">
-                            @if( Model.CurrentTicket.Attachments.Count > 0 ) {
+                            @if ( Model.CurrentTicket.Attachments.Count > 0 ) {
                                 <ul class="products-list product-list-in-card pl-2 pr-2">
-                                    @foreach( TicketAttachment a in Model.CurrentTicket.Attachments.OrderByDescending(a => a.UploadedAt) ) {
-                                        @*<li class="item">
-                                                <div class="product-img">
-                                                    <img src="~/img/upload.png" alt="File" class="img-size-50">
-                                                </div>
-                                                <div class="product-info">
-                                                    <a target="_blank" href="@Url.Action("GetTicketAttachment", "Tickets", new { ticketIdentifier = Model.CurrentTicket.GetTicketIdentifier(), attachmentId = a.Id })" class="product-title">
-                                                        @a.Name
-                                                    </a>
-                                                    <span class="product-description text-sm">
-                                                        Uploaded @a.UploadedAt.ToString("MMMM d, yyyy h:mm:ss tt")
-                                                    </span>
-                                                    <span class="product-description text-sm">
-                                                        by @a.Author.FullNameStandard
-                                                    </span>
-                                                </div>
-                                            </li>*@
+                                    @foreach ( TicketAttachment a in Model.CurrentTicket.Attachments.OrderByDescending( a => a.UploadedAt ) ) {
                                         @a.GetDisplayHtml();
                                     }
                                 </ul>
                             } else {
                                 <h6 class="text-center p-4">No attachments added yet! 🤔</h6>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row pt-3 pt-xl-0">
+                <div class="col">
+                    <div class="card collapsed-card">
+                        <div class="card-header">
+                            <h5 class="card-title"><b>Actions</b></h5>
+
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body p-3">
+
+                            @if ( permissions.CanEditTicket ) {
+                                <div class="row p-1">
+                                    <div class="col">
+                                        <a href="@Url.Action("Edit", "Tickets", new { TicketIdentifier = Model.CurrentTicket.GetTicketIdentifier() })">
+                                            <div class="btn btn-block btn-warning" title="Report New Issue">Edit Ticket</div>
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                            @if ( permissions.CanArchiveTicket ) {
+                                <div class="row p-1">
+                                    <div class="col">
+                                        <a href="@Url.Action("Archive", "Tickets", new { TicketIdentifier = Model.CurrentTicket.GetTicketIdentifier() })">
+                                            <div class="btn btn-block btn-danger">Archive Ticket</div>
+                                        </a>
+                                    </div>
+                                </div>
                             }
                         </div>
                     </div>
@@ -413,5 +436,9 @@
             bsCustomFileInput.init();
         });
     </script>
-
+    
+    @* scroll to bottom of the comments section *@
+    <script>
+        $("#comments").scrollTop($("#comments")[0].scrollHeight);
+    </script>
 }
