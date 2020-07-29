@@ -322,7 +322,7 @@
                                     @foreach ( ApplicationUser u in Model.CurrentTicket.Watchers.Select( w => w.Watcher ) ) {
                                         <div class="card-comment">
                                             <!-- User image -->
-                                            <img class="img-circle img-sm" src="~/img/avatars/matthew.png" alt="User Image">
+                                            <img class="img-circle img-sm" src="~@u.AvatarImagePath" alt="User Image">
 
                                             <div class="comment-text">
                                                 <span class="username">
