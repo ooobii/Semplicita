@@ -75,7 +75,7 @@
                         @foreach( Project p in Model.Projects ) {
                             <tr>
                                 <td>@p.Name</td>
-                                <td>@p.CreatedAt.ToString("m/d/yyyy")</td>
+                                <td>@p.CreatedAt.ToString("M/d/yyyy")</td>
                                 <td>@(p.ProjectManagerId == null ? "None" : Model.Users.FirstOrDefault(u => u.Id == p.ProjectManagerId).FullNameStandard)</td>
                                 <td>@(p.Members.Count)</td>
                                 <td>@(p.ActiveWorkflow == null ? "No" : p.ActiveWorkflow.Name)</td>
