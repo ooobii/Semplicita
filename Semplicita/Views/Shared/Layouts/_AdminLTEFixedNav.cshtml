@@ -112,10 +112,9 @@
                                             <div class="media-body">
                                                 <h3 class="dropdown-item-title pb-1">
                                                     @notif.ParentTicket.GetTicketIdentifier()
-                                                    <span class="float-right text-sm text-danger"><i class="fas fa-star"></i></span>
+                                                    <span class="float-right text-sm text-muted">@notif.Created.ToString("M/d/yy h:mm tt")<i class="far fa-clock ml-1"></i></span>
                                                 </h3>
-                                                <p class="text-sm pb-2">@notif.NotificationBody</p>
-                                                <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i>@notif.Created.ToString("M/d/yy h:mm tt") by @notif.Sender.ShortName</p>
+                                                <p class="text-sm pt-2">@notif.Sender.ShortName - @notif.NotificationBody</p>
                                             </div>
                                         </div>
                                         <!-- Message End -->

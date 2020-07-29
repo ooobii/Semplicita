@@ -24,7 +24,7 @@
                 </div>
                 <div class="card-body">
                     @foreach ( var t in uPerm.ViewableTickets.OrderByDescending( t => t.CreatedAt ).Take( 5 ) ) {
-                        <a class="btn btn-block btn-outline-primary" href="@Url.Action("Show", "Tickets", new { TicketIdentifier = t.GetTicketIdentifier() })"></a>
+                        <a class="btn btn-block btn-outline-primary" href="@Url.Action("Show", "Tickets", new { TicketIdentifier = t.GetTicketIdentifier() })">@t.GetTicketIdentifier(): @t.Title</a>
                     }
                 </div>
                 <div class="card-footer">

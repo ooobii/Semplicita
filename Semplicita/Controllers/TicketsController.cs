@@ -67,17 +67,25 @@ namespace Semplicita.Controllers
 
         [Route( "notifications/read/{id}" )]
         public ActionResult RespondNotif( int id ) {
+            var userId = User.Identity.GetUserId();
+
             var notif = db.TicketNotifications.FirstOrDefault(n => n.Id == id);
             if ( notif == null || notif.ParentTicket == null ) {
                 TempData.AddDangerToast( "We were unable to locate the notification, or the ticket it is linked to. Please try again later." );
                 return RedirectToAction( "Index", "Tickets" );
             }
-            if ( notif.RecipientId != User.Identity.GetUserId() ) {
+            if ( notif.RecipientId != userId ) {
                 TempData.AddDangerToast( "You are not allowed to view this resource." );
                 return RedirectToAction( "Index", "Tickets" );
             }
-
             notif.IsRead = true;
+
+
+            //also mark other notifs to this user on this ticket as read.
+            foreach(var n in db.TicketNotifications.Where(n => n.RecipientId == userId && n.ParentTicketId == notif.ParentTicketId)) {
+                n.IsRead = true;
+            }
+
             db.SaveChanges();
             return RedirectToAction( "Show", "Tickets", new { ticketIdentifier = notif.ParentTicket.GetTicketIdentifier() } );
         }
@@ -260,6 +268,9 @@ namespace Semplicita.Controllers
                 if ( model.Attachments.First() != null ) {
                     newTicket.AddAttachments( model.Attachments, User, db, Server );
                 }
+
+                db.TicketNotifications.AddRange( TicketNotification.GenerateNotifications( db, User.Identity.GetUserId(), newTicket.Id, "A new ticket has been created!" ) );
+                db.SaveChanges();
 
                 return RedirectToAction( "Show", "Tickets", new { TicketIdentifier = newTicket.GetTicketIdentifier() } );
             }
