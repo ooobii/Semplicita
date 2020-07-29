@@ -504,7 +504,11 @@ namespace Semplicita.Controllers
         public ActionResult GetAvatarUrl() {
             var userid = User.Identity.GetUserId();
             var user = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>().FindById(userid);
-            return Content( user.AvatarImagePath );
+
+            var path = user.AvatarImagePath;
+            if(string.IsNullOrEmpty(path)) { path = "/img/avatars/user.jpeg"; }
+
+            return Content( path );
         }
 
         public ActionResult GetRoleBadges() {
