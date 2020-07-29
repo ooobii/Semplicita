@@ -15,8 +15,6 @@
     <p class="lead">View or edit user role assignments of the members of this server.</p>
 </div>
 
-
-
 @* Help *@
 <div class="row">
 
@@ -78,7 +76,6 @@
                                     </div>
                                 </div>
 
-
                                 <div class="row p-1">
                                     <div class="col-12">
                                         <h5>Step 2: Select Roles</h5>
@@ -91,9 +88,7 @@
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
-
                         </div>
 
                         <div class="card-footer">
@@ -104,18 +99,14 @@
                                     </div>
                                     <div class="col-xl-6">
                                         <input type="submit" name="userRoles:Add" value="Add Role(s)" class="btn btn-success btn-block" />
-
                                     </div>
                                 </div>
-
                             </div>
                         </div>
-
                     </div>
                 </form>
             </div>
         </div>
-
 
         @* Add/Remove from Projects *@
         <div class="row">
@@ -164,7 +155,6 @@
                                     </div>
                                 </div>
 
-
                                 <div class="row p-1">
                                     <div class="col-12">
                                         <h5>Step 2: Select Projects</h5>
@@ -177,10 +167,7 @@
                                         </div>
                                     </div>
                                 </div>
-
-
                             </div>
-
                         </div>
 
                         <div class="card-footer">
@@ -190,11 +177,9 @@
                                 </div>
                                 <div class="col-xl-6">
                                     <input type="submit" name="projectUsers:Add" value="Add User(s)" class="btn btn-success btn-block" />
-
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </form>
             </div>
@@ -240,7 +225,6 @@
     </div>
 </div>
 
-
 @section Scripts {
 
     @*navbar selection update*@
@@ -251,7 +235,6 @@
         $("#navAdminFolder").addClass("active");
         $("#navAdmin_UserAlloc").addClass("active");
     </script>
-
 
     @*select2 Init*@
     <script>
@@ -272,14 +255,12 @@
         $("#usertable").DataTable();
     </script>
 
-
     @*if project allocation messages contain values, unhide the project allocation card, and scroll to it*@
     @if( ViewBag.UserProjectAllocMessages != null || ViewBag.UserProjectAllocErrors != null ) {
         <script>
             $("#userAssignProjectCardCollapseIcon").removeClass("fa-plus");
             $("#userAssignProjectCardCollapseIcon").addClass("fa-minus");
             $("#userAssignProjectCard").removeClass("collapsed-card");
-
 
             document.getElementById("userAssignProjectCard").scrollIntoView();
         </script>
@@ -295,7 +276,5 @@
             document.getElementById("userAssignRoleCard").scrollIntoView();
         </script>
     }
-
-
 
 }

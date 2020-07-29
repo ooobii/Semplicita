@@ -16,8 +16,6 @@
     <p class="lead">Here you can manipulate the flow of how tickets reach completion within projects.</p>
 </div>
 
-
-
 @* Help *@
 <div class="row">
     <div class="col-xl-12 p-3">
@@ -42,10 +40,8 @@
                     options avaialble to Reporters and Solvers working within the project.
                 </p>
             </div>
-
         </div>
     </div>
-
 </div>
 
 @* Tables *@
@@ -147,7 +143,6 @@
                             </div>
                         </div>
 
-
                         <div class="row p-1">
                             <div class="col-12">
                                 <h5>Step 2: Select Workflow</h5>
@@ -160,13 +155,8 @@
                                 </div>
                             </div>
                         </div>
-
-
                     </div>
-
                 </div>
-
-
 
                 <div class="card-footer">
                     <div class="col">
@@ -175,19 +165,16 @@
                                 <input type="submit" name="projWorkflow:Set" value="Set Workflow" class="btn btn-success btn-block" />
                             </div>
                         </div>
-
                     </div>
                 </div>
-
             </div>
         </form>
     </div>
 
-
     @* Add/Remove Users from Projects *@
     <div class="col-xl-6">
         <form action="" method="post">
-            @Html.AntiForgeryToken() 
+            @Html.AntiForgeryToken()
             @Html.Hidden("ReturningViewName", "ProjectConfiguration")
             <div class="card card-default collapsed-card" id="userAssignProjectCard">
                 <div class="card-header" style="background-color:#F0F0F0">
@@ -231,7 +218,6 @@
                             </div>
                         </div>
 
-
                         <div class="row p-1">
                             <div class="col-12">
                                 <h5>Step 2: Select Projects</h5>
@@ -254,18 +240,13 @@
                         </div>
                         <div class="col-xl-6">
                             <input type="submit" name="projectUsers:Add" value="Add User(s)" class="btn btn-success btn-block" />
-
                         </div>
                     </div>
                 </div>
-
             </div>
         </form>
     </div>
-
 </div>
-
-
 
 @section Scripts {
 
@@ -277,7 +258,6 @@
         $("#navAdminFolder").addClass("active");
         $("#navAdmin_Projects").addClass("active");
     </script>
-
 
     @*select2 Init*@
     <script>
@@ -298,14 +278,12 @@
         $("#projtable").DataTable();
     </script>
 
-
     @*if project allocation messages contain values, unhide the project allocation card, and scroll to it*@
     @if( ViewBag.UserProjectAllocMessages != null || ViewBag.UserProjectAllocErrors != null ) {
         <script>
             $("#userAssignProjectCardCollapseIcon").removeClass("fa-plus");
             $("#userAssignProjectCardCollapseIcon").addClass("fa-minus");
             $("#userAssignProjectCard").removeClass("collapsed-card");
-
 
             document.getElementById("userAssignProjectCard").scrollIntoView();
         </script>
@@ -321,6 +299,5 @@
             document.getElementById("projAssignWorkflowCard").scrollIntoView();
         </script>
     }
-
 
 }

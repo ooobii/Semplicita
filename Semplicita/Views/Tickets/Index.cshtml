@@ -24,9 +24,8 @@
                             <a class="dropdown-item" href="@Url.Action("Create", "Tickets", new { p.TicketTag })">@p.Name</a>
                         }
                     } else {
-                        <div class="dropdown-item"><h6 class="text-secondary">You are not a member of a project.</h6></div>}
+                        <div class="dropdown-item"><h6 class="text-secondary">You are not a member of any project yet!</h6></div>}
                     }
-
                 </div>
             </div>
         </p>
@@ -37,7 +36,6 @@
     <div class="col">
         <div class="card">
             <div class="card-header">
-
             </div>
 
             <div class="card-body">
@@ -96,13 +94,8 @@
                     </tbody>
                 </table>
             </div>
-
         </div>
     </div>
-
-
-
-
 </div>
 
 @section Scripts {

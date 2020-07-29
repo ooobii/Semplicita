@@ -40,7 +40,7 @@ namespace Semplicita.Models
         public string Description { get; set; }
 
         [Required]
-        [StringLength(3, MinimumLength = 1)]
+        [StringLength( 3, MinimumLength = 1 )]
         public string TicketTag { get; set; }
 
         [Required]

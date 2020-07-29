@@ -1,7 +1,6 @@
 ﻿using Semplicita.Helpers;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Security.Principal;
 
@@ -52,8 +51,7 @@ namespace Semplicita.Models
 
         public bool CanTicketOwnerSetStatusOnInteract { get; set; }
 
-        public List<TicketStatus> GetAvailableStatuses(int TicketId, IPrincipal User, ApplicationDbContext context)
-        {
+        public List<TicketStatus> GetAvailableStatuses( int TicketId, IPrincipal User, ApplicationDbContext context ) {
             var ticket = context.Tickets.Find(TicketId);
             var tPerm = new PermissionsHelper.TicketPermissionsContainer(new PermissionsHelper(context), User, TicketId);
             var uPerm = new PermissionsHelper.PermissionsContainer(new PermissionsHelper(context), User, false);
@@ -61,95 +59,76 @@ namespace Semplicita.Models
             var currStatus = ticket.TicketStatus;
 
             var output = new List<TicketStatus>();
-            output.AddRange(context.TicketStatuses.ToList());
-            foreach (var s in context.TicketStatuses.ToList())
-            {
-                if (s.Name == "Pending") { Debugger.Break(); }
+            output.AddRange( context.TicketStatuses.ToList() );
+            foreach ( var s in context.TicketStatuses.ToList() ) {
                 //if the status is only available to staff, and the user is not staff, remove it.
-                if (s.IsForStaff && !uPerm.IsUserStaff)
-                {
-                    output.Remove(s);
+                if ( s.IsForStaff && !uPerm.IsUserStaff ) {
+                    output.Remove( s );
                     continue;
                 }
 
                 //if the status is only available to reporters, and the user is not the ticket's reporter, remove it.
-                if (s.IsForReporter && !tPerm.IsTicketOwner)
-                {
-                    output.Remove(s);
+                if ( s.IsForReporter && !tPerm.IsTicketOwner ) {
+                    output.Remove( s );
                     continue;
                 }
 
                 //the ticket has been started, only show statuses where the ticket was already started.
-                if (currStatus.IsStarted)
-                {
-                    if (s.IsStarted == false)
-                    {
-                        output.Remove(s);
+                if ( currStatus.IsStarted ) {
+                    if ( s.IsStarted == false ) {
+                        output.Remove( s );
                         continue;
                     }
                 }
 
-                if (ticket.AssignedSolverId == null)
-                {
+                if ( ticket.AssignedSolverId == null ) {
                     //no solver is assigned, remove statuses that require the ticket to be assigned.
-                    if (s.MustBeAssigned == true)
-                    {
-                        output.Remove(s);
+                    if ( s.MustBeAssigned == true ) {
+                        output.Remove( s );
                         continue;
                     }
-                }
-                else
-                {
+                } else {
                     //solver is alredy assigned, remove statuses that dont require solver
-                    if (s.MustBeAssigned == false)
-                    {
-                        output.Remove(s);
+                    if ( s.MustBeAssigned == false ) {
+                        output.Remove( s );
                         continue;
                     }
                 }
 
                 //if the ticket has been resolved, remove statuses that dont require it being solved.
-                if (currStatus.IsResolved)
-                {
-                    if (s.IsResolved == false)
-                    {
-                        output.Remove(s);
+                if ( currStatus.IsResolved ) {
+                    if ( s.IsResolved == false ) {
+                        output.Remove( s );
                         continue;
                     }
                 }
 
                 //if the ticket has been closed, remove statuses that dont require it to be closed.
-                if (currStatus.IsClosed)
-                {
-                    if (s.IsClosed == false)
-                    {
-                        output.Remove(s);
+                if ( currStatus.IsClosed ) {
+                    if ( s.IsClosed == false ) {
+                        output.Remove( s );
                         continue;
                     }
                 }
 
                 //if the ticket has been canceled, remove statuses that dont require it to be cancled.
-                if (currStatus.IsCanceled)
-                {
-                    if (s.IsCanceled == false)
-                    {
-                        output.Remove(s);
+                if ( currStatus.IsCanceled ) {
+                    if ( s.IsCanceled == false ) {
+                        output.Remove( s );
                         continue;
                     }
                 }
 
                 //if the ticket has been canceled, remove statuses that dont require it to be cancled.
-                if (currStatus.IsStarted)
-                {
-                    if (s.IsStarted == false)
-                    {
-                        output.Remove(s);
+                if ( currStatus.IsStarted ) {
+                    if ( s.IsStarted == false ) {
+                        output.Remove( s );
                         continue;
                     }
                 }
             }
 
-            if (!output.Contains(currStatus)) { output.Add(currStatus); }
+            if ( !output.Contains( currStatus ) ) { output.Add( currStatus ); }
 
             return output;
         }

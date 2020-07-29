@@ -3,6 +3,7 @@ using Semplicita.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
@@ -10,6 +11,7 @@ using System.Web.Mvc;
 namespace Semplicita.Controllers
 {
     [Authorize]
+    [SuppressMessage("ReSharper", "Mvc.ViewNotResolved")]
     public class ProjectsController : Controller
     {
         public ApplicationDbContext db = new ApplicationDbContext();
@@ -17,17 +19,15 @@ namespace Semplicita.Controllers
         private TicketsHelper ticketsHelper;
         private PermissionsHelper _permissionsHelper;
 
-        public ProjectsController()
-        {
-            projHelper = new ProjectHelper(db);
-            ticketsHelper = new TicketsHelper(db);
-            _permissionsHelper = new PermissionsHelper(db);
+        public ProjectsController() {
+            projHelper = new ProjectHelper( db );
+            ticketsHelper = new TicketsHelper( db );
+            _permissionsHelper = new PermissionsHelper( db );
         }
 
         // GET: Projects
-        [Route("projects")]
-        public ActionResult Index()
-        {
+        [Route( "projects" )]
+        public ActionResult Index() {
             var projects = projHelper.GetProjectsAvailableToUser(User);
             var availTickets = ticketsHelper.GetTicketsAvailableToUser(User);
 
@@ -38,27 +38,23 @@ namespace Semplicita.Controllers
 
                 AvailableTickets = availTickets
             };
-            return View(viewModel);
+            return View( viewModel );
         }
 
         // View
-        [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        [Route("projects/create")]
-        public ActionResult New()
-        {
+        [Authorize( Roles = "ServerAdmin,ProjectAdmin" )]
+        [Route( "projects/create" )]
+        public ActionResult New() {
             var projAdmins = new List<ApplicationUser>();
             var availMembers = new List<ApplicationUser>();
 
-            foreach (ApplicationUser u in db.Users)
-            {
+            foreach ( ApplicationUser u in db.Users ) {
                 var roles = _permissionsHelper.ListUserRoles(u.Id);
-                if (roles.Contains("SuperSolver") || roles.Contains("Solver") || roles.Contains("Reporter"))
-                {
-                    availMembers.Add(u);
+                if ( roles.Contains( "SuperSolver" ) || roles.Contains( "Solver" ) || roles.Contains( "Reporter" ) ) {
+                    availMembers.Add( u );
                 }
-                if (roles.Contains("ProjectAdmin"))
-                {
-                    projAdmins.Add(u);
+                if ( roles.Contains( "ProjectAdmin" ) ) {
+                    projAdmins.Add( u );
                 }
             }
 
@@ -69,19 +65,17 @@ namespace Semplicita.Controllers
                 Workflows = db.ProjectWorkflows.ToList()
             };
 
-            return View(viewModel);
+            return View( viewModel );
         }
 
         // Post
-        [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
+        [Authorize( Roles = "ServerAdmin,ProjectAdmin" )]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult CreateNew(NewProjectModel project)
-        {
-            if (ModelState.IsValid)
-            {
+        public ActionResult CreateNew( NewProjectModel project ) {
+            if ( ModelState.IsValid ) {
                 var projectMembers = new List<ApplicationUser>();
-                projectMembers.AddRange(db.Users.Where(u => project.MemberIds.Contains(u.Id)));
+                projectMembers.AddRange( db.Users.Where( u => project.MemberIds.Contains( u.Id ) ) );
 
                 var newProject = new Project()
                 {
@@ -95,24 +89,21 @@ namespace Semplicita.Controllers
                     Members = projectMembers
                 };
 
-                db.Projects.Add(newProject);
+                db.Projects.Add( newProject );
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction( "Index" );
             }
 
-            return View(project);
+            return View( project );
         }
 
-        [Route("project/{tickettag}")]
-        public ActionResult Project(string TicketTag)
-        {
-            if (TicketTag == null)
-            {
-                return View(db.Projects.ToList());
+        [Route( "project/{tickettag}" )]
+        public ActionResult Project( string TicketTag ) {
+            if ( TicketTag == null ) {
+                return View( db.Projects.ToList() );
             }
             Project project = db.Projects.FirstOrDefault(p => p.TicketTag == TicketTag);
-            if (project == null)
-            {
+            if ( project == null ) {
                 return HttpNotFound();
             }
 
@@ -126,37 +117,31 @@ namespace Semplicita.Controllers
                 Tickets = new Project.TicketsContainer(project)
             };
 
-            return View("Show", viewModel);
+            return View( "Show", viewModel );
         }
 
         // GET: Projects/Edit/5
-        [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        [Route("project/{tickettag}/edit")]
-        public ActionResult Edit(string TicketTag)
-        {
-            if (TicketTag == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+        [Authorize( Roles = "ServerAdmin,ProjectAdmin" )]
+        [Route( "project/{tickettag}/edit" )]
+        public ActionResult Edit( string TicketTag ) {
+            if ( TicketTag == null ) {
+                return new HttpStatusCodeResult( HttpStatusCode.BadRequest );
             }
             Project project = db.Projects.FirstOrDefault(p => p.TicketTag == TicketTag);
-            if (project == null)
-            {
+            if ( project == null ) {
                 return HttpNotFound();
             }
 
             var projAdmins = new List<ApplicationUser>();
             var availMembers = new List<ApplicationUser>();
 
-            foreach (ApplicationUser u in db.Users)
-            {
+            foreach ( ApplicationUser u in db.Users ) {
                 var roles = _permissionsHelper.ListUserRoles(u.Id);
-                if (roles.Contains("SuperSolver") || roles.Contains("Solver") || roles.Contains("Reporter"))
-                {
-                    availMembers.Add(u);
+                if ( roles.Contains( "SuperSolver" ) || roles.Contains( "Solver" ) || roles.Contains( "Reporter" ) ) {
+                    availMembers.Add( u );
                 }
-                if (roles.Contains("ProjectAdmin"))
-                {
-                    projAdmins.Add(u);
+                if ( roles.Contains( "ProjectAdmin" ) ) {
+                    projAdmins.Add( u );
                 }
             }
 
@@ -167,20 +152,18 @@ namespace Semplicita.Controllers
                 AvailableMembers = availMembers,
                 Workflows = db.ProjectWorkflows.ToList()
             };
-            return View(veiwModel);
+            return View( veiwModel );
         }
 
         // POST: Projects/Edit/5
-        [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
+        [Authorize( Roles = "ServerAdmin,ProjectAdmin" )]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditProject(EditProjectModel model)
-        {
-            if (ModelState.IsValid)
-            {
+        public ActionResult EditProject( EditProjectModel model ) {
+            if ( ModelState.IsValid ) {
                 Project project = db.Projects.Find(model.ProjectId);
                 var projectMembers = new List<ApplicationUser>();
-                projectMembers.AddRange(db.Users.Where(u => model.MemberIds.Contains(u.Id)));
+                projectMembers.AddRange( db.Users.Where( u => model.MemberIds.Contains( u.Id ) ) );
 
                 project.Name = model.Name;
                 project.Description = model.Description;
@@ -190,27 +173,23 @@ namespace Semplicita.Controllers
                 project.ProjectManagerId = model.ProjectManagerId;
                 project.ActiveWorkflowId = model.ActiveWorkflowId;
                 project.Members.Clear();
-                foreach (string uId in model.MemberIds)
-                {
-                    project.Members.Add(db.Users.Find(uId));
+                foreach ( string uId in model.MemberIds ) {
+                    project.Members.Add( db.Users.Find( uId ) );
                 }
 
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction( "Index" );
             }
             var projAdmins = new List<ApplicationUser>();
             var availMembers = new List<ApplicationUser>();
 
-            foreach (ApplicationUser u in db.Users)
-            {
+            foreach ( ApplicationUser u in db.Users ) {
                 var roles = _permissionsHelper.ListUserRoles(u.Id);
-                if (roles.Contains("SuperSolver") || roles.Contains("Solver") || roles.Contains("Reporter"))
-                {
-                    availMembers.Add(u);
+                if ( roles.Contains( "SuperSolver" ) || roles.Contains( "Solver" ) || roles.Contains( "Reporter" ) ) {
+                    availMembers.Add( u );
                 }
-                if (roles.Contains("ProjectAdmin"))
-                {
-                    projAdmins.Add(u);
+                if ( roles.Contains( "ProjectAdmin" ) ) {
+                    projAdmins.Add( u );
                 }
             }
 
@@ -221,46 +200,40 @@ namespace Semplicita.Controllers
                 AvailableMembers = availMembers,
                 Workflows = db.ProjectWorkflows.ToList()
             };
-            return View(veiwModel);
+            return View( veiwModel );
         }
 
         // GET: Projects/Archive/5
-        [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        [Route("project/{tickettag}/archive")]
-        public ActionResult Archive(string TicketTag)
-        {
-            if (TicketTag == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+        [Authorize( Roles = "ServerAdmin,ProjectAdmin" )]
+        [Route( "project/{tickettag}/archive" )]
+        public ActionResult Archive( string TicketTag ) {
+            if ( TicketTag == null ) {
+                return new HttpStatusCodeResult( HttpStatusCode.BadRequest );
             }
             Project project = db.Projects.FirstOrDefault(p => p.TicketTag == TicketTag);
-            if (project == null)
-            {
+            if ( project == null ) {
                 return HttpNotFound();
             }
-            return View(project);
+            return View( project );
         }
 
         // POST: Projects/Archive/5
-        [Authorize(Roles = "ServerAdmin,ProjectAdmin")]
-        [Route("Projects/ArchiveProject")]
+        [Authorize( Roles = "ServerAdmin,ProjectAdmin" )]
+        [Route( "Projects/ArchiveProject" )]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ArchiveProject(string TicketTag)
-        {
+        public ActionResult ArchiveProject( string TicketTag ) {
             Project project = db.Projects.First(p => p.TicketTag == TicketTag);
             project.IsActiveProject = false;
             db.SaveChanges();
-            return RedirectToAction("Index");
+            return RedirectToAction( "Index" );
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
+        protected override void Dispose( bool disposing ) {
+            if ( disposing ) {
                 db.Dispose();
             }
-            base.Dispose(disposing);
+            base.Dispose( disposing );
         }
     }
 }

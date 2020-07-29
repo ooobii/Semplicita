@@ -35,88 +35,84 @@ namespace Semplicita.Models
         public string OldData { get; set; }
         public string NewData { get; set; }
 
-        public HtmlString GetHistoryTitleHtml()
-        {
-            switch (this.EntryType)
-            {
+        public HtmlString GetHistoryTitleHtml() {
+            switch ( this.EntryType ) {
                 case TicketHistoryEntryType.Created:
-                    return new HtmlString($"<u>{User.ShortName}</u> created the ticket '{ParentTicket.GetTicketIdentifier()}'.");
+                    return new HtmlString( $"<u>{User.ShortName}</u> created the ticket '{ParentTicket.GetTicketIdentifier()}'." );
 
                 case TicketHistoryEntryType.AssignedToSolver:
-                    return new HtmlString($"<u>{User.ShortName}</u> <b class=\"text-success\">assigned</b> ticket '{ParentTicket.GetTicketIdentifier()}'");
+                    return new HtmlString( $"<u>{User.ShortName}</u> <b class=\"text-success\">assigned</b> ticket '{ParentTicket.GetTicketIdentifier()}'" );
 
                 case TicketHistoryEntryType.AssignedToNewSolver:
-                    return new HtmlString($"<u>{User.ShortName}</u> <b class=\"text-warning\"><i>re</i>-assigned</b> ticket '{ParentTicket.GetTicketIdentifier()}'");
+                    return new HtmlString( $"<u>{User.ShortName}</u> <b class=\"text-warning\"><i>re</i>-assigned</b> ticket '{ParentTicket.GetTicketIdentifier()}'" );
 
                 case TicketHistoryEntryType.UnassignedFromSolver:
-                    return new HtmlString($"<u>{User.ShortName}</u> <b class=\"text-danger\">unassigned</b> ticket '{ParentTicket.GetTicketIdentifier()}'");
+                    return new HtmlString( $"<u>{User.ShortName}</u> <b class=\"text-danger\">unassigned</b> ticket '{ParentTicket.GetTicketIdentifier()}'" );
 
                 case TicketHistoryEntryType.StatusChanged:
-                    return new HtmlString($"Ticket status was updated by <u>{User.ShortName}</u>.");
+                    return new HtmlString( $"Ticket status was updated by <u>{User.ShortName}</u>." );
 
                 case TicketHistoryEntryType.StatusChangedByWorkflow:
-                    return new HtmlString($"Ticket status was changed by workflow rules.");
+                    return new HtmlString( $"Ticket status was changed by workflow rules." );
 
                 case TicketHistoryEntryType.AttachmentAdded:
-                    return new HtmlString($"<u>{User.ShortName}</u> has uploaded an attachment.");
+                    return new HtmlString( $"<u>{User.ShortName}</u> has uploaded an attachment." );
 
                 case TicketHistoryEntryType.CommentAdded:
-                    return new HtmlString($"<u>{User.ShortName}</u> added a comment.");
+                    return new HtmlString( $"<u>{User.ShortName}</u> added a comment." );
 
                 case TicketHistoryEntryType.TicketTypeModified:
-                    return new HtmlString($"<u>{User.ShortName}</u> updated the ticket type.");
+                    return new HtmlString( $"<u>{User.ShortName}</u> updated the ticket type." );
 
                 case TicketHistoryEntryType.TitleModified:
-                    return new HtmlString($"<u>{User.ShortName}</u> changed the title.");
+                    return new HtmlString( $"<u>{User.ShortName}</u> changed the title." );
 
                 case TicketHistoryEntryType.DescriptionModified:
-                    return new HtmlString($"<u>{User.ShortName}</u> modified the description.");
+                    return new HtmlString( $"<u>{User.ShortName}</u> modified the description." );
 
                 case TicketHistoryEntryType.PriorityChanged:
-                    return new HtmlString($"The ticket's priority was updated by <u>{User.ShortName}</u>.");
+                    return new HtmlString( $"The ticket's priority was updated by <u>{User.ShortName}</u>." );
 
                 case TicketHistoryEntryType.Archived:
-                    return new HtmlString($"This ticket has been archived by <u>{User.ShortName}</u>.");
+                    return new HtmlString( $"This ticket has been archived by <u>{User.ShortName}</u>." );
 
                 default:
-                    return new HtmlString("");
+                    return new HtmlString( "" );
             }
         }
 
-        public HtmlString GetHistoryBodyHtml()
-        {
+        public HtmlString GetHistoryBodyHtml() {
             var db = new ApplicationDbContext();
             //https://localhost:44349/tickets/DEF2
-            switch (this.EntryType)
-            {
+            switch ( this.EntryType ) {
                 case TicketHistoryEntryType.Created:
-                    return new HtmlString($"<h6><b>{this.NewData}</b></h6>");
+                    return new HtmlString( $"<h6><b>{this.NewData}</b></h6>" );
 
                 case TicketHistoryEntryType.AssignedToSolver:
-                    return new HtmlString($"Assigned: <i class=\"fas fa-times-circle text-danger\"></i> <i class=\"fas fa-arrow-right\"></i> {db.Users.Find(this.NewData).FullNameStandard}");
+                    return new HtmlString( $"Assigned: <i class=\"fas fa-times-circle text-danger\"></i> <i class=\"fas fa-arrow-right\"></i> {db.Users.Find( this.NewData ).FullNameStandard}" );
 
                 case TicketHistoryEntryType.AssignedToNewSolver:
-                    return new HtmlString($"Assigned: '{db.Users.Find(this.NewData).FullNameStandard}' <i class=\"fas fa-arrow-left\"></i> <del class=\"text-secondary\">{db.Users.Find(OldData).FullNameStandard}</del>");
+                    return new HtmlString( $"Assigned: '{db.Users.Find( this.NewData ).FullNameStandard}' <i class=\"fas fa-arrow-left\"></i> <del class=\"text-secondary\">{db.Users.Find( OldData ).FullNameStandard}</del>" );
 
                 case TicketHistoryEntryType.UnassignedFromSolver:
-                    return new HtmlString($"Assigned: <del class=\"text-secondary\">{db.Users.Find(this.OldData).FullNameStandard}</del> <i class=\"fas fa-arrow-right\"></i> <i class=\"fas fa-times-circle text-danger\"></i>");
+                    return new HtmlString( $"Assigned: <del class=\"text-secondary\">{db.Users.Find( this.OldData ).FullNameStandard}</del> <i class=\"fas fa-arrow-right\"></i> <i class=\"fas fa-times-circle text-danger\"></i>" );
 
                 case TicketHistoryEntryType.StatusChanged:
                 case TicketHistoryEntryType.StatusChangedByWorkflow:
-                    return new HtmlString($"Status: {db.TicketStatuses.Find(int.Parse(this.OldData)).GetStatusBadgeHtml().ToHtmlString()} <i class=\"fas fa-arrow-right\"></i> {db.TicketStatuses.Find(int.Parse(this.NewData)).GetStatusBadgeHtml().ToHtmlString()}");
+                    return new HtmlString( $"Status: {db.TicketStatuses.Find( int.Parse( this.OldData ) ).GetStatusBadgeHtml().ToHtmlString()} <i class=\"fas fa-arrow-right\"></i> {db.TicketStatuses.Find( int.Parse( this.NewData ) ).GetStatusBadgeHtml().ToHtmlString()}" );
 
                 case TicketHistoryEntryType.AttachmentAdded:
-                    return db.TicketAttachments.Find(int.Parse(NewData)).GetDisplayHtml();
+                    return db.TicketAttachments.Find( int.Parse( NewData ) ).GetDisplayHtml();
 
                 case TicketHistoryEntryType.CommentAdded:
                     var comment = db.TicketComments.Find(int.Parse(NewData));
-                    return new HtmlString($"<h6 class=\"border-bottom\">{comment.Author.FullNameStandard}said:</h6><p class=\"text-sm\">{comment.Body}</p>");
+                    return new HtmlString( $"<h6 class=\"border-bottom\">{comment.Author.FullNameStandard} said:</h6><p class=\"text-sm\">{comment.Body}</p>" );
 
                 case TicketHistoryEntryType.TicketTypeModified:
-                    return new HtmlString($"Issue type: <del class=\"text-secondary\">{db.TicketTypes.Find(int.Parse(this.OldData)).Name}</del> <i class=\"fas fa-arrow-right\"></i> {db.TicketTypes.Find(this.NewData).Name}");
+                    return new HtmlString( $"Issue type: <del class=\"text-secondary\">{db.TicketTypes.Find( int.Parse( this.OldData ) ).Name}</del> <i class=\"fas fa-arrow-right\"></i> {db.TicketTypes.Find( this.NewData ).Name}" );
 
                 case TicketHistoryEntryType.TitleModified:
-                    return new HtmlString($"Title: <del class=\"text-secondary\">{this.OldData}</del> <i class=\"fas fa-arrow-right\"></i> {this.NewData}");
+                    return new HtmlString( $"Title: <del class=\"text-secondary\">{this.OldData}</del> <i class=\"fas fa-arrow-right\"></i> {this.NewData}" );
 
                 case TicketHistoryEntryType.DescriptionModified:
                     return new HtmlString(
@@ -125,13 +121,13 @@ namespace Semplicita.Models
                          "</div></p>" +
                          "<div class=\"card p-3 full-width\">" +
                         $"  {this.NewData}" +
-                         "</div>");
+                         "</div>" );
 
                 case TicketHistoryEntryType.PriorityChanged:
-                    return new HtmlString($"Priority: <del class=\"text-secondary\">{db.TicketPriorityTypes.Find(int.Parse(this.OldData)).Name}</del> <i class=\"fas fa-arrow-right\"></i> {db.TicketPriorityTypes.Find(int.Parse(this.NewData)).Name}");
+                    return new HtmlString( $"Priority: <del class=\"text-secondary\">{db.TicketPriorityTypes.Find( int.Parse( this.OldData ) ).Name}</del> <i class=\"fas fa-arrow-right\"></i> {db.TicketPriorityTypes.Find( int.Parse( this.NewData ) ).Name}" );
 
                 default:
-                    return new HtmlString("");
+                    return new HtmlString( "" );
             }
         }
     }

@@ -16,7 +16,7 @@ namespace Semplicita.Models
         public ApplicationUser Reporter { get; set; }
 
         public Dictionary<string, int> PrioritySelections { get; set; }
-        public Dictionary<string, int> AvailableStatuses { get; set; }
+        public ICollection<TicketStatus> AvailableStatuses { get; set; }
         public ICollection<TicketType> AvailableTicketTypes { get; set; }
     }
 
@@ -60,5 +60,6 @@ namespace Semplicita.Models
         public int TicketId { get; set; }
         public string TicketIdentifier { get; set; }
         public string Body { get; set; }
+        public int StatusId { get; set; }
     }
 }

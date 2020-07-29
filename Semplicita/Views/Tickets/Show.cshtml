@@ -14,7 +14,6 @@
     <p class="lead">@Model.CurrentTicket.Title</p>
 </div>
 
-
 <div class="container">
     <div class="row border-bottom">
 
@@ -22,7 +21,6 @@
             <h2 class="ticket-title">@Model.CurrentTicket.Title</h2>
             <p class="mb-0 text-sm">Created at @Model.CurrentTicket.CreatedAt.ToString("M/d/yyyy h:mm tt") by <b>@Model.CurrentTicket.Reporter.FullNameStandard</b></p>
         </div>
-
     </div>
 
     <div class="row pt-4">
@@ -45,7 +43,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <div class="row">
@@ -68,16 +65,16 @@
                         <div class="card-body">
                             <!-- Conversation -->
                             <div class="direct-chat-messages">
-                                @if( Model.CurrentTicket.Comments.Count > 0 ) {
-                                    foreach( TicketComment comment in Model.CurrentTicket.Comments.OrderBy(c => c.CreatedAt).ToList() ) {
-                                        if( comment.AuthorId == User.Identity.GetUserId() ) {
+                                @if ( Model.CurrentTicket.Comments.Count > 0 ) {
+                                    foreach ( TicketComment comment in Model.CurrentTicket.Comments.OrderBy( c => c.CreatedAt ).ToList() ) {
+                                        if ( comment.AuthorId == User.Identity.GetUserId() ) {
                                             //this user created the comment; show on right
 
                                             <!-- Message to the right -->
                                             <div class="direct-chat-msg right pt-1">
                                                 <div class="direct-chat-infos clearfix">
                                                     <span class="direct-chat-name float-left">@comment.Author.FullNameStandard @comment.Author.GetRoleBadges()</span>
-                                                    <span class="direct-chat-timestamp float-right">@comment.CreatedAt.ToString("d MMM h:mm:ss tt")</span>
+                                                    <span class="direct-chat-timestamp float-right">@comment.CreatedAt.ToString( "d MMM h:mm:ss tt" )</span>
                                                 </div>
                                                 <!-- /.direct-chat-infos -->
                                                 <img class="direct-chat-img" src="@comment.Author.AvatarImagePath">
@@ -88,7 +85,6 @@
                                                 <!-- /.direct-chat-text -->
                                             </div>
 
-
                                         } else {
                                             //another user created the comment; show on left
 
@@ -97,14 +93,14 @@
                                                 <div class="direct-chat-infos clearfix">
                                                     <span class="direct-chat-name float-left">
                                                         @comment.Author.FullNameStandard
-                                                        @if( Model.CurrentTicket.AssignedSolverId == comment.AuthorId ) {
+                                                        @if ( Model.CurrentTicket.AssignedSolverId == comment.AuthorId ) {
                                                             <small class="badge badge-primary align-top">Assigned Solver</small>
                                                         }
-                                                        @if( Model.ParentProject.ProjectManagerId == comment.AuthorId ) {
+                                                        @if ( Model.ParentProject.ProjectManagerId == comment.AuthorId ) {
                                                             <small class="badge bg-gradient-navy white align-top">'@Model.ParentProject.TicketTag' Project Mgr</small>
                                                         } @comment.Author.GetRoleBadges()
                                                     </span>
-                                                    <span class="direct-chat-timestamp float-right">@comment.CreatedAt.ToString("d MMM h:mm:ss tt")</span>
+                                                    <span class="direct-chat-timestamp float-right">@comment.CreatedAt.ToString( "d MMM h:mm:ss tt" )</span>
                                                 </div>
                                                 <img class="direct-chat-img" src="@comment.Author.AvatarImagePath">
                                                 <div class="direct-chat-text">
@@ -123,8 +119,8 @@
                             <!-- Authors -->
                             <div class="direct-chat-contacts">
                                 <ul class="contacts-list">
-                                    @if( Model.CurrentTicket.Comments.Count > 0 ) {
-                                        foreach( ApplicationUser user in Model.CurrentTicket.Comments.Select(c => c.Author).Distinct().ToList() ) {
+                                    @if ( Model.CurrentTicket.Comments.Count > 0 ) {
+                                        foreach ( ApplicationUser user in Model.CurrentTicket.Comments.Select( c => c.Author ).Distinct().ToList() ) {
                                             <li>
                                                 <a>
                                                     <img class="contacts-list-img mr-3" src="@user.AvatarImagePath">
@@ -132,7 +128,7 @@
                                                     <div class="contacts-list-info">
                                                         <span class="contacts-list-name">
                                                             @user.FullNameStandard
-                                                            <small class="contacts-list-date float-right">@Model.CurrentTicket.Comments.Where(c => c.AuthorId == user.Id).Select(c => c.CreatedAt).Min().ToString("M/d/yyyy h:mm:ss tt")</small>
+                                                            <small class="contacts-list-date float-right">@Model.CurrentTicket.Comments.Where( c => c.AuthorId == user.Id ).Select( c => c.CreatedAt ).Min().ToString( "M/d/yyyy h:mm:ss tt" )</small>
                                                         </span>
                                                         <span class="contacts-list-msg">@user.GetRoleBadges()</span>
                                                     </div>
@@ -150,29 +146,58 @@
                                 </ul>
                                 <!-- /.contacts-list -->
                             </div>
-
                         </div>
 
-                        @if( permissions.CanCommentOnTicket ) {
-                            <div class="card-footer">
-                                @using (Html.BeginForm("AddComment", "Tickets", FormMethod.Post)) {
-                                    @Html.AntiForgeryToken()
-                                    @Html.Hidden("TicketId", Model.CurrentTicket.Id)
+                        @if ( permissions.CanCommentOnTicket ) {
+                            if ( permissions.CanUpdateTicketStatus && Model.AvailableStatuses != null && Model.AvailableStatuses.Count > 1 ) {
+                                <div class="card-footer">
+                                    @using ( Html.BeginForm( "AddComment", "Tickets", FormMethod.Post ) ) {
+                                        @Html.AntiForgeryToken()
+                                        @Html.Hidden( "TicketId", Model.CurrentTicket.Id )
 
-                                    <div class="input-group">
-                                        <input type="text" name="Body" placeholder="Type Message ..." class="form-control">
-                                        <span class="input-group-append">
-                                            <button type="submit" class="btn btn-success">Add Comment</button>
-                                        </span>
-                                    </div>
+                                        <div class="input-group">
+                                            <input type="text" name="Body" placeholder="Type Message ..." class="form-control">
+                                            <span class="input-group-append">
+                                                @*<button type="submit" class="btn btn-success">Add Comment</button>*@
+                                                <div class="btn-group dropright">
+                                                    <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        Add Comment
+                                                    </button>
+                                                    <div class="dropdown-menu">
+                                                        <button type="submit" name="StatusId" value="-1" class="dropdown-item text-sm">Use Workflow's Next Status</button>
+                                                        <button type="submit" name="StatusId" value="0" class="dropdown-item text-sm">No Status Change (Ignore Workflow)</button>
+                                                        <div class="dropdown-divider">Add comment</div>
+                                                        @foreach( TicketStatus s in Model.AvailableStatuses ) {
+                                                            <button type="submit" name="StatusId" value="@s.Id" class="dropdown-item text-sm">Set status to @s.GetStatusBadgeHtml()</button>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </span>
+                                        </div>
 
-                                }
-                            </div>
+                                    }
+                                </div>
+
+                            } else {
+                                <div class="card-footer">
+                                    @using ( Html.BeginForm( "AddComment", "Tickets", FormMethod.Post ) ) {
+                                        @Html.AntiForgeryToken()
+                                        @Html.Hidden( "TicketId", Model.CurrentTicket.Id )
+
+                                        <div class="input-group">
+                                            <input type="text" name="Body" placeholder="Type Message ..." class="form-control">
+                                            <span class="input-group-append">
+                                                <button type="submit" name="StatusId" value="-1" class="btn btn-success">Add Comment</button>
+                                            </span>
+                                        </div>
+
+                                    }
+                                </div>
+                            }
 
                         }
                     </div>
                 </div>
-
             </div>
 
             <div class="row border-bottom">
@@ -207,8 +232,6 @@
                                         </div>
                                     }
 
-
-
                                     <div>
                                         <div class="timeline-item">
                                             <span class="time"><i class="fas fa-clock"></i> @the.OccuredAt.ToString("hh:mm:ss tt")</span>
@@ -220,14 +243,10 @@
                                         </div>
                                     </div>
                                 }
-
-
                             </div>
-
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
 
@@ -265,9 +284,7 @@
                                     </div>
                                 </div>
                             }
-
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -364,7 +381,6 @@
                             } else {
                                 <h6 class="text-center p-4">No attachments added yet! 🤔</h6>
                             }
-
                         </div>
                     </div>
                 </div>
@@ -373,11 +389,9 @@
     </div>
 </div>
 
-
 @section Scripts {
     @* bs-custom-file-input *@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bs-custom-file-input/1.3.4/bs-custom-file-input.min.js"></script>
-
 
     @*select2 Init*@
     <script>

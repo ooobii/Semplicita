@@ -47,18 +47,16 @@ namespace Semplicita.Models
         //this status should not update the issue's status if the reporter interacts with the ticket
         public bool ShouldWorkflowContinueReporter { get; set; }
 
-        public HtmlString GetStatusBadgeHtml()
-        {
+        public HtmlString GetStatusBadgeHtml() {
             var style = $"style=\"color: {this.DisplayForeColor}; background-color: {this.DisplayBackColor}; font-size: 12px; font-weight:500;\"";
 
-            return new HtmlString($"<span class=\"badge\" {style}>{this.Display}</span>");
+            return new HtmlString( $"<span class=\"badge\" {style}>{this.Display}</span>" );
         }
 
-        public HtmlString GetStatusBadgeHtml(int fontSize_px)
-        {
+        public HtmlString GetStatusBadgeHtml( int fontSize_px ) {
             var style = $"style=\"color: {this.DisplayForeColor}; background-color: {this.DisplayBackColor}; font-size: {fontSize_px}px; font-weight:bold;\"";
 
-            return new HtmlString($"<span class=\"badge\" {style}>{this.Display}</span>");
+            return new HtmlString( $"<span class=\"badge\" {style}>{this.Display}</span>" );
         }
     }
 }
